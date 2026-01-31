@@ -28,6 +28,7 @@ export interface Product {
 import { API_BASE_URL } from './config';
 
 export async function fetchProducts(filters: { category?: string; subcategory?: string; search?: string } = {}) {
+    if (!API_BASE_URL) return [];
     const params = new URLSearchParams();
     if (filters.category) params.append('category', filters.category);
     if (filters.subcategory) params.append('subcategory', filters.subcategory);
@@ -36,45 +37,51 @@ export async function fetchProducts(filters: { category?: string; subcategory?: 
     const query = params.toString();
     const url = `${API_BASE_URL}/products${query ? `?${query}` : ''}`;
 
-    console.log('🌐 Fetching from URL:', url);
-
     try {
-        const response = await fetch(url);
-        console.log('📡 Response status:', response.status, response.statusText);
-
-        if (!response.ok) {
-            console.error('❌ Response not OK:', response.status);
-            throw new Error('Failed to fetch products');
-        }
-
-        const data = await response.json();
-        console.log('📦 Received data:', Array.isArray(data) ? `Array with ${data.length} items` : typeof data);
-        return data;
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error('Failed to fetch products');
+        return await response.json();
     } catch (error) {
         console.error('❌ Fetch error:', error);
-        throw error;
+        return [];
     }
 }
 
 export async function fetchProductById(id: number) {
-    const response = await fetch(`${API_BASE_URL}/products/${id}`);
-    if (!response.ok) throw new Error('Product not found');
-    return response.json();
+    if (!API_BASE_URL) return null;
+    try {
+        const response = await fetch(`${API_BASE_URL}/products/${id}`, { cache: 'no-store' });
+        if (!response.ok) return null;
+        return await response.json();
+    } catch {
+        return null;
+    }
 }
 
 export async function fetchCategories() {
-    const response = await fetch(`${API_BASE_URL}/categories`);
-    if (!response.ok) throw new Error('Failed to fetch categories');
-    return response.json();
+    if (!API_BASE_URL) return [];
+    try {
+        const response = await fetch(`${API_BASE_URL}/categories`, { cache: 'no-store' });
+        if (!response.ok) return [];
+        return await response.json();
+    } catch {
+        return [];
+    }
 }
 
 export async function fetchTestimonials() {
-    const response = await fetch(`${API_BASE_URL}/testimonials`);
-    if (!response.ok) throw new Error('Failed to fetch testimonials');
-    return response.json();
+    if (!API_BASE_URL) return [];
+    try {
+        const response = await fetch(`${API_BASE_URL}/testimonials`, { cache: 'no-store' });
+        if (!response.ok) return [];
+        return await response.json();
+    } catch {
+        return [];
+    }
 }
 
 export async function submitContactForm(data: { name: string; email: string; subject?: string; message: string }) {
+    if (!API_BASE_URL) throw new Error('API URL not configured');
     const response = await fetch(`${API_BASE_URL}/contact`, {
         method: 'POST',
         headers: {

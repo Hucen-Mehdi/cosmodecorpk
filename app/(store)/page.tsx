@@ -7,6 +7,9 @@ import { fetchProducts, fetchCategories, fetchTestimonials, Product, Category } 
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
     title: 'CosmoDecorPK | Premium Artificial Plants & Home Decor in Pakistan',
     description: 'Transform your space with CosmoDecorPK - Pakistan\'s premium home decor brand. Shop lifelike artificial plants, floral arrangements, and elegant decor items with fast nationwide delivery.',

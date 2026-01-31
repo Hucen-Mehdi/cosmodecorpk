@@ -2,6 +2,9 @@ import { fetchProducts, fetchCategories } from '@/src/api/api';
 import ProductsClient from './ProductsClient';
 import { Metadata } from 'next';
 
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 export const metadata: Metadata = {
     title: 'All Products | CosmoDecorPK - Premium Home Decor',
     description: 'Explore our full range of premium artificial plants, silk flowers, vases, and home decor. Nationwide delivery across Pakistan with the best quality guaranteed.',

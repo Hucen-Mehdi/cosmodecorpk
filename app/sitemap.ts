@@ -1,3 +1,6 @@
+export const dynamic = 'force-dynamic';
+export const revalidate = 0;
+
 import { fetchProducts, fetchCategories, Product, Category } from '@/src/api/api';
 import { MetadataRoute } from 'next';
 

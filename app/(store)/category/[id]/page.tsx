@@ -4,9 +4,6 @@ import { ProductCard } from '@/src/components/ProductCard';
 import { fetchProducts, fetchCategories, Product, Category as CategoryType } from '@/src/api/api';
 import { Metadata } from 'next';
 
-/**
- * ✅ Force runtime rendering (NO build-time fetching)
- */
 export const dynamic = 'force-dynamic';
 export const revalidate = 0;
 
@@ -15,9 +12,6 @@ type Props = {
   searchParams: { sub?: string };
 };
 
-/**
- * ✅ SAFE metadata (NO API calls at build time)
- */
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const categoryName = params.id.replace('-', ' ');
 
@@ -26,11 +20,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description: `Explore our premium collection of ${categoryName} at CosmoDecorPK.`,
   };
 }
-
-/**
- * ❌ REMOVED generateStaticParams
- * This was causing Vercel build failures
- */
 
 export default async function CategoryPage({ params, searchParams }: Props) {
   const { id } = params;
@@ -60,7 +49,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   if (categoryProducts.length === 0 && !category) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center transition-colors duration-200">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
             Category Not Found
@@ -79,8 +68,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
     category?.image ||
     'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=1200&h=600&fit=crop';
 
+  const hasSubcategories =
+    Array.isArray(category?.subcategories) &&
+    category.subcategories.length > 0;
+
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Hero Banner */}
       <div className="relative h-64 md:h-80">
         <img
@@ -92,23 +85,19 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         <div className="absolute inset-0 flex items-center">
           <div className="max-w-7xl mx-auto px-4 w-full">
             <nav className="flex items-center gap-2 text-white/80 text-sm mb-4">
-              <Link href="/" className="hover:text-white">
-                Home
-              </Link>
+              <Link href="/" className="hover:text-white">Home</Link>
               <ChevronRight className="w-4 h-4" />
-              <Link href="/products" className="hover:text-white">
-                Products
-              </Link>
+              <Link href="/products" className="hover:text-white">Products</Link>
               <ChevronRight className="w-4 h-4" />
               <span className="text-white">{categoryName}</span>
             </nav>
-            <div className="flex items-center gap-3 sm:gap-4">
-              <span className="text-3xl sm:text-5xl">{categoryIcon}</span>
+            <div className="flex items-center gap-3">
+              <span className="text-4xl">{categoryIcon}</span>
               <div>
-                <h1 className="text-2xl sm:text-3xl md:text-5xl font-bold text-white">
+                <h1 className="text-3xl md:text-5xl font-bold text-white">
                   {categoryName}
                 </h1>
-                <p className="text-white/80 mt-1 sm:mt-2 text-sm">
+                <p className="text-white/80">
                   {categoryProducts.length} Products
                 </p>
               </div>
@@ -117,34 +106,28 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 py-8 sm:py-12">
+      <div className="max-w-7xl mx-auto px-4 py-10">
         {/* Subcategories */}
-        {category?.subcategories?.length > 0 && (
-          <div className="mb-8 sm:mb-12">
-            <h2 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-white mb-4">
-              Shop by Type
-            </h2>
-            <div className="flex flex-wrap gap-2 sm:gap-3">
+        {hasSubcategories && (
+          <div className="mb-10">
+            <h2 className="text-xl font-semibold mb-4">Shop by Type</h2>
+            <div className="flex flex-wrap gap-3">
               <Link
                 href={`/category/${id}`}
-                className={`px-4 py-2 sm:px-6 sm:py-3 rounded-full text-sm sm:text-base transition-colors shadow-sm ${
-                  !subFilter
-                    ? 'bg-rose-500 text-white shadow-rose-500/20'
-                    : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-rose-400 hover:text-rose-500'
-                }`}
+                className={!subFilter ? 'bg-rose-500 text-white px-4 py-2 rounded-full' : 'px-4 py-2 rounded-full border'}
               >
                 All
               </Link>
 
-              {category.subcategories.map((sub: any) => (
+              {category!.subcategories!.map((sub: any) => (
                 <Link
                   key={sub.id}
                   href={`/category/${id}?sub=${sub.id}`}
-                  className={`px-4 py-2 sm:px-6 sm:py-3 rounded-full text-sm sm:text-base transition-colors shadow-sm ${
+                  className={
                     subFilter === sub.id
-                      ? 'bg-rose-500 text-white shadow-rose-500/20'
-                      : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-700 dark:text-gray-300 hover:border-rose-400 hover:text-rose-500'
-                  }`}
+                      ? 'bg-rose-500 text-white px-4 py-2 rounded-full'
+                      : 'px-4 py-2 rounded-full border'
+                  }
                 >
                   {sub.name}
                 </Link>
@@ -153,26 +136,12 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           </div>
         )}
 
-        {/* Products Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
-          {categoryProducts.map((product: Product) => (
+        {/* Products */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          {categoryProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>
-
-        {categoryProducts.length === 0 && (
-          <div className="text-center py-16">
-            <p className="text-gray-500 dark:text-gray-400 text-lg mb-4">
-              No products in this category yet.
-            </p>
-            <Link
-              href="/products"
-              className="inline-flex items-center gap-2 text-rose-500 font-medium hover:underline"
-            >
-              Browse All Products
-            </Link>
-          </div>
-        )}
       </div>
     </div>
   );

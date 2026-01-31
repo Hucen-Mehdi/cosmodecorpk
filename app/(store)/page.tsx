@@ -1,4 +1,5 @@
 export const dynamic = 'force-dynamic';
+export const revalidate = 0;
 
 import { ArrowRight, Truck, Shield, CreditCard, Headphones, Star } from 'lucide-react';
 import Link from 'next/link';
@@ -6,9 +7,6 @@ import { ProductCard } from '@/src/components/ProductCard';
 import { fetchProducts, fetchCategories, fetchTestimonials, Product, Category } from '@/src/api/api';
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { Metadata } from 'next';
-
-export const dynamic = 'force-dynamic';
-export const revalidate = 0;
 
 export const metadata: Metadata = {
     title: 'CosmoDecorPK | Premium Artificial Plants & Home Decor in Pakistan',

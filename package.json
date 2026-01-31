@@ -1,0 +1,50 @@
+{
+  "name": "cosmodecor-next",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:server\"",
+    "dev:frontend": "next dev",
+    "dev:server": "nodemon --exec ts-node server/src/index.ts",
+    "build": "npm run build:frontend && npm run build:server",
+    "build:frontend": "next build",
+    "build:server": "tsc -p server/tsconfig.json",
+    "start": "concurrently \"npm run start:frontend\" \"npm run start:server\"",
+    "start:frontend": "next start",
+    "start:server": "node server/dist/index.js",
+    "db:migrate": "ts-node server/src/db/migrate.ts",
+    "db:seed": "ts-node server/src/scripts/seedFromJson.ts"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "clsx": "2.1.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "lucide-react": "^0.563.0",
+    "next": "14.2.14",
+    "pg": "^8.17.2",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwind-merge": "3.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.1.18",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.6",
+    "@types/jsonwebtoken": "^9.0.10",
+    "@types/node": "^22.19.7",
+    "@types/pg": "^8.16.0",
+    "@types/react": "18.3.11",
+    "@types/react-dom": "18.3.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.2.1",
+    "nodemon": "^3.1.11",
+    "postcss": "^8.4.47",
+    "tailwindcss": "4.1.17",
+    "ts-node": "^10.9.2",
+    "typescript": "5.9.3"
+  }
+}

@@ -1,0 +1,26 @@
+[
+    {
+        "id": 1,
+        "name": "Sarah Ahmed",
+        "location": "Karachi",
+        "image": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop",
+        "rating": 5,
+        "text": "Absolutely love my artificial plants from CosmoDecorPK! They look so real and the quality is amazing. My home looks so lively now!"
+    },
+    {
+        "id": 2,
+        "name": "Ali Hassan",
+        "location": "Lahore",
+        "image": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop",
+        "rating": 5,
+        "text": "Best home decor shopping experience ever. The Ramadan collection was beautiful and delivery was super fast. Highly recommend!"
+    },
+    {
+        "id": 3,
+        "name": "Fatima Khan",
+        "location": "Islamabad",
+        "image": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop",
+        "rating": 5,
+        "text": "The wall mirrors and corner decor pieces exceeded my expectations. Beautiful designs and excellent craftsmanship!"
+    }
+]

@@ -1,0 +1,208 @@
+"use client";
+
+import Link from 'next/link';
+import { usePathname, useRouter } from 'next/navigation';
+import { LayoutDashboard, ShoppingBag, FolderTree, ArrowLeft, Menu, X, LogOut, ClipboardList, Bell, Check, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useAuth } from '@/src/context/AuthContext';
+import { fetchNotifications, markNotificationAsRead } from '@/src/api/admin';
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [notifications, setNotifications] = useState<any[]>([]);
+    const [showNotifs, setShowNotifs] = useState(false);
+    const pathname = usePathname();
+    const { user, loading, isAdmin, logout } = useAuth();
+    const router = useRouter();
+
+    const loadNotifs = async () => {
+        try {
+            const data = await fetchNotifications();
+            setNotifications(data);
+        } catch (err) {
+            console.error('Failed to fetch notifications');
+        }
+    };
+
+    useEffect(() => {
+        if (!loading && user && isAdmin) {
+            loadNotifs();
+            const interval = setInterval(loadNotifs, 30000);
+            return () => clearInterval(interval);
+        }
+    }, [loading, user, isAdmin]);
+
+    useEffect(() => {
+        if (!loading && (!user || !isAdmin)) {
+            router.push(user ? '/' : '/login');
+        }
+    }, [user, loading, isAdmin, router]);
+
+    if (loading || !user || !isAdmin) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+            </div>
+        );
+    }
+
+    const handleMarkRead = async (id: number) => {
+        try {
+            await markNotificationAsRead(id);
+            setNotifications(notifications.map(n => n.id === id ? { ...n, is_read: true } : n));
+        } catch (err) {
+            console.error('Failed to mark read');
+        }
+    };
+
+    const unreadCount = notifications.filter(n => !n.is_read).length;
+
+    const menuItems = [
+        { name: 'Dashboard', path: '/admin/dashboard', icon: LayoutDashboard },
+        { name: 'Products', path: '/admin/products', icon: ShoppingBag },
+        { name: 'Categories', path: '/admin/categories', icon: FolderTree },
+        { name: 'Orders', path: '/admin/orders', icon: ClipboardList },
+    ];
+
+    return (
+        <div className="min-h-screen bg-gray-50 text-gray-900 flex flex-col md:flex-row font-sans selection:bg-rose-100 selection:text-rose-600">
+            {/* Mobile Header */}
+            <header className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
+                <Link href="/admin/dashboard" className="flex items-center gap-2">
+                    <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-orange-400 rounded-lg flex items-center justify-center">
+                        <span className="text-white font-bold">C</span>
+                    </div>
+                    <span className="font-bold text-lg">Admin Panel</span>
+                </Link>
+                <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="p-2 text-gray-500 bg-gray-50 rounded-lg">
+                    {isSidebarOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+                </button>
+            </header>
+
+            {/* Sidebar Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-gray-900/50 backdrop-blur-sm z-40 md:hidden"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
+            {/* Sidebar */}
+            <aside className={`fixed md:sticky top-0 left-0 bottom-0 w-72 bg-white border-r border-gray-200 z-50 transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+                <div className="p-6 h-full flex flex-col">
+                    <div className="hidden md:flex items-center gap-3 mb-10">
+                        <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg shadow-rose-100">
+                            <span className="text-white font-bold text-xl">C</span>
+                        </div>
+                        <div>
+                            <h1 className="font-bold text-gray-900">CosmoDecor<span className="text-rose-500">PK</span></h1>
+                            <p className="text-xs text-gray-500 font-medium tracking-wide border-t border-gray-100 mt-1 pt-1">ADMIN DASHBOARD</p>
+                        </div>
+                    </div>
+
+                    <div className="relative mb-8">
+                        <button
+                            onClick={() => setShowNotifs(!showNotifs)}
+                            className="w-full flex items-center justify-between bg-gray-50 p-4 rounded-2xl hover:bg-rose-50 hover:text-rose-600 transition-all group"
+                        >
+                            <div className="flex items-center gap-3">
+                                <div className="relative">
+                                    <Bell className="w-5 h-5 text-gray-400 group-hover:text-rose-600" />
+                                    {unreadCount > 0 && (
+                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] flex items-center justify-center rounded-full animate-pulse">
+                                            {unreadCount}
+                                        </span>
+                                    )}
+                                </div>
+                                <span className="font-bold text-sm">Notifications</span>
+                            </div>
+                        </button>
+
+                        {showNotifs && (
+                            <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[60] py-4 max-h-80 overflow-y-auto scrollbar-thin animate-in slide-in-from-top-2 duration-200">
+                                <div className="px-4 pb-2 mb-2 border-b border-gray-50 flex justify-between items-center">
+                                    <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recent Activity</span>
+                                    <button onClick={() => setShowNotifs(false)} className="text-[10px] font-bold text-rose-500">Close</button>
+                                </div>
+                                {notifications.length === 0 ? (
+                                    <p className="px-4 py-8 text-center text-xs text-gray-400 italic">No notifications yet</p>
+                                ) : (
+                                    notifications.map(n => (
+                                        <div key={n.id} className={`px-4 py-3 hover:bg-gray-50 transition-colors relative ${!n.is_read ? 'bg-rose-50/30' : ''}`}>
+                                            <div className="flex justify-between gap-2 mb-1">
+                                                <p className="font-bold text-gray-800 text-xs">{n.title}</p>
+                                                {!n.is_read && (
+                                                    <button onClick={() => handleMarkRead(n.id)} className="p-1 hover:bg-rose-100 rounded-md text-rose-500">
+                                                        <Check className="w-3 h-3" />
+                                                    </button>
+                                                )}
+                                            </div>
+                                            <p className="text-[10px] text-gray-500 line-clamp-2">{n.message}</p>
+                                            <p className="text-[8px] text-gray-400 mt-2 font-medium">
+                                                {new Date(n.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                            </p>
+                                        </div>
+                                    ))
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    <nav className="flex-1 space-y-2">
+                        {menuItems.map((item) => (
+                            <Link
+                                key={item.path}
+                                href={item.path}
+                                onClick={() => setIsSidebarOpen(false)}
+                                className={`flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-200 ${pathname === item.path
+                                    ? 'bg-rose-50 text-rose-600 shadow-sm'
+                                    : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
+                                    }`}
+                            >
+                                <item.icon className={`w-5 h-5 ${pathname === item.path ? 'text-rose-500' : 'text-gray-400'}`} />
+                                {item.name}
+                            </Link>
+                        ))}
+                    </nav>
+
+                    <div className="pt-6 border-t border-gray-100 mt-6 space-y-2">
+                        <Link
+                            href="/"
+                            className="flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all"
+                        >
+                            <ArrowLeft className="w-5 h-5 text-gray-400" />
+                            Storefront
+                        </Link>
+                        <button
+                            onClick={logout}
+                            className="w-full flex items-center gap-3 px-4 py-3.5 rounded-xl font-semibold text-red-500 hover:bg-red-50 transition-all text-left"
+                        >
+                            <LogOut className="w-5 h-5" />
+                            Logout
+                        </button>
+                    </div>
+
+                    <div className="mt-8 bg-gray-50 rounded-2xl p-4 border border-gray-100">
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Active Admin</p>
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center font-bold text-rose-500 shadow-sm border border-gray-100">
+                                {user?.name?.charAt(0)}
+                            </div>
+                            <div className="truncate">
+                                <p className="text-sm font-bold text-gray-900 truncate">{user?.name}</p>
+                                <p className="text-[10px] font-medium text-gray-500 uppercase tracking-wider">Full Access</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            {/* Main Content */}
+            <main className="flex-1 p-4 md:p-8 lg:p-12 min-w-0 pb-20 md:pb-12">
+                <div className="max-w-6xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    {children}
+                </div>
+            </main>
+        </div>
+    );
+}

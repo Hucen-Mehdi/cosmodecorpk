@@ -1,0 +1,27 @@
+@import "tailwindcss";
+
+@layer base {
+
+    html,
+    body {
+        @apply overflow-x-hidden w-full m-0 p-0;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+        @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200;
+    }
+
+    #root {
+        @apply w-full overflow-x-hidden flex flex-col min-h-screen;
+    }
+
+    /* Prevent zooming on input focus in iOS */
+    input[type="text"],
+    input[type="email"],
+    input[type="number"],
+    input[type="password"],
+    textarea {
+        @apply text-base;
+    }
+}

@@ -1,0 +1,214 @@
+[
+    {
+        "id": "artificial-plants",
+        "name": "Artificial Plants",
+        "icon": "🌿",
+        "image": "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=400&h=300&fit=crop",
+        "hasSubMenu": true,
+        "subcategories": [
+            {
+                "id": "indoor-artificial",
+                "name": "Indoor Artificial Plants"
+            },
+            {
+                "id": "outdoor-artificial",
+                "name": "Outdoor Artificial Plants"
+            },
+            {
+                "id": "floor-artificial",
+                "name": "Floor Artificial Plants"
+            },
+            {
+                "id": "table-artificial",
+                "name": "Table Artificial Plants"
+            },
+            {
+                "id": "artificial-under-5k",
+                "name": "Under 5,000"
+            },
+            {
+                "id": "artificial-under-10k",
+                "name": "Under 10,000"
+            }
+        ]
+    },
+    {
+        "id": "floral-plants",
+        "name": "Floral Plants",
+        "icon": "🌸",
+        "image": "https://images.unsplash.com/photo-1490750967868-88aa4486c946?w=400&h=300&fit=crop",
+        "hasSubMenu": true,
+        "subcategories": [
+            {
+                "id": "indoor-floral",
+                "name": "Indoor Floral Plants"
+            },
+            {
+                "id": "outdoor-floral",
+                "name": "Outdoor Floral Plants"
+            },
+            {
+                "id": "floor-floral",
+                "name": "Floor Floral Plants"
+            },
+            {
+                "id": "table-floral",
+                "name": "Table Floral Plants"
+            },
+            {
+                "id": "floral-under-5k",
+                "name": "Under 5,000"
+            },
+            {
+                "id": "floral-under-10k",
+                "name": "Under 10,000"
+            }
+        ]
+    },
+    {
+        "id": "table-decor",
+        "name": "Table Decor",
+        "icon": "🏺",
+        "image": "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?w=400&h=300&fit=crop",
+        "subcategories": [
+            {
+                "id": "vases",
+                "name": "Vases"
+            },
+            {
+                "id": "mini-plants",
+                "name": "Mini Plants"
+            },
+            {
+                "id": "ceramic-centerpieces",
+                "name": "Ceramic Centerpieces"
+            },
+            {
+                "id": "metal-centerpieces",
+                "name": "Metal Centerpieces"
+            }
+        ]
+    },
+    {
+        "id": "corner-decor",
+        "name": "Corner Decor",
+        "icon": "🪴",
+        "image": "https://images.unsplash.com/photo-1463320726281-696a485928c7?w=400&h=300&fit=crop",
+        "subcategories": [
+            {
+                "id": "long-floor-plants",
+                "name": "Long / Floor Plants"
+            },
+            {
+                "id": "table-lamps-corner",
+                "name": "Table Lamps"
+            },
+            {
+                "id": "floor-lamps-corner",
+                "name": "Floor Lamps"
+            },
+            {
+                "id": "statement-decor",
+                "name": "Statement Décor Pieces"
+            }
+        ]
+    },
+    {
+        "id": "wall-decor",
+        "name": "Wall Decor",
+        "icon": "🖼️",
+        "image": "https://images.unsplash.com/photo-1513519245088-0e12902e35ca?w=400&h=300&fit=crop",
+        "hasSubMenu": true,
+        "subcategories": [
+            {
+                "id": "hanging-decor",
+                "name": "Hanging Decor"
+            },
+            {
+                "id": "hanging-plants",
+                "name": "Hanging Plants",
+                "parentId": "hanging-decor"
+            },
+            {
+                "id": "wall-mirrors",
+                "name": "Wall Mirrors"
+            },
+            {
+                "id": "floor-mirrors",
+                "name": "Floor Mirrors"
+            },
+            {
+                "id": "standing-mirrors",
+                "name": "Standing Mirrors"
+            },
+            {
+                "id": "leaning-mirrors",
+                "name": "Leaning Mirrors"
+            }
+        ]
+    },
+    {
+        "id": "lighting-lamps",
+        "name": "Lighting & Lamps",
+        "icon": "💡",
+        "image": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?w=400&h=300&fit=crop",
+        "subcategories": [
+            {
+                "id": "table-lamps",
+                "name": "Table Lamps"
+            },
+            {
+                "id": "floor-lamps",
+                "name": "Floor Lamps"
+            },
+            {
+                "id": "decorative-lamps",
+                "name": "Decorative Lamps"
+            }
+        ]
+    },
+    {
+        "id": "ramadan-decor",
+        "name": "Ramadan Decor",
+        "icon": "🌙",
+        "image": "https://images.unsplash.com/photo-1564769625905-50e93615e769?w=400&h=300&fit=crop",
+        "subcategories": [
+            {
+                "id": "ramadan-table-decor",
+                "name": "Ramadan Table Decor"
+            },
+            {
+                "id": "lanterns",
+                "name": "Lanterns"
+            },
+            {
+                "id": "crescent-islamic",
+                "name": "Crescent & Islamic Decor"
+            },
+            {
+                "id": "iftar-table-styling",
+                "name": "Iftar Table Styling"
+            }
+        ]
+    },
+    {
+        "id": "gift-ideas",
+        "name": "Gift Ideas",
+        "icon": "🎁",
+        "image": "https://images.unsplash.com/photo-1549465220-1a8b9238cd48?w=400&h=300&fit=crop",
+        "subcategories": [
+            {
+                "id": "home-decor-gifts",
+                "name": "Home Decor Gifts"
+            },
+            {
+                "id": "plant-gifts",
+                "name": "Plant Gifts"
+            },
+            {
+                "id": "ramadan-gifts",
+                "name": "Ramadan Gifts"
+            }
+        ]
+    }
+]

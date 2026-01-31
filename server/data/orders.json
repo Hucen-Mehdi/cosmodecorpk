@@ -1,0 +1,22 @@
+[
+  {
+    "id": "1769709862830",
+    "orderNumber": "ORD-20260001",
+    "userId": "1769708521384",
+    "date": "2026-01-29T18:04:22.830Z",
+    "status": "Processing",
+    "items": [
+      {
+        "productId": "1",
+        "name": "Premium Monstera Artificial Plant",
+        "price": 8999,
+        "quantity": 1,
+        "image": "https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=400&h=300&fit=crop"
+      }
+    ],
+    "itemsCount": 1,
+    "subtotal": 8999,
+    "shipping": 500,
+    "total": 9499
+  }
+]

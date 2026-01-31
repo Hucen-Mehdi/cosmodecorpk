@@ -1,0 +1,23 @@
+import { Navigate, useLocation } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import { Loader2 } from 'lucide-react';
+
+export function AdminRoute({ children }: { children: React.ReactNode }) {
+    const { user, loading, isAdmin } = useAuth();
+    const location = useLocation();
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+            </div>
+        );
+    }
+
+    if (!user || !isAdmin) {
+        // Redirect to login if not logged in, or home if not admin
+        return <Navigate to={user ? "/" : "/login"} state={{ from: location }} replace />;
+    }
+
+    return <>{children}</>;
+}

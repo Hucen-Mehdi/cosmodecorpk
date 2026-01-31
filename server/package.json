@@ -1,0 +1,23 @@
+{
+  "name": "cosmodecor-server",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cors": "^2.8.6",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "jsonwebtoken": "^9.0.3",
+    "pg": "^8.17.2"
+  },
+  "devDependencies": {
+    "typescript": "5.9.3",
+    "ts-node": "^10.9.2",
+    "@types/node": "^22.19.7",
+    "@types/express": "^5.0.6"
+  }
+}

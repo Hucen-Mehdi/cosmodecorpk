@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 import { ArrowRight, Truck, Shield, CreditCard, Headphones, Star } from 'lucide-react';
 import Link from 'next/link';
 import { ProductCard } from '@/src/components/ProductCard';

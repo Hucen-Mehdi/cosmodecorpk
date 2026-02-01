@@ -15,6 +15,9 @@ if (!connectionString) {
 
 export const pool = new Pool({
     connectionString: connectionString,
+    ssl: {
+        rejectUnauthorized: false
+    }
 });
 
 // Test connection

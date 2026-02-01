@@ -2,24 +2,8 @@
   {
     "id": "1",
     "name": "Admin User",
-    "email": "admin@cosmodecorpk.com",
-    "passwordHash": "$2b$10$bFPF4kcs.mKX0EljDZKUGuWeOKumdbz2YKFygVrikcMC2uIwSJKFu",
+    "email": "admin@cosmodecor.pk",
+    "passwordHash": "$2b$10$dvzHpVFjt64dIayPEF45e.eb2/QNam7cL8w15zXwigssKXCKhbd7O",
     "role": "admin"
-  },
-  {
-    "id": "1769708452689",
-    "name": "Test User",
-    "email": "testsignup@example.com",
-    "passwordHash": "$2b$10$XbQUs964sXY0JZi2DKFBcu5JhvfvY2pbREiasTvQmWnx7Sws52d8i",
-    "role": "user"
-  },
-  {
-    "id": "1769708521384",
-    "name": "malaika",
-    "email": "malaikaajmal61@gmail.com",
-    "passwordHash": "$2b$10$DBdUsGFzFYd4PzG3rpKMk.Ekh/IBKAqQGSVD0P1gTYz.V3i86MZzu",
-    "role": "user",
-    "firstName": "malaika",
-    "phone": "03350500333"
   }
 ]

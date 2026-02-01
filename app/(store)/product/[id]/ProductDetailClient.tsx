@@ -123,6 +123,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                             )}
                         </div>
 
+                        {/* Delivery Charge */}
+                        <div className="flex items-center gap-2 mb-6">
+                            <span className="text-gray-600 dark:text-gray-400">
+                                Delivery Charge: <span className="font-semibold text-gray-800 dark:text-white">{product.deliveryCharge ? formatPrice(product.deliveryCharge) : 'Free'}</span>
+                            </span>
+                        </div>
+
                         {/* Description */}
                         <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">{product.description}</p>
 

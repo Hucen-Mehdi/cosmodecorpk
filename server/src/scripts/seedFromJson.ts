@@ -121,9 +121,9 @@ const seed = async () => {
                 `
         INSERT INTO products
           (id, name, price, original_price, image_url, category_id,
-           subcategory, rating, reviews, badge, description, stock)
+           subcategory, rating, reviews, badge, description, stock, delivery_charge)
         VALUES
-          ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12)
+          ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)
         ON CONFLICT (id) DO UPDATE
         SET name = EXCLUDED.name,
             price = EXCLUDED.price,
@@ -135,7 +135,8 @@ const seed = async () => {
             reviews = EXCLUDED.reviews,
             badge = EXCLUDED.badge,
             description = EXCLUDED.description,
-            stock = EXCLUDED.stock
+            stock = EXCLUDED.stock,
+            delivery_charge = EXCLUDED.delivery_charge
         `,
                 [
                     p.id,
@@ -150,6 +151,7 @@ const seed = async () => {
                     p.badge ?? null,
                     p.description ?? null,
                     p.stock ?? 100, // Default to 100 if not specified
+                    p.deliveryCharge ?? 0
                 ]
             );
         }

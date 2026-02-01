@@ -1,20 +1,21 @@
 import { pool } from '../db/client';
 
 export interface OrderItem {
-    productId: string | number; // JSON had string "1", DB has int?
+    productId: string | number;
     name: string;
     price: number;
     quantity: number;
     image: string;
+    deliveryCharge?: number;
 }
 
 export interface Order {
     id: string;
     orderNumber: string;
     userId: string;
-    userEmail?: string; // Added for admin view
-    userName?: string; // Added for admin view
-    date: string; // ISO string
+    userEmail?: string;
+    userName?: string;
+    date: string;
     status: string;
     items: OrderItem[];
     itemsCount: number;
@@ -37,18 +38,41 @@ export const orderRepository = {
         try {
             await client.query('BEGIN');
 
-            // 1. Check and Update Stock
+            let totalDeliveryCharge = 0;
+
+            // 1. Check Stock and Calculate Delivery Charges
             for (const item of order.items) {
-                const productRes = await client.query('SELECT stock, name FROM products WHERE id = $1 FOR UPDATE', [item.productId]);
+                const productRes = await client.query('SELECT stock, name, delivery_charge FROM products WHERE id = $1 FOR UPDATE', [item.productId]);
                 if (productRes.rows.length === 0) throw new Error(`Product ${item.productId} not found`);
 
-                const currentStock = productRes.rows[0].stock;
+                const product = productRes.rows[0];
+                const currentStock = product.stock;
+
                 if (currentStock < item.quantity) {
-                    throw new Error(`Insufficient stock for ${productRes.rows[0].name}. Available: ${currentStock}`);
+                    throw new Error(`Insufficient stock for ${product.name}. Available: ${currentStock}`);
                 }
+
+                // Calculate delivery charge for this item
+                const itemDeliveryCharge = (Number(product.delivery_charge) || 0) * item.quantity;
+                item.deliveryCharge = Number(product.delivery_charge) || 0;
+                totalDeliveryCharge += itemDeliveryCharge;
 
                 await client.query('UPDATE products SET stock = stock - $1 WHERE id = $2', [item.quantity, item.productId]);
             }
+
+            // Recalculate totals
+            // Using the passed subtotal, but overriding shipping and total
+            const finalShipping = totalDeliveryCharge; // The shipping passed in 'order' might be just the base fee, we want accurate product-based shipping
+            // Wait, usually there is a base shipping fee PLUS product specific ones? Or just product specific?
+            // User said: "different delivery charges for different products... should be automatically pasted when checkout page is coming up"
+            // For now, let's assume the TOTAL shipping is the sum of all product delivery charges.
+            // If the frontend passed a shipping fee, it might be a flat rate. Let's start with product-based summation.
+            // Actually, let's respect what the frontend sent for 'shipping' if it's simpler, 
+            // BUT the user explicitly asked for "delivery charges on those [products]".
+            // So we should probably use the calculated `totalDeliveryCharge` as the source of truth for shipping cost.
+
+            const finalTotal = order.subtotal + finalShipping;
+
 
             // 2. Insert Order
             await client.query(
@@ -66,8 +90,8 @@ export const orderRepository = {
                     order.status,
                     order.itemsCount,
                     order.subtotal,
-                    order.shipping,
-                    order.total,
+                    finalShipping, // Use calculated shipping
+                    finalTotal,    // Use calculated total
                     order.paymentMethod,
                     order.shippingName,
                     order.shippingEmail,
@@ -82,15 +106,16 @@ export const orderRepository = {
             // 3. Insert Items
             for (const item of order.items) {
                 await client.query(
-                    `INSERT INTO order_items (order_id, product_id, name, price, quantity, image_url)
-           VALUES ($1, $2, $3, $4, $5, $6)`,
+                    `INSERT INTO order_items (order_id, product_id, name, price, quantity, image_url, delivery_charge)
+           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
                     [
                         order.id,
                         Number(item.productId),
                         item.name,
                         item.price,
                         item.quantity,
-                        item.image
+                        item.image,
+                        item.deliveryCharge || 0
                     ]
                 );
             }
@@ -100,7 +125,7 @@ export const orderRepository = {
             await client.query(
                 `INSERT INTO notifications (user_id, title, message, type, order_id)
                  VALUES (NULL, $1, $2, 'success', $3)`,
-                ['New Order Received', `Order #${order.orderNumber} placed for Rs. ${order.total.toLocaleString()}`, order.id]
+                ['New Order Received', `Order #${order.orderNumber} placed for Rs. ${finalTotal.toLocaleString()}`, order.id]
             );
 
             // For User
@@ -111,7 +136,13 @@ export const orderRepository = {
             );
 
             await client.query('COMMIT');
-            return order;
+
+            // Return updated order object with correct totals
+            return {
+                ...order,
+                shipping: finalShipping,
+                total: finalTotal
+            };
         } catch (e) {
             await client.query('ROLLBACK');
             throw e;
@@ -138,7 +169,7 @@ export const orderRepository = {
 
         for (const row of ordersRes.rows) {
             const itemsRes = await pool.query(
-                `SELECT product_id as "productId", name, price, quantity, image_url as image
+                `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge"
          FROM order_items
          WHERE order_id = $1`,
                 [row.id]
@@ -154,7 +185,8 @@ export const orderRepository = {
                 items: itemsRes.rows.map(i => ({
                     ...i,
                     price: Number(i.price),
-                    productId: String(i.productId)
+                    productId: String(i.productId),
+                    deliveryCharge: Number(i.deliveryCharge || 0)
                 }))
             });
         }
@@ -180,7 +212,7 @@ export const orderRepository = {
 
         for (const row of ordersRes.rows) {
             const itemsRes = await pool.query(
-                `SELECT product_id as "productId", name, price, quantity, image_url as image
+                `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge"
          FROM order_items
          WHERE order_id = $1`,
                 [row.id]
@@ -196,7 +228,8 @@ export const orderRepository = {
                 items: itemsRes.rows.map(i => ({
                     ...i,
                     price: Number(i.price),
-                    productId: String(i.productId)
+                    productId: String(i.productId),
+                    deliveryCharge: Number(i.deliveryCharge || 0)
                 }))
             });
         }

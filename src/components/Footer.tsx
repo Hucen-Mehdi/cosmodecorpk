@@ -76,26 +76,25 @@ export function Footer() {
               <li><Link href="/category/gift-ideas" className="hover:text-rose-500 transition-colors">🎁 Gift Ideas</Link></li>
             </ul>
           </div>
-
           {/* Contact Info */}
           <div>
             <h3 className="text-gray-900 dark:text-white font-bold text-lg mb-4">Contact Us</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
-                <span>Karachi, Pakistan</span>
+                <span>Sargodha, Pakistan</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-rose-500" />
-                <span>0300-1234567</span>
+                <span>0335-0500333</span>
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-rose-500" />
-                <span>info@cosmodecorpk.com</span>
+                <span>admin@cosmodecor.pk</span>
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle className="w-5 h-5 text-green-500" />
-                <a href="https://wa.me/923001234567" className="text-green-500 hover:underline font-medium">
+                <a href="https://wa.me/923209937113" className="text-green-500 hover:underline font-medium">
                   Chat on WhatsApp
                 </a>
               </li>
@@ -120,6 +119,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-    </footer>
+    </footer >
   );
 }

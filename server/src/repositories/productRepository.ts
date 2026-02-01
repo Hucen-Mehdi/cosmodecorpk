@@ -13,13 +13,14 @@ export interface Product {
     badge?: string;
     description?: string;
     stock: number;
+    deliveryCharge?: number;
 }
 
 export const productRepository = {
     async getAll(filters: { category?: string; subcategory?: string; search?: string }): Promise<Product[]> {
         let query = `
       SELECT id, name, price, original_price as "originalPrice", image_url as image, 
-             category_id as category, subcategory, rating, reviews, badge, description, stock
+             category_id as category, subcategory, rating, reviews, badge, description, stock, delivery_charge as "deliveryCharge"
       FROM products
       WHERE 1=1
     `;
@@ -54,14 +55,15 @@ export const productRepository = {
             originalPrice: row.originalPrice ? Number(row.originalPrice) : undefined,
             rating: Number(row.rating),
             reviews: Number(row.reviews),
-            stock: Number(row.stock || 0)
+            stock: Number(row.stock || 0),
+            deliveryCharge: Number(row.deliveryCharge || 0)
         }));
     },
 
     async getById(id: number): Promise<Product | null> {
         const result = await pool.query(`
       SELECT id, name, price, original_price as "originalPrice", image_url as image, 
-             category_id as category, subcategory, rating, reviews, badge, description, stock
+             category_id as category, subcategory, rating, reviews, badge, description, stock, delivery_charge as "deliveryCharge"
       FROM products
       WHERE id = $1
     `, [id]);
@@ -75,14 +77,15 @@ export const productRepository = {
             originalPrice: row.originalPrice ? Number(row.originalPrice) : undefined,
             rating: Number(row.rating),
             reviews: Number(row.reviews),
-            stock: Number(row.stock || 0)
+            stock: Number(row.stock || 0),
+            deliveryCharge: Number(row.deliveryCharge || 0)
         };
     },
 
     async create(product: Omit<Product, 'id'> & { id?: number }) {
-        const cols = ['name', 'price', 'original_price', 'image_url', 'category_id', 'subcategory', 'rating', 'reviews', 'badge', 'description', 'stock'];
-        const vals = [product.name, product.price, product.originalPrice, product.image, product.category, product.subcategory, product.rating, product.reviews, product.badge, product.description, product.stock || 0];
-        let placeholder = '$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11';
+        const cols = ['name', 'price', 'original_price', 'image_url', 'category_id', 'subcategory', 'rating', 'reviews', 'badge', 'description', 'stock', 'delivery_charge'];
+        const vals = [product.name, product.price, product.originalPrice, product.image, product.category, product.subcategory, product.rating, product.reviews, product.badge, product.description, product.stock || 0, product.deliveryCharge || 0];
+        let placeholder = '$1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12';
 
         if (product.id) {
             cols.push('id');
@@ -94,7 +97,7 @@ export const productRepository = {
             INSERT INTO products (${cols.join(', ')})
             VALUES (${placeholder})
             RETURNING id, name, price, original_price as "originalPrice", image_url as image, 
-                      category_id as category, subcategory, rating, reviews, badge, description, stock
+                      category_id as category, subcategory, rating, reviews, badge, description, stock, delivery_charge as "deliveryCharge"
         `;
 
         const result = await pool.query(query, vals);
@@ -105,7 +108,8 @@ export const productRepository = {
             originalPrice: row.originalPrice ? Number(row.originalPrice) : undefined,
             rating: Number(row.rating),
             reviews: Number(row.reviews),
-            stock: Number(row.stock || 0)
+            stock: Number(row.stock || 0),
+            deliveryCharge: Number(row.deliveryCharge || 0)
         };
     },
 
@@ -121,14 +125,15 @@ export const productRepository = {
           reviews = COALESCE($7, reviews),
           badge = COALESCE($8, badge),
           description = COALESCE($9, description),
-          stock = COALESCE($10, stock)
-      WHERE id = $11
+          stock = COALESCE($10, stock),
+          delivery_charge = COALESCE($11, delivery_charge)
+      WHERE id = $12
       RETURNING id, name, price, original_price as "originalPrice", image_url as image, 
-                category_id as category, subcategory, rating, reviews, badge, description, stock
+                category_id as category, subcategory, rating, reviews, badge, description, stock, delivery_charge as "deliveryCharge"
     `, [
             product.name, product.price, product.originalPrice, product.image,
             product.category, product.rating, product.reviews, product.badge,
-            product.description, product.stock, id
+            product.description, product.stock, product.deliveryCharge, id
         ]);
 
         const row = result.rows[0];
@@ -138,7 +143,8 @@ export const productRepository = {
             originalPrice: row.originalPrice ? Number(row.originalPrice) : undefined,
             rating: Number(row.rating),
             reviews: Number(row.reviews),
-            stock: Number(row.stock || 0)
+            stock: Number(row.stock || 0),
+            deliveryCharge: Number(row.deliveryCharge || 0)
         };
     },
 

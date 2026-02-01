@@ -50,7 +50,8 @@ router.post('/', async (req: AuthRequest, res) => {
                 name: i.name,
                 price: i.price,
                 quantity: i.quantity,
-                image: i.image
+                image: i.image,
+                deliveryCharge: i.deliveryCharge
             })),
             itemsCount: items.reduce((sum: number, item: any) => sum + item.quantity, 0),
             subtotal,

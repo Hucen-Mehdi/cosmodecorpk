@@ -22,6 +22,7 @@ export interface Product {
     badge?: string;
     description?: string;
     stock: number;
+    deliveryCharge?: number;
 }
 
 

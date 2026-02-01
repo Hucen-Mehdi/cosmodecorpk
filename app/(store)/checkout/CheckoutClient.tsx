@@ -37,7 +37,8 @@ export default function CheckoutClient() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
 
-    const deliveryFee = totalPrice > 10000 ? 0 : 500;
+    // Calculate total delivery fee by summing up delivery charges of all items
+    const deliveryFee = items.reduce((sum, item) => sum + ((item as any).deliveryCharge || 0) * item.quantity, 0);
     const finalTotal = totalPrice + deliveryFee;
 
     const [formData, setFormData] = useState<FormData>({

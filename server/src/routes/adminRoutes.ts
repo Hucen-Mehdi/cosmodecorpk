@@ -38,8 +38,8 @@ router.get('/stats', async (req, res) => {
             recentOrders
         });
     } catch (error: any) {
-        console.error('Stats error:', error);
-        res.status(500).json({ message: 'Error fetching stats', details: error.message });
+        console.error('Stats error details:', error);
+        res.status(500).json({ message: 'Error fetching stats', details: error.message, stack: error.stack });
     }
 });
 

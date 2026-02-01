@@ -13,11 +13,13 @@ if (!connectionString) {
     console.warn("WARNING: DATABASE_URL is not set. Database features will fail.");
 }
 
+console.log(`🔌 Connecting to DB: ${connectionString ? 'URL Found' : 'Missing URL'}`);
+
 export const pool = new Pool({
     connectionString: connectionString,
-    ssl: {
+    ssl: process.env.NODE_ENV === 'production' || connectionString?.includes('supabase') ? {
         rejectUnauthorized: false
-    }
+    } : undefined
 });
 
 // Test connection

@@ -37,9 +37,9 @@ router.get('/stats', async (req, res) => {
             statusCounts,
             recentOrders
         });
-    } catch (error) {
+    } catch (error: any) {
         console.error('Stats error:', error);
-        res.status(500).json({ message: 'Error fetching stats' });
+        res.status(500).json({ message: 'Error fetching stats', details: error.message });
     }
 });
 
@@ -49,6 +49,7 @@ router.post('/categories', async (req, res) => {
         const category = await categoryRepository.create(req.body);
         res.status(201).json(category);
     } catch (error: any) {
+        console.warn('Delete category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -58,6 +59,7 @@ router.put('/categories/:id', async (req, res) => {
         const category = await categoryRepository.update(req.params.id, req.body);
         res.json(category);
     } catch (error: any) {
+        console.warn('Delete category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -67,6 +69,7 @@ router.delete('/categories/:id', async (req, res) => {
         await categoryRepository.delete(req.params.id);
         res.status(204).send();
     } catch (error: any) {
+        console.warn('Delete category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -77,6 +80,7 @@ router.post('/products', async (req, res) => {
         const product = await productRepository.create(req.body);
         res.status(201).json(product);
     } catch (error: any) {
+        console.warn('Delete category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -86,6 +90,7 @@ router.put('/products/:id', async (req, res) => {
         const product = await productRepository.update(parseInt(req.params.id), req.body);
         res.json(product);
     } catch (error: any) {
+        console.warn('Delete category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -95,6 +100,7 @@ router.delete('/products/:id', async (req, res) => {
         await productRepository.delete(parseInt(req.params.id));
         res.status(204).send();
     } catch (error: any) {
+        console.warn('Delete category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });

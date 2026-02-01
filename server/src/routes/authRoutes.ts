@@ -97,9 +97,16 @@ router.post('/login', async (req, res) => {
                 role: user.role
             }
         });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ message: 'Server error during login' });
+    } catch (error: any) {
+        console.error('❌ Login error details:', {
+            message: error.message,
+            stack: error.stack,
+            email // Log the email tried (safe, not password)
+        });
+        res.status(500).json({
+            message: 'Server error during login',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 });
 

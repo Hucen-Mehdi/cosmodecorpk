@@ -19,6 +19,15 @@ export async function fetchAdminStats() {
 }
 
 // Categories
+export async function fetchAdminCategories() {
+    const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+        headers: getAuthHeaders()
+    });
+    if (!response.ok) throw new Error('Failed to fetch categories');
+    return response.json();
+}
+
+// Categories
 export async function createCategory(data: Partial<Category>) {
     const response = await fetch(`${API_BASE_URL}/admin/categories`, {
         method: 'POST',
@@ -44,7 +53,6 @@ export async function updateCategory(id: string, data: Partial<Category>) {
     }
     return response.json();
 }
-
 export async function deleteCategory(id: string) {
     const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
         method: 'DELETE',
@@ -55,6 +63,19 @@ export async function deleteCategory(id: string) {
         throw new Error(error.message || 'Failed to delete category');
     }
     return true;
+}
+
+export async function updateCategoryProducts(id: string, productIds: number[]) {
+    const response = await fetch(`${API_BASE_URL}/admin/categories/${id}/products`, {
+        method: 'PUT',
+        headers: getAuthHeaders(),
+        body: JSON.stringify({ productIds })
+    });
+    if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.message || 'Failed to update category products');
+    }
+    return response.json();
 }
 
 // Products

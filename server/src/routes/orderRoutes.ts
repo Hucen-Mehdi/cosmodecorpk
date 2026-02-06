@@ -44,14 +44,15 @@ router.post('/', async (req: AuthRequest, res) => {
             orderNumber,
             userId: req.user.id,
             date: new Date().toISOString(),
-            status: "Processing",
+            status: paymentMethod === 'cod' ? "Confirmed" : "Processing",
             items: items.map((i: any) => ({
                 productId: i.productId,
                 name: i.name,
                 price: i.price,
                 quantity: i.quantity,
                 image: i.image,
-                deliveryCharge: i.deliveryCharge
+                deliveryCharge: i.deliveryCharge,
+                selectedVariations: i.selectedVariations || {}
             })),
             itemsCount: items.reduce((sum: number, item: any) => sum + item.quantity, 0),
             subtotal,
@@ -68,9 +69,9 @@ router.post('/', async (req: AuthRequest, res) => {
         });
 
         res.status(201).json(newOrder);
-    } catch (error) {
+    } catch (error: any) {
         console.error('Order creation error:', error);
-        res.status(500).json({ message: 'Failed to place order' });
+        res.status(500).json({ message: 'Failed to place order', details: error.message });
     }
 });
 

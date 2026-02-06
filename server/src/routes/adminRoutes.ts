@@ -44,12 +44,23 @@ router.get('/stats', async (req, res) => {
 });
 
 // Categories
+router.get('/categories', async (req, res) => {
+    try {
+        const categories = await categoryRepository.getAll();
+        // User requested [{id, name, slug}], but getAll usually returns that + icons etc. 
+        // We'll return full objects which is compatible.
+        res.json(categories);
+    } catch (error: any) {
+        res.status(500).json({ message: 'Error fetching categories' });
+    }
+});
+
 router.post('/categories', async (req, res) => {
     try {
         const category = await categoryRepository.create(req.body);
         res.status(201).json(category);
     } catch (error: any) {
-        console.warn('Delete category failed:', error.message);
+        console.warn('Create category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -59,7 +70,7 @@ router.put('/categories/:id', async (req, res) => {
         const category = await categoryRepository.update(req.params.id, req.body);
         res.json(category);
     } catch (error: any) {
-        console.warn('Delete category failed:', error.message);
+        console.warn('Update category failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
@@ -74,23 +85,48 @@ router.delete('/categories/:id', async (req, res) => {
     }
 });
 
+router.put('/categories/:id/products', async (req, res) => {
+    try {
+        const { productIds } = req.body;
+        const categoryId = req.params.id;
+        await productRepository.updateCategoryProducts(categoryId, productIds || []);
+        res.json({ message: 'Category products updated successfully' });
+    } catch (error: any) {
+        console.error('Update category products failed:', error);
+        res.status(500).json({ message: error.message });
+    }
+});
+
 // Products
 router.post('/products', async (req, res) => {
     try {
         const product = await productRepository.create(req.body);
         res.status(201).json(product);
     } catch (error: any) {
-        console.warn('Delete category failed:', error.message);
+        console.warn('Create product failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
 
 router.put('/products/:id', async (req, res) => {
     try {
-        const product = await productRepository.update(parseInt(req.params.id), req.body);
+        const updateData = { ...req.body };
+
+        // Handle category_id mapping as requested
+        if (updateData.category_id) {
+            // Validate category exists
+            const categoryExists = await categoryRepository.getById(updateData.category_id);
+            if (!categoryExists) {
+                return res.status(400).json({ message: 'Invalid category_id: Category does not exist' });
+            }
+            updateData.category = updateData.category_id;
+            // We keep category_id or delete it? repo uses 'category'.
+        }
+
+        const product = await productRepository.update(parseInt(req.params.id), updateData);
         res.json(product);
     } catch (error: any) {
-        console.warn('Delete category failed:', error.message);
+        console.warn('Update product failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });

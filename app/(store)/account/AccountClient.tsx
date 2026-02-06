@@ -86,60 +86,82 @@ export default function AccountClient() {
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 transition-colors duration-200">
-            <div className="max-w-7xl mx-auto px-4">
-                <h1 className="text-3xl font-bold text-gray-800 dark:text-white mb-8">My Account</h1>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6">
+                <div className="flex flex-col gap-4 mb-8">
+                    <div className="flex justify-between items-start w-full">
+                        <div>
+                            <h1 className="text-2xl sm:text-4xl font-black text-gray-900 dark:text-white tracking-tight">My Account</h1>
+                            <p className="text-gray-500 dark:text-gray-400 mt-1 text-xs sm:text-base">Profile & Orders</p>
+                        </div>
+                        <button
+                            onClick={logout}
+                            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-red-500 bg-red-50 dark:bg-red-900/10 hover:bg-red-100 dark:hover:bg-red-900/20 font-bold text-xs transition-all"
+                        >
+                            <LogOut className="w-3.5 h-3.5" />
+                            Logout
+                        </button>
+                    </div>
+                </div>
 
-                <div className="grid lg:grid-cols-4 gap-8">
-                    {/* Sidebar */}
-                    <aside className="lg:col-span-1">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 border dark:border-gray-800 transition-colors duration-200">
-                            <div className="text-center mb-6">
-                                <div className="w-20 h-20 bg-gradient-to-br from-rose-500 to-orange-400 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg shadow-rose-100 dark:shadow-rose-900/20">
-                                    <span className="text-3xl font-bold text-white uppercase">
-                                        {profile?.name?.charAt(0) || user?.name?.charAt(0)}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+                    {/* Navigation Dashboard */}
+                    <aside className="lg:col-span-3 space-y-4">
+                        {/* Compact Profile Info */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 sm:p-6 transition-all overflow-hidden">
+                            <div className="flex items-center gap-4">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-rose-500 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-rose-100 dark:shadow-rose-900/20">
+                                    <span className="text-xl sm:text-2xl font-black text-white uppercase">
+                                        {profile?.name?.charAt(0) || user?.name?.charAt(0) || '?'}
                                     </span>
                                 </div>
-                                <h2 className="font-bold text-gray-800 dark:text-white">{profile?.name || user?.name}</h2>
-                                <p className="text-sm text-gray-500 dark:text-gray-400">{profile?.email || user?.email}</p>
+                                <div className="min-w-0">
+                                    <h2 className="font-bold text-gray-900 dark:text-white truncate leading-tight">{profile?.name || user?.name || 'Customer'}</h2>
+                                    <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">{profile?.email || user?.email}</p>
+                                </div>
                             </div>
-                            <nav className="flex lg:flex-col overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none gap-2">
+                        </div>
+
+                        {/* Mobile Optimized Tabs */}
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-1.5 transition-all overflow-hidden">
+                            <nav className="flex lg:flex-col overflow-x-auto scrollbar-none gap-1 p-1">
                                 {[
                                     { id: 'profile', icon: UserIcon, label: 'Profile' },
                                     { id: 'orders', icon: Package, label: 'Orders' },
-                                    { id: 'wishlist', icon: Heart, label: 'Wishlist' },
-                                    { id: 'addresses', icon: MapPin, label: 'Addresses' },
-                                    { id: 'payment', icon: CreditCard, label: 'Payment' },
-                                    { id: 'settings', icon: Settings, label: 'Settings' },
+                                    { id: 'wishlist', icon: Heart, label: 'Wish' },
+                                    { id: 'addresses', icon: MapPin, label: 'Addr' },
+                                    { id: 'payment', icon: CreditCard, label: 'Pay' },
+                                    { id: 'settings', icon: Settings, label: 'Set' },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
                                         onClick={() => setActiveTab(item.id)}
-                                        className={`whitespace-nowrap flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors text-sm sm:text-base ${activeTab === item.id
-                                            ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 font-semibold'
+                                        className={`flex items-center gap-2 px-4 py-2.5 sm:py-3.5 rounded-xl transition-all duration-300 whitespace-nowrap lg:w-full ${activeTab === item.id
+                                            ? 'bg-rose-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900/30'
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                                             }`}
                                     >
-                                        <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
-                                        {item.label}
+                                        <item.icon className="w-4 h-4" />
+                                        <span className="text-[13px] sm:text-sm font-bold">{item.label}</span>
                                     </button>
                                 ))}
-                                <button
-                                    onClick={logout}
-                                    className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-                                >
-                                    <LogOut className="w-5 h-5" />
-                                    Logout
-                                </button>
                             </nav>
                         </div>
                     </aside>
 
-                    {/* Main Content */}
-                    <main className="lg:col-span-3">
-                        <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-5 sm:p-8 min-h-[500px] border dark:border-gray-800 transition-colors duration-200">
+                    {/* Content Section */}
+                    <main className="lg:col-span-9">
+                        <div className="bg-white dark:bg-gray-900 rounded-2xl sm:rounded-[2rem] shadow-sm border border-gray-100 dark:border-gray-800 p-5 sm:p-10 transition-all min-h-[400px]">
                             {activeTab === 'profile' && (
-                                <div>
-                                    <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6">Personal Information</h2>
+                                <div className="max-w-2xl">
+                                    <div className="flex items-center gap-3 mb-8">
+                                        <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 rounded-xl flex items-center justify-center text-rose-500 flex-shrink-0">
+                                            <UserIcon className="w-5 h-5" />
+                                        </div>
+                                        <div>
+                                            <h2 className="text-lg sm:text-2xl font-black text-gray-900 dark:text-white leading-tight">Profile Info</h2>
+                                            <p className="text-[10px] sm:text-sm text-gray-500 dark:text-gray-400 font-medium">Update your account details</p>
+                                        </div>
+                                    </div>
                                     {message.text && (
                                         <div className={`mb-6 p-4 rounded-xl ${message.type === 'success' ? 'bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400' : 'bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400'}`}>
                                             {message.text}

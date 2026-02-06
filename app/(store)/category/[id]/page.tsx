@@ -92,7 +92,6 @@ export default async function CategoryPage({ params, searchParams }: Props) {
               <span className="text-white">{categoryName}</span>
             </nav>
             <div className="flex items-center gap-3">
-              <span className="text-4xl">{categoryIcon}</span>
               <div>
                 <h1 className="text-3xl md:text-5xl font-bold text-white">
                   {categoryName}
@@ -111,23 +110,18 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         {hasSubcategories && (
           <div className="mb-10">
             <h2 className="text-xl font-semibold mb-4">Shop by Type</h2>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex overflow-x-auto gap-3 no-scrollbar pb-2">
               <Link
                 href={`/category/${id}`}
-                className={!subFilter ? 'bg-rose-500 text-white px-4 py-2 rounded-full' : 'px-4 py-2 rounded-full border'}
+                className={`flex-shrink-0 px-6 py-2 rounded-full font-medium transition-all ${!subFilter ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-400'}`}
               >
                 All
               </Link>
-
               {category!.subcategories!.map((sub: any) => (
                 <Link
                   key={sub.id}
                   href={`/category/${id}?sub=${sub.id}`}
-                  className={
-                    subFilter === sub.id
-                      ? 'bg-rose-500 text-white px-4 py-2 rounded-full'
-                      : 'px-4 py-2 rounded-full border'
-                  }
+                  className={`flex-shrink-0 px-6 py-2 rounded-full font-medium transition-all ${subFilter === sub.id ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-400'}`}
                 >
                   {sub.name}
                 </Link>
@@ -137,7 +131,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
         )}
 
         {/* Products */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
           {categoryProducts.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

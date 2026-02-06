@@ -7,6 +7,7 @@ export interface OrderItem {
     price: number;
     quantity: number;
     image?: string;
+    deliveryCharge?: number;
 }
 
 export interface Order {
@@ -49,7 +50,8 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     const data = await response.json();
 
     if (!response.ok) {
-        throw new Error(data.message || 'API request failed');
+        const errorMsg = data.details ? `${data.message}: ${data.details}` : (data.message || 'API request failed');
+        throw new Error(errorMsg);
     }
     return data;
 }

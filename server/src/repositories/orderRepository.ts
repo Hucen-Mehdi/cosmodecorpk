@@ -7,6 +7,7 @@ export interface OrderItem {
     quantity: number;
     image: string;
     deliveryCharge?: number;
+    selectedVariations?: { [key: string]: string };
 }
 
 export interface Order {
@@ -42,7 +43,7 @@ export const orderRepository = {
 
             // 1. Check Stock and Calculate Delivery Charges
             for (const item of order.items) {
-                const productRes = await client.query('SELECT stock, name, delivery_charge FROM products WHERE id = $1 FOR UPDATE', [item.productId]);
+                const productRes = await client.query('SELECT stock, name, delivery_charge FROM products WHERE id = $1 FOR UPDATE', [Number(item.productId)]);
                 if (productRes.rows.length === 0) throw new Error(`Product ${item.productId} not found`);
 
                 const product = productRes.rows[0];
@@ -106,8 +107,8 @@ export const orderRepository = {
             // 3. Insert Items
             for (const item of order.items) {
                 await client.query(
-                    `INSERT INTO order_items (order_id, product_id, name, price, quantity, image_url, delivery_charge)
-           VALUES ($1, $2, $3, $4, $5, $6, $7)`,
+                    `INSERT INTO order_items (order_id, product_id, name, price, quantity, image_url, delivery_charge, selected_variations)
+           VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`,
                     [
                         order.id,
                         Number(item.productId),
@@ -115,7 +116,8 @@ export const orderRepository = {
                         item.price,
                         item.quantity,
                         item.image,
-                        item.deliveryCharge || 0
+                        item.deliveryCharge || 0,
+                        JSON.stringify(item.selectedVariations || {})
                     ]
                 );
             }
@@ -169,7 +171,7 @@ export const orderRepository = {
 
         for (const row of ordersRes.rows) {
             const itemsRes = await pool.query(
-                `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge"
+                `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge", selected_variations as "selectedVariations"
          FROM order_items
          WHERE order_id = $1`,
                 [row.id]
@@ -186,7 +188,8 @@ export const orderRepository = {
                     ...i,
                     price: Number(i.price),
                     productId: String(i.productId),
-                    deliveryCharge: Number(i.deliveryCharge || 0)
+                    deliveryCharge: Number(i.deliveryCharge || 0),
+                    selectedVariations: i.selectedVariations
                 }))
             });
         }
@@ -212,7 +215,7 @@ export const orderRepository = {
 
         for (const row of ordersRes.rows) {
             const itemsRes = await pool.query(
-                `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge"
+                `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge", selected_variations as "selectedVariations"
          FROM order_items
          WHERE order_id = $1`,
                 [row.id]
@@ -229,7 +232,8 @@ export const orderRepository = {
                     ...i,
                     price: Number(i.price),
                     productId: String(i.productId),
-                    deliveryCharge: Number(i.deliveryCharge || 0)
+                    deliveryCharge: Number(i.deliveryCharge || 0),
+                    selectedVariations: i.selectedVariations
                 }))
             });
         }

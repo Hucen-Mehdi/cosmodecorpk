@@ -354,7 +354,18 @@ export default function AdminOrders() {
                                                 <td className="px-6 py-4">
                                                     <div className="flex items-center gap-3">
                                                         <img src={item.image} alt={item.name} className="w-10 h-10 object-cover rounded-lg border border-gray-100 shadow-sm" />
-                                                        <span className="font-bold text-gray-900 line-clamp-1">{item.name}</span>
+                                                        <div className="flex flex-col">
+                                                            <span className="font-bold text-gray-900 line-clamp-1">{item.name}</span>
+                                                            {(item as any).selectedVariations && Object.keys((item as any).selectedVariations).length > 0 && (
+                                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                                    {Object.entries((item as any).selectedVariations).map(([key, value]) => (
+                                                                        <span key={key} className="text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded border border-gray-200">
+                                                                            <span className="font-semibold text-gray-700">{key}:</span> {String(value)}
+                                                                        </span>
+                                                                    ))}
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                     </div>
                                                 </td>
                                                 <td className="px-6 py-4 text-center font-bold text-gray-700">{item.quantity}</td>

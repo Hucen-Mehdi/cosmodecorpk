@@ -50,10 +50,14 @@ export default function SignupClient() {
         setIsSubmitting(true);
 
         try {
-            await register(name, email, password);
-            router.replace(from);
+            const result = await register(name, email, password);
+            if (result.success) {
+                router.replace(from);
+            } else {
+                setError(result.message || 'Registration failed');
+            }
         } catch (err: any) {
-            setError(err.message || 'Registration failed');
+            setError('An unexpected error occurred during registration');
         } finally {
             setIsSubmitting(false);
         }

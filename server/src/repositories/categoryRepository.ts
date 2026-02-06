@@ -7,6 +7,8 @@ export interface Category {
     image?: string;
     hasSubMenu?: boolean;
     subcategories?: Subcategory[];
+    productCount?: number;
+    sampleImages?: string[];
 }
 
 export interface Subcategory {
@@ -17,12 +19,29 @@ export interface Subcategory {
 
 export const categoryRepository = {
     async getAll(): Promise<Category[]> {
-        // Fetch all categories
+        // Fetch all categories with product counts and sample images
         const result = await pool.query(`
-      SELECT id, name, icon, image_url as image, parent_id
-      FROM categories
-      ORDER BY id
-    `);
+            SELECT 
+                c.id, 
+                c.name, 
+                c.icon, 
+                c.image_url as image, 
+                c.parent_id,
+                COUNT(p.id) as product_count,
+                (
+                    SELECT array_agg(image_url) 
+                    FROM (
+                        SELECT image_url 
+                        FROM products 
+                        WHERE category_id = c.id 
+                        LIMIT 4
+                    ) as samples
+                ) as sample_images
+            FROM categories c
+            LEFT JOIN products p ON c.id = p.category_id
+            GROUP BY c.id
+            ORDER BY c.id
+        `);
 
         const rows = result.rows;
         const categories: Category[] = [];
@@ -43,7 +62,9 @@ export const categoryRepository = {
                     id: row.id,
                     name: row.name,
                     icon: row.icon,
-                    image: row.image
+                    image: row.image,
+                    productCount: parseInt(row.product_count || '0'),
+                    sampleImages: row.sample_images || []
                 });
             }
         });
@@ -97,18 +118,7 @@ export const categoryRepository = {
     },
 
     async delete(id: string): Promise<void> {
-        // Check if products exist
-        const productsCount = await pool.query('SELECT COUNT(*) FROM products WHERE category_id = $1', [id]);
-        if (parseInt(productsCount.rows[0].count) > 0) {
-            throw new Error('Cannot delete category with associated products');
-        }
-
-        // Check if subcategories exist
-        const subCount = await pool.query('SELECT COUNT(*) FROM categories WHERE parent_id = $1', [id]);
-        if (parseInt(subCount.rows[0].count) > 0) {
-            throw new Error('Cannot delete category with associated subcategories');
-        }
-
+        // Now handled by ON DELETE CASCADE in database
         await pool.query('DELETE FROM categories WHERE id = $1', [id]);
     }
 };

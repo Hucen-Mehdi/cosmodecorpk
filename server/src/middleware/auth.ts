@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
-
-const JWT_SECRET = process.env.JWT_SECRET || 'cosmodecor_secret_key_123';
+import { JWT_SECRET } from '../config';
 
 export interface AuthUser {
     id: string;

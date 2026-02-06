@@ -61,10 +61,19 @@ export default function CartClient() {
                                             <Link href={`/product/${item.id}`} className="font-semibold text-gray-800 dark:text-white hover:text-rose-500 text-base sm:text-lg line-clamp-1 sm:line-clamp-none">
                                                 {item.name}
                                             </Link>
-                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 capitalize">{item.category.replace('-', ' ')}</p>
+                                            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 capitalize">{(item.category || 'Product').replace('-', ' ')}</p>
+                                            {item.selectedVariations && (
+                                                <div className="flex flex-wrap gap-1 mt-1">
+                                                    {Object.entries(item.selectedVariations).map(([key, value]) => (
+                                                        <span key={key} className="text-[10px] bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 px-1.5 py-0.5 rounded">
+                                                            {key}: <span className="font-medium text-gray-700 dark:text-gray-300">{value}</span>
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
                                         </div>
                                         <button
-                                            onClick={() => removeFromCart(item.id)}
+                                            onClick={() => removeFromCart(item.uniqueId)}
                                             className="text-gray-400 hover:text-red-500 transition-colors"
                                         >
                                             <Trash2 className="w-5 h-5" />
@@ -73,14 +82,14 @@ export default function CartClient() {
                                     <div className="mt-2 sm:mt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-4">
                                         <div className="flex items-center border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden bg-white dark:bg-gray-900 w-fit">
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                                onClick={() => updateQuantity(item.uniqueId, item.quantity - 1)}
                                                 className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                             >
                                                 <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                                             </button>
                                             <span className="w-8 sm:w-12 text-center text-sm sm:text-base font-medium dark:text-white">{item.quantity}</span>
                                             <button
-                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                                onClick={() => updateQuantity(item.uniqueId, item.quantity + 1)}
                                                 className="w-8 h-8 sm:w-10 sm:h-10 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"
                                             >
                                                 <Plus className="w-3 h-3 sm:w-4 sm:h-4" />

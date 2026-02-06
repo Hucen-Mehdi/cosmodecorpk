@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    allowedDevOrigins: ['lilith-unsensualistic-amparo.ngrok-free.dev'],
     images: {
         remotePatterns: [
             {

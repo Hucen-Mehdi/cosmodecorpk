@@ -12,7 +12,7 @@ import {
     Loader2
 } from 'lucide-react';
 
-type PaymentMethod = 'nayapay' | 'jazzcash' | 'easypaisa';
+type PaymentMethod = 'nayapay' | 'jazzcash' | 'easypaisa' | 'cod';
 
 interface FormData {
     firstName: string;
@@ -36,6 +36,10 @@ export default function CheckoutClient() {
     const [copiedAccount, setCopiedAccount] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [error, setError] = useState('');
+    const [confirmedTotal, setConfirmedTotal] = useState(0);
+    const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
+    const [confirmedDeliveryFee, setConfirmedDeliveryFee] = useState(0);
+    const [confirmedItems, setConfirmedItems] = useState<any[]>([]);
 
     // Calculate total delivery fee by summing up delivery charges of all items
     const deliveryFee = items.reduce((sum, item) => sum + ((item as any).deliveryCharge || 0) * item.quantity, 0);
@@ -53,66 +57,6 @@ export default function CheckoutClient() {
     });
 
     const [errors, setErrors] = useState<Partial<FormData>>({});
-
-    useEffect(() => {
-        if (user && formData.email === '') {
-            const names = user.name.split(' ');
-            setFormData(prev => ({
-                ...prev,
-                firstName: prev.firstName || names[0] || '',
-                lastName: prev.lastName || names.slice(1).join(' ') || '',
-                email: prev.email || user.email || ''
-            }));
-        }
-    }, [user]);
-
-    const handlePlaceOrder = async () => {
-        if (!user) {
-            setError('You must be logged in to place an order.');
-            return;
-        }
-
-        if (!paymentMethod) {
-            setError('Please select a payment method.');
-            return;
-        }
-
-        setIsSubmitting(true);
-        setError('');
-
-        try {
-            const orderItems: OrderItem[] = items.map(item => ({
-                productId: item.id.toString(),
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                image: item.image
-            }));
-
-            const newOrder = await createOrder({
-                items: orderItems,
-                subtotal: totalPrice,
-                shipping: deliveryFee,
-                total: finalTotal,
-                paymentMethod,
-                shippingName: `${formData.firstName} ${formData.lastName}`,
-                shippingEmail: formData.email,
-                shippingPhone: formData.phone,
-                shippingAddress: formData.address,
-                shippingCity: formData.city,
-                shippingPostalCode: formData.postalCode,
-                shippingNotes: formData.notes
-            });
-
-            setOrderId(newOrder.orderNumber);
-            setOrderPlaced(true);
-            clearCart();
-        } catch (err: any) {
-            setError(err.message || 'Failed to place order. Please try again.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
 
     const whatsappNumber = '923209937113';
     const whatsappDisplayNumber = '+92 320 9937113';
@@ -148,6 +92,16 @@ export default function CheckoutClient() {
             accountTitle: 'CosmoDecor PK',
             accountNumber: '0332-5932181',
         },
+        {
+            id: 'cod' as const,
+            name: 'Cash on Delivery (COD)',
+            icon: '🚚',
+            color: 'from-blue-500 to-blue-600',
+            bgColor: 'bg-blue-50',
+            borderColor: 'border-blue-500',
+            accountTitle: 'Payment on Delivery',
+            accountNumber: 'Pay when you receive',
+        },
     ];
 
     const formatPrice = (price: number) => {
@@ -157,11 +111,125 @@ export default function CheckoutClient() {
             minimumFractionDigits: 0,
         }).format(price);
     };
+
     const cities = [
         'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad',
         'Multan', 'Peshawar', 'Quetta', 'Sialkot', 'Gujranwala',
         'Hyderabad', 'Bahawalpur', 'Sargodha', 'Sukkur', 'Other'
     ];
+
+    useEffect(() => {
+        if (user && formData.email === '') {
+            const names = user.name.split(' ');
+            setFormData(prev => ({
+                ...prev,
+                firstName: prev.firstName || names[0] || '',
+                lastName: prev.lastName || names.slice(1).join(' ') || '',
+                email: prev.email || user.email || ''
+            }));
+        }
+    }, [user]);
+
+    const getWhatsAppLink = (id?: string) => {
+        const currentOrderId = id || orderId;
+        const targetItems = orderPlaced ? confirmedItems : items;
+        const targetSubtotal = orderPlaced ? confirmedSubtotal : totalPrice;
+        const targetDeliveryFee = orderPlaced ? confirmedDeliveryFee : deliveryFee;
+        const targetTotal = orderPlaced ? confirmedTotal : finalTotal;
+
+        const itemsList = targetItems.map(item => {
+            const vars = item.selectedVariations ? Object.entries(item.selectedVariations).map(([k, v]) => `[${k}: ${v}]`).join(' ') : '';
+            const unitDc = (item as any).deliveryCharge || 0;
+            return `- ${item.name} ${vars}\n  Qty: ${item.quantity} x ${formatPrice(item.price)} ${unitDc > 0 ? `(+ ${formatPrice(unitDc)} DC/unit)` : ''}`;
+        }).join('\n');
+
+        const isCod = paymentMethod === 'cod';
+        const methodDisplay = isCod ? 'Cash on Delivery (COD)' : `${paymentAccounts.find(p => p.id === paymentMethod)?.name} (Advance Payment)`;
+
+        const message = encodeURIComponent(
+            `Hi CosmoDecorPK! 🏠\n\n` +
+            `I have placed an${isCod ? ' ' : ' (Advance) '}order.\n\n` +
+            `📦 Order Details:\n` +
+            `Order ID: ${currentOrderId}\n` +
+            `Items:\n${itemsList}\n\n` +
+            `------------------------\n` +
+            `Subtotal: ${formatPrice(targetSubtotal)}\n` +
+            `Delivery Charges: ${formatPrice(targetDeliveryFee)}\n` +
+            `Grand Total: ${formatPrice(targetTotal)}\n` +
+            `------------------------\n` +
+            `Payment Method: ${methodDisplay}\n\n` +
+            `👤 Customer: ${formData.firstName} ${formData.lastName}\n` +
+            `📱 Phone: ${formData.phone}\n` +
+            `📍 Address: ${formData.address}, ${formData.city}\n\n` +
+            (isCod ? `Please confirm my order. I will pay upon delivery. ✅` : `I am attaching my payment screenshot below. ⬇️`)
+        );
+        return `https://wa.me/${whatsappNumber}?text=${message}`;
+    };
+
+    const handlePlaceOrder = async () => {
+        if (!user) {
+            setError('You must be logged in to place an order.');
+            return;
+        }
+
+        if (!paymentMethod) {
+            setError('Please select a payment method.');
+            return;
+        }
+
+        setIsSubmitting(true);
+        setError('');
+
+        try {
+            const orderItems: OrderItem[] = items.map(item => ({
+                productId: item.id.toString(),
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                image: item.image,
+                deliveryCharge: (item as any).deliveryCharge || 0,
+                selectedVariations: item.selectedVariations
+            }));
+
+            const newOrder = await createOrder({
+                items: orderItems,
+                subtotal: totalPrice,
+                shipping: deliveryFee,
+                total: finalTotal,
+                paymentMethod,
+                shippingName: `${formData.firstName} ${formData.lastName}`,
+                shippingEmail: formData.email,
+                shippingPhone: formData.phone,
+                shippingAddress: formData.address,
+                shippingCity: formData.city,
+                shippingPostalCode: formData.postalCode,
+                shippingNotes: formData.notes
+            });
+
+            setOrderId(newOrder.orderNumber);
+            setConfirmedTotal(finalTotal);
+            setConfirmedSubtotal(totalPrice);
+            setConfirmedDeliveryFee(deliveryFee);
+            setConfirmedItems([...items]);
+            setOrderPlaced(true);
+
+            // Automatic redirect to WhatsApp ONLY for Advance Payment
+            if (paymentMethod !== 'cod') {
+                const waLink = getWhatsAppLink(newOrder.orderNumber);
+                setTimeout(() => {
+                    window.open(waLink, '_blank');
+                }, 1500);
+            }
+
+            clearCart();
+        } catch (err: any) {
+            setError(err.message || 'Failed to place order. Please try again.');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
+
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -207,25 +275,21 @@ export default function CheckoutClient() {
         setTimeout(() => setCopiedAccount(''), 2000);
     };
 
-    const getWhatsAppLink = () => {
-        const message = encodeURIComponent(
-            `Hi CosmoDecorPK! 🏠\n\n` +
-            `I have placed an order and made the payment.\n\n` +
-            `📦 Order Details:\n` +
-            `Order ID: ${orderId}\n` +
-            `Amount Paid: ${formatPrice(finalTotal)}\n` +
-            `Payment Method: ${paymentAccounts.find(p => p.id === paymentMethod)?.name}\n\n` +
-            `👤 Customer: ${formData.firstName} ${formData.lastName}\n` +
-            `📱 Phone: ${formData.phone}\n` +
-            `📍 Address: ${formData.address}, ${formData.city}\n\n` +
-            `I am attaching my payment screenshot below. ⬇️`
-        );
-        return `https://wa.me/${whatsappNumber}?text=${message}`;
-    };
-
     if (items.length === 0 && !orderPlaced) {
-        router.push('/cart');
-        return null;
+        return (
+            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
+                <div className="text-center bg-white dark:bg-gray-900 p-10 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-800">
+                    <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
+                        <Package className="w-10 h-10 text-rose-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Your cart is empty</h2>
+                    <p className="text-gray-600 dark:text-gray-300 mb-8">You need to add some items to your cart before you can checkout.</p>
+                    <Link href="/" className="inline-block bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg transition-all">
+                        Start Shopping
+                    </Link>
+                </div>
+            </div>
+        );
     }
 
     if (!user && !orderPlaced) {
@@ -270,50 +334,76 @@ export default function CheckoutClient() {
                             <p className="text-2xl sm:text-3xl font-bold text-rose-500">{orderId}</p>
                         </div>
 
-                        {/* IMPORTANT: Payment Proof Section */}
+                        {/* IMPORTANT: Payment Proof Section / COD Section */}
                         <div className="relative mb-8">
-                            <div className="absolute -inset-1 bg-gradient-to-r from-rose-500 via-orange-500 to-rose-500 rounded-2xl blur opacity-75 animate-pulse"></div>
-                            <div className="relative bg-gradient-to-r from-rose-500 to-orange-500 rounded-2xl p-1">
+                            <div className={`absolute -inset-1 bg-gradient-to-r ${paymentMethod === 'cod' ? 'from-blue-500 via-indigo-500 to-blue-500' : 'from-rose-500 via-orange-500 to-rose-500'} rounded-2xl blur opacity-75 animate-pulse`}></div>
+                            <div className={`relative bg-gradient-to-r ${paymentMethod === 'cod' ? 'from-blue-500 to-indigo-500' : 'from-rose-500 to-orange-500'} rounded-2xl p-1`}>
                                 <div className="bg-white dark:bg-gray-900 rounded-xl p-4 sm:p-6">
-                                    <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-                                        <div className="w-14 h-14 bg-gradient-to-r from-rose-500 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
-                                            <AlertCircle className="w-8 h-8 text-white" />
-                                        </div>
-                                        <div className="flex-1">
-                                            <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
-                                                ⚠️ IMPORTANT: Send Payment Proof
-                                            </h3>
-                                            <div className="space-y-3 text-gray-700 dark:text-gray-200">
-                                                <p className="font-medium">
-                                                    To confirm your order, you <span className="text-rose-500 font-bold">MUST</span> send the
-                                                    <span className="bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 px-2 py-0.5 rounded font-bold mx-1">screenshot of your payment</span>
-                                                    to our WhatsApp number.
-                                                </p>
-                                                <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border-2 border-dashed border-rose-300 dark:border-rose-700">
-                                                    <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Steps to complete your order:</p>
-                                                    <ol className="list-decimal list-inside space-y-2 text-sm">
-                                                        <li>Take a <strong>screenshot</strong> of your payment confirmation</li>
-                                                        <li>Click the WhatsApp button below</li>
-                                                        <li>Send the screenshot along with your order details</li>
-                                                        <li>Wait for our confirmation message</li>
-                                                    </ol>
+                                    {paymentMethod === 'cod' ? (
+                                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+                                            <div className="w-14 h-14 bg-gradient-to-r from-blue-500 to-indigo-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <Truck className="w-8 h-8 text-white" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
+                                                    📦 order Received (COD)
+                                                </h3>
+                                                <div className="space-y-3 text-gray-700 dark:text-gray-200">
+                                                    <p className="font-medium">
+                                                        Your order has been received. You will pay <span className="text-blue-500 font-bold">{formatPrice(confirmedTotal)}</span> in cash when the rider delivers your package.
+                                                    </p>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border-2 border-dashed border-blue-300 dark:border-blue-700">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Next steps:</p>
+                                                        <ul className="list-disc list-inside space-y-2 text-sm">
+                                                            <li>Our team will call you for verification</li>
+                                                            <li>Keep the exact amount ready for delivery</li>
+                                                            <li>Delivery typically takes 3-5 working days</li>
+                                                        </ul>
+                                                    </div>
                                                 </div>
-                                                <p className="text-sm text-rose-600 dark:text-rose-400 font-semibold">
-                                                    ❗ Your order will only be processed after we receive and verify your payment proof.
-                                                </p>
                                             </div>
                                         </div>
-                                    </div>
+                                    ) : (
+                                        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
+                                            <div className="w-14 h-14 bg-gradient-to-r from-rose-500 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                                <AlertCircle className="w-8 h-8 text-white" />
+                                            </div>
+                                            <div className="flex-1">
+                                                <h3 className="text-xl font-bold text-gray-800 dark:text-white mb-3">
+                                                    ⚠️ IMPORTANT: Send Payment Proof
+                                                </h3>
+                                                <div className="space-y-3 text-gray-700 dark:text-gray-200">
+                                                    <p className="font-medium">
+                                                        To confirm your order, you <span className="text-rose-500 font-bold">MUST</span> send the
+                                                        <span className="bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 px-2 py-0.5 rounded font-bold mx-1">screenshot of your payment</span>
+                                                        to our WhatsApp number.
+                                                    </p>
+                                                    <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 border-2 border-dashed border-rose-300 dark:border-rose-700">
+                                                        <p className="text-sm text-gray-600 dark:text-gray-300 mb-2">Steps to complete your order:</p>
+                                                        <ol className="list-decimal list-inside space-y-2 text-sm">
+                                                            <li>Take a <strong>screenshot</strong> of your payment confirmation</li>
+                                                            <li>Click the WhatsApp button below</li>
+                                                            <li>Send the screenshot along with your order details</li>
+                                                            <li>Wait for our confirmation message</li>
+                                                        </ol>
+                                                    </div>
+                                                    <p className="text-sm text-rose-600 dark:text-rose-400 font-semibold">
+                                                        ❗ Your order will only be processed after we receive and verify your payment proof.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
 
                                     {/* WhatsApp Button */}
                                     <a
                                         href={getWhatsAppLink()}
                                         target="_blank"
                                         rel="noopener noreferrer"
-                                        className="mt-6 w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 hover:shadow-xl hover:scale-[1.02] transition-all"
+                                        className={`mt-6 w-full ${paymentMethod === 'cod' ? 'bg-gradient-to-r from-blue-600 to-indigo-600' : 'bg-gradient-to-r from-green-500 to-green-600'} text-white py-4 rounded-xl font-bold text-base sm:text-lg flex items-center justify-center gap-2 sm:gap-3 hover:shadow-xl hover:scale-[1.02] transition-all`}
                                     >
                                         <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6" />
-                                        Send Payment Proof on WhatsApp
+                                        {paymentMethod === 'cod' ? 'Confirm Order on WhatsApp' : 'Send Payment Proof on WhatsApp'}
                                     </a>
                                     <p className="text-center text-gray-500 dark:text-gray-400 text-sm mt-3">
                                         WhatsApp: <span className="font-semibold">{whatsappDisplayNumber}</span>
@@ -328,7 +418,7 @@ export default function CheckoutClient() {
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Amount Paid</p>
-                                    <p className="font-bold text-xl text-gray-800 dark:text-white">{formatPrice(finalTotal)}</p>
+                                    <p className="font-bold text-xl text-gray-800 dark:text-white">{formatPrice(confirmedTotal)}</p>
                                 </div>
                                 <div>
                                     <p className="text-sm text-gray-500 dark:text-gray-400">Payment Method</p>
@@ -594,17 +684,27 @@ export default function CheckoutClient() {
                                     <CreditCard className="w-6 h-6 text-rose-500" />
                                     Payment Method
                                 </h2>
-                                <p className="text-gray-600 dark:text-gray-300 mb-6">Select your preferred payment method and pay in advance</p>
+                                <p className="text-gray-600 dark:text-gray-300 mb-6 font-medium">Select how you'd like to pay for your order</p>
 
-                                {/* Advance Payment Notice */}
-                                <div className="bg-amber-50 dark:bg-amber-900/20 border-2 border-amber-200 dark:border-amber-800 rounded-xl p-4 mb-6">
+                                {/* COD vs Advance Notice */}
+                                <div className={`border-2 rounded-xl p-4 mb-6 transition-colors ${paymentMethod === 'cod'
+                                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
+                                    : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
+                                    }`}>
                                     <div className="flex items-start gap-3">
-                                        <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 flex-shrink-0 mt-0.5" />
+                                        {paymentMethod === 'cod' ? (
+                                            <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 flex-shrink-0 mt-0.5" />
+                                        ) : (
+                                            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 flex-shrink-0 mt-0.5" />
+                                        )}
                                         <div>
-                                            <p className="font-semibold text-amber-800 dark:text-amber-200 text-sm sm:text-base">Advance Payment Required</p>
-                                            <p className="text-amber-700 dark:text-amber-300 text-xs sm:text-sm mt-1">
-                                                We require complete advance payment before processing your order.
-                                                Please select an account and transfer the total amount.
+                                            <p className={`font-semibold text-sm sm:text-base ${paymentMethod === 'cod' ? 'text-blue-800 dark:text-blue-200' : 'text-amber-800 dark:text-amber-200'}`}>
+                                                {paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Advance Payment Required'}
+                                            </p>
+                                            <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${paymentMethod === 'cod' ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'}`}>
+                                                {paymentMethod === 'cod'
+                                                    ? 'Pay the total amount in cash to our delivery partner when you receive your package.'
+                                                    : 'We require complete advance payment to process your order. Transfer the amount to any of the accounts below.'}
                                             </p>
                                         </div>
                                     </div>
@@ -642,28 +742,35 @@ export default function CheckoutClient() {
                                                 {/* Account Details */}
                                                 {paymentMethod === account.id && (
                                                     <div className="mt-4 ml-7 sm:ml-9 bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-100 dark:border-gray-700">
-                                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                            <div>
-                                                                <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Title</p>
-                                                                <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">{account.accountTitle}</p>
-                                                            </div>
-                                                            <div>
-                                                                <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Number</p>
-                                                                <div className="flex items-center gap-2">
-                                                                    <p className="font-semibold text-gray-800 dark:text-white font-mono text-base sm:text-lg">{account.accountNumber}</p>
-                                                                    <button
-                                                                        type="button"
-                                                                        onClick={() => copyToClipboard(account.accountNumber, account.id)}
-                                                                        className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                                                                    >
-                                                                        <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                                                                    </button>
-                                                                    {copiedAccount === account.id && (
-                                                                        <span className="text-xs text-green-600 dark:text-green-400 font-medium">Copied!</span>
-                                                                    )}
+                                                        {account.id !== 'cod' ? (
+                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                <div>
+                                                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Title</p>
+                                                                    <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">{account.accountTitle}</p>
+                                                                </div>
+                                                                <div>
+                                                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Number</p>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <p className="font-semibold text-gray-800 dark:text-white font-mono text-base sm:text-lg">{account.accountNumber}</p>
+                                                                        <button
+                                                                            type="button"
+                                                                            onClick={() => copyToClipboard(account.accountNumber, account.id)}
+                                                                            className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                                                        >
+                                                                            <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                                                        </button>
+                                                                        {copiedAccount === account.id && (
+                                                                            <span className="text-xs text-green-600 dark:text-green-400 font-medium">Copied!</span>
+                                                                        )}
+                                                                    </div>
                                                                 </div>
                                                             </div>
-                                                        </div>
+                                                        ) : (
+                                                            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                                                                <Truck className="w-5 h-5" />
+                                                                <p className="text-sm font-bold uppercase tracking-wide">Pay cash to the rider upon delivery</p>
+                                                            </div>
+                                                        )}
                                                         <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                                             <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount to Pay</p>
                                                             <p className="font-bold text-2xl text-rose-500">{formatPrice(finalTotal)}</p>
@@ -736,9 +843,20 @@ export default function CheckoutClient() {
                                     <h3 className="font-bold text-gray-800 dark:text-white mb-4">Order Items</h3>
                                     <div className="space-y-4">
                                         {items.map(item => (
-                                            <div key={item.id} className="flex justify-between">
-                                                <span>{item.name} x {item.quantity}</span>
-                                                <span>{formatPrice(item.price * item.quantity)}</span>
+                                            <div key={item.uniqueId} className="flex flex-col border-b border-gray-50 pb-2 last:border-0 last:pb-0">
+                                                <div className="flex justify-between">
+                                                    <span className="font-medium text-gray-800 dark:text-gray-200">{item.name} <span className="text-gray-500 text-sm">x {item.quantity}</span></span>
+                                                    <span className="font-bold">{formatPrice(item.price * item.quantity)}</span>
+                                                </div>
+                                                {item.selectedVariations && (
+                                                    <div className="flex flex-wrap gap-1 mt-1">
+                                                        {Object.entries(item.selectedVariations).map(([key, value]) => (
+                                                            <span key={key} className="text-xs text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-gray-800 px-1.5 py-0.5 rounded">
+                                                                {key}: {value}
+                                                            </span>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         ))}
                                     </div>

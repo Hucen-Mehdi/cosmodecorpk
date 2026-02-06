@@ -23,6 +23,8 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
     const [showFilters, setShowFilters] = useState(false);
     const [products] = useState<Product[]>(initialProducts);
     const [categories] = useState<Category[]>(initialCategories);
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 24;
 
     // Sync state with URL params when they change
     useEffect(() => {
@@ -32,10 +34,24 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
         }
     }, [searchParams]);
 
+    // Reset pagination when filters change
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [selectedCategory, priceRange, sortBy, searchParams]);
+
     const filterParam = searchParams?.get('filter');
 
     const filteredProducts = useMemo(() => {
         let result = [...products];
+        const searchVal = searchParams?.get('search')?.toLowerCase() || '';
+
+        if (searchVal) {
+            result = result.filter(p =>
+                (p.name || '').toLowerCase().includes(searchVal) ||
+                (p.description || '').toLowerCase().includes(searchVal) ||
+                (p.category || '').toLowerCase().includes(searchVal)
+            );
+        }
 
         // Filter by URL parameter (new, bestseller)
         if (filterParam === 'new') {
@@ -46,14 +62,15 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
         }
 
         if (filterParam === 'bestseller') {
+            // Updated logic: if few items have badge, fallback to rating
             result = result.filter(p =>
-                p.badge?.toLowerCase() === 'bestseller' ||
-                (typeof p.rating === 'number' && p.rating >= 4.7)
+                (p.badge?.toLowerCase() === 'bestseller') ||
+                (typeof p.rating === 'number' && p.rating >= 4.5) // Lowered threshold slightly to 4.5
             );
         }
 
         if (selectedCategory) {
-            result = result.filter(p => p.category?.toLowerCase() === selectedCategory.toLowerCase());
+            result = result.filter(p => (p.category || '').toLowerCase() === selectedCategory.toLowerCase());
         }
 
         result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
@@ -74,13 +91,17 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
         }
 
         return result;
-    }, [products, selectedCategory, priceRange, sortBy, filterParam]);
+    }, [products, selectedCategory, priceRange, sortBy, filterParam, searchParams]);
 
-    const pageTitle = filterParam === 'new'
-        ? 'New Arrivals'
-        : filterParam === 'bestseller'
-            ? 'Best Sellers'
-            : 'All Products';
+    const searchVal = searchParams?.get('search');
+
+    const pageTitle = searchVal
+        ? `Search results for "${searchVal}"`
+        : filterParam === 'new'
+            ? 'New Arrivals'
+            : filterParam === 'bestseller'
+                ? 'Best Sellers'
+                : 'All Products';
 
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 transition-colors duration-200">
@@ -88,10 +109,22 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                 {/* Header */}
                 <div className="mb-8">
                     <h1 className="text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-2">{pageTitle}</h1>
-                    <p className="text-gray-600 dark:text-gray-400">
-                        {filteredProducts.length} products found
-                        <span className="text-xs ml-2 opacity-50">(Total: {products.length})</span>
-                    </p>
+                    <div className="flex items-center gap-4 flex-wrap">
+                        <p className="text-gray-600 dark:text-gray-400">
+                            {filteredProducts.length} products found
+                            <span className="text-xs ml-2 opacity-50">(Total: {products.length})</span>
+                        </p>
+
+                        {/* Clear Filter Button if specialized filter is active */}
+                        {filterParam && (
+                            <button
+                                onClick={() => router.push('/products')}
+                                className="text-sm bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 px-3 py-1 rounded-full hover:bg-rose-200 dark:hover:bg-rose-900/50 transition-colors flex items-center gap-1"
+                            >
+                                Clear "{filterParam === 'new' ? 'New Arrivals' : 'Best Sellers'}" Filter <X className="w-3 h-3" />
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 <div className="flex gap-8">
@@ -107,7 +140,9 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                 <h4 className="font-medium text-gray-700 dark:text-gray-300 mb-3">Categories</h4>
                                 <div className="space-y-2">
                                     <button
-                                        onClick={() => setSelectedCategory(null)}
+                                        onClick={() => {
+                                            router.push('/products');
+                                        }}
                                         className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${!selectedCategory ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
                                             }`}
                                     >
@@ -116,11 +151,15 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                     {categories.map((cat) => (
                                         <button
                                             key={cat.id}
-                                            onClick={() => setSelectedCategory(cat.id)}
-                                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors flex items-center gap-2 ${selectedCategory === cat.id ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
+                                            onClick={() => {
+                                                const params = new URLSearchParams(searchParams?.toString());
+                                                params.set('category', cat.id);
+                                                router.push(`/products?${params.toString()}`);
+                                            }}
+                                            className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
                                                 }`}
                                         >
-                                            <span>{cat.icon}</span> {cat.name}
+                                            {cat.name}
                                         </button>
                                     ))}
                                 </div>
@@ -162,7 +201,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                             {/* Clear Filters */}
                             <button
                                 onClick={() => {
-                                    setSelectedCategory(null);
+                                    router.push('/products');
                                     setPriceRange([0, 1000000]);
                                 }}
                                 className="w-full py-2 border border-gray-200 dark:border-gray-700 rounded-lg text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors"
@@ -173,7 +212,26 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                     </aside>
 
                     {/* Main Content */}
-                    <div className="flex-1">
+                    <div className="flex-1 w-full max-w-full">
+                        {/* Mobile Sliding Categories */}
+                        <div className="lg:hidden mb-6 overflow-x-auto scrollbar-hide -mx-4 px-4 flex items-center gap-2 no-scrollbar">
+                            <button
+                                onClick={() => setSelectedCategory(null)}
+                                className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${!selectedCategory ? 'bg-rose-500 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border dark:border-gray-800'}`}
+                            >
+                                All
+                            </button>
+                            {categories.map((cat) => (
+                                <button
+                                    key={cat.id}
+                                    onClick={() => setSelectedCategory(cat.id)}
+                                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${selectedCategory === cat.id ? 'bg-rose-500 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border dark:border-gray-800'}`}
+                                >
+                                    {cat.name}
+                                </button>
+                            ))}
+                        </div>
+
                         {/* Toolbar */}
                         <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm mb-6 flex flex-wrap items-center justify-between gap-4 border dark:border-gray-800">
                             <button
@@ -214,8 +272,20 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                         </div>
 
                         {/* Active Filters */}
-                        {(selectedCategory || priceRange[0] > 0 || priceRange[1] < 1000000 || filterParam) && (
+                        {(selectedCategory || priceRange[0] > 0 || priceRange[1] < 1000000 || filterParam || searchVal) && (
                             <div className="flex flex-wrap gap-2 mb-4">
+                                {searchVal && (
+                                    <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-full text-sm">
+                                        Search: "{searchVal}"
+                                        <button onClick={() => {
+                                            const params = new URLSearchParams(searchParams?.toString());
+                                            params.delete('search');
+                                            router.push(`/products?${params.toString()}`);
+                                        }}>
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </span>
+                                )}
                                 {filterParam && (
                                     <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-full text-sm">
                                         {filterParam === 'new' ? 'New Arrivals' : 'Best Sellers'}
@@ -241,14 +311,57 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                         )}
 
                         {/* Products Grid */}
-                        <div className={`grid gap-4 sm:gap-6 ${viewMode === 'grid'
-                            ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4'
+                        <div className={`grid gap-3 sm:gap-6 ${viewMode === 'grid'
+                            ? 'grid-cols-2 md:grid-cols-3 lg:grid-cols-4'
                             : 'grid-cols-1'
                             }`}>
-                            {filteredProducts.map((product) => (
+                            {filteredProducts.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage).map((product) => (
                                 <ProductCard key={product.id} product={product} />
                             ))}
                         </div>
+
+                        {/* Numeric Pagination */}
+                        {filteredProducts.length > itemsPerPage && (
+                            <div className="mt-12 flex justify-center items-center gap-2 flex-wrap">
+                                <button
+                                    disabled={currentPage === 1}
+                                    onClick={() => {
+                                        setCurrentPage(prev => prev - 1);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300"
+                                >
+                                    ←
+                                </button>
+
+                                {Array.from({ length: Math.ceil(filteredProducts.length / itemsPerPage) }, (_, i) => i + 1).map(page => (
+                                    <button
+                                        key={page}
+                                        onClick={() => {
+                                            setCurrentPage(page);
+                                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                                        }}
+                                        className={`w-10 h-10 flex items-center justify-center rounded-lg border transition-colors font-medium ${currentPage === page
+                                            ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                                            : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
+                                            }`}
+                                    >
+                                        {page}
+                                    </button>
+                                ))}
+
+                                <button
+                                    disabled={currentPage === Math.ceil(filteredProducts.length / itemsPerPage)}
+                                    onClick={() => {
+                                        setCurrentPage(prev => prev + 1);
+                                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                    className="w-10 h-10 flex items-center justify-center rounded-lg border border-gray-200 dark:border-gray-700 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300"
+                                >
+                                    →
+                                </button>
+                            </div>
+                        )}
 
                         {filteredProducts.length === 0 && (
                             <div className="text-center py-16">
@@ -294,10 +407,10 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                     <button
                                         key={cat.id}
                                         onClick={() => setSelectedCategory(cat.id)}
-                                        className={`w-full text-left px-3 py-2 rounded-lg flex items-center gap-2 transition-colors ${selectedCategory === cat.id ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
+                                        className={`w-full text-left px-3 py-2 rounded-lg transition-colors ${selectedCategory === cat.id ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400' : 'hover:bg-gray-100 dark:hover:bg-gray-800 dark:text-gray-300'
                                             }`}
                                     >
-                                        <span>{cat.icon}</span> {cat.name}
+                                        {cat.name}
                                     </button>
                                 ))}
                             </div>

@@ -21,9 +21,7 @@ export async function login(email: string, password: string): Promise<AuthRespon
     });
 
     const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Login failed');
-    }
+    // Return data directly, caller should check response.ok or look for error messages in data
     return data;
 }
 
@@ -35,22 +33,28 @@ export async function register(name: string, email: string, password: string): P
     });
 
     const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Registration failed');
-    }
     return data;
 }
 
-export async function getCurrentUser(token: string): Promise<{ user: AuthUser }> {
-    const response = await fetch(`${API_BASE_URL}/me`, {
-        headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    });
+export async function getCurrentUser(token: string): Promise<{ user: AuthUser | null }> {
+    try {
+        const response = await fetch(`${API_BASE_URL}/me`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
 
-    const data = await response.json();
-    if (!response.ok) {
-        throw new Error(data.message || 'Failed to fetch user');
+        if (response.status === 401) {
+            return { user: null };
+        }
+
+        const data = await response.json();
+        if (!response.ok) {
+            return { user: null };
+        }
+        return data;
+    } catch (error) {
+        console.error('Failed to fetch user:', error);
+        return { user: null };
     }
-    return data;
 }

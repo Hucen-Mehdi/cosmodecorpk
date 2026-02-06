@@ -2,8 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, FolderTree, AlertCircle, X, Search, MoreVertical } from 'lucide-react';
-import { fetchCategories } from '@/src/api/api';
-import { createCategory, updateCategory, deleteCategory } from '@/src/api/admin';
+import { fetchCategories, fetchProducts } from '@/src/api/api';
+import { createCategory, updateCategory, deleteCategory, updateCategoryProducts } from '@/src/api/admin';
+import { DeleteConfirmationModal } from '../_components/DeleteConfirmationModal';
+import { Check } from 'lucide-react';
 
 export default function AdminCategories() {
     const [categories, setCategories] = useState<any[]>([]);
@@ -12,6 +14,13 @@ export default function AdminCategories() {
     const [showModal, setShowModal] = useState(false);
     const [editingCategory, setEditingCategory] = useState<any>(null);
     const [error, setError] = useState('');
+    const [allProducts, setAllProducts] = useState<any[]>([]);
+    const [selectedProductIds, setSelectedProductIds] = useState<number[]>([]);
+
+    // Deletion State
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+    const [categoryToDelete, setCategoryToDelete] = useState<any>(null);
+    const [isDeleting, setIsDeleting] = useState(false);
 
     const [formData, setFormData] = useState({
         id: '',
@@ -20,34 +29,45 @@ export default function AdminCategories() {
         image: ''
     });
 
-    const loadCategories = async () => {
+    const loadData = async () => {
         setLoading(true);
         try {
-            const data = await fetchCategories();
-            setCategories(data);
+            const [cats, prods] = await Promise.all([
+                fetchCategories(),
+                fetchProducts()
+            ]);
+            setCategories(cats);
+            setAllProducts(prods);
         } catch (err) {
-            setError('Failed to load categories');
+            setError('Failed to load data');
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        loadCategories();
+        loadData();
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setError('');
         try {
+            let categoryId = formData.id;
             if (editingCategory) {
                 await updateCategory(editingCategory.id, formData);
             } else {
-                await createCategory(formData);
+                const newCat = await createCategory(formData);
+                categoryId = newCat.id;
             }
+
+            // Update products mapping
+            await updateCategoryProducts(categoryId, selectedProductIds);
+
             setShowModal(false);
-            loadCategories();
+            loadData();
             setFormData({ id: '', name: '', icon: '', image: '' });
+            setSelectedProductIds([]);
         } catch (err: any) {
             setError(err.message);
         }
@@ -61,17 +81,33 @@ export default function AdminCategories() {
             icon: cat.icon || '',
             image: cat.image || ''
         });
+
+        // Find products that belong to this category
+        const currentProducts = allProducts
+            .filter(p => p.categoryIds?.includes(cat.id))
+            .map(p => p.id);
+        setSelectedProductIds(currentProducts);
+
         setShowModal(true);
     };
 
-    const handleDelete = async (id: string) => {
-        if (window.confirm('Are you sure you want to delete this category?')) {
-            try {
-                await deleteCategory(id);
-                loadCategories();
-            } catch (err: any) {
-                alert(err.message);
-            }
+    const handleDeleteClick = (cat: any) => {
+        setCategoryToDelete(cat);
+        setDeleteModalOpen(true);
+    };
+
+    const confirmDelete = async () => {
+        if (!categoryToDelete) return;
+        setIsDeleting(true);
+        try {
+            await deleteCategory(categoryToDelete.id);
+            loadData();
+            setDeleteModalOpen(false);
+            setCategoryToDelete(null);
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsDeleting(false);
         }
     };
 
@@ -91,6 +127,7 @@ export default function AdminCategories() {
                     onClick={() => {
                         setEditingCategory(null);
                         setFormData({ id: '', name: '', icon: '', image: '' });
+                        setSelectedProductIds([]);
                         setShowModal(true);
                     }}
                     className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95 self-start md:self-auto"
@@ -174,7 +211,7 @@ export default function AdminCategories() {
                                                     <Edit2 className="w-5 h-5" />
                                                 </button>
                                                 <button
-                                                    onClick={() => handleDelete(cat.id)}
+                                                    onClick={() => handleDeleteClick(cat)}
                                                     className="p-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all"
                                                     title="Delete"
                                                 >
@@ -257,6 +294,50 @@ export default function AdminCategories() {
                                         />
                                     </div>
                                 </div>
+
+                                {/* Product Selection */}
+                                <div>
+                                    <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-4 px-1">Products in this Collection</label>
+                                    <div className="bg-gray-50 border border-gray-200 rounded-2xl overflow-hidden">
+                                        <div className="max-h-64 overflow-y-auto p-2 space-y-1">
+                                            {allProducts.length === 0 ? (
+                                                <p className="text-sm text-gray-400 p-4 text-center">No products found.</p>
+                                            ) : (
+                                                allProducts.map(product => {
+                                                    const isSelected = selectedProductIds.includes(product.id);
+                                                    return (
+                                                        <button
+                                                            key={product.id}
+                                                            type="button"
+                                                            onClick={() => {
+                                                                if (isSelected) {
+                                                                    setSelectedProductIds(selectedProductIds.filter(id => id !== product.id));
+                                                                } else {
+                                                                    setSelectedProductIds([...selectedProductIds, product.id]);
+                                                                }
+                                                            }}
+                                                            className={`w-full flex items-center gap-3 p-2 rounded-xl transition-all text-left ${isSelected ? 'bg-rose-50 border border-rose-100' : 'hover:bg-white border border-transparent'}`}
+                                                        >
+                                                            <div className="w-10 h-10 rounded-lg overflow-hidden bg-gray-200 flex-shrink-0">
+                                                                <img src={product.image} alt="" className="w-full h-full object-cover" />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="text-sm font-bold text-gray-900 truncate">{product.name}</p>
+                                                                <p className="text-[10px] text-gray-400 font-medium">Rs. {product.price.toLocaleString()}</p>
+                                                            </div>
+                                                            {isSelected && (
+                                                                <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center text-white">
+                                                                    <Check className="w-4 h-4" />
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    );
+                                                })
+                                            )}
+                                        </div>
+                                    </div>
+                                    <p className="text-[10px] text-gray-400 mt-2 px-1 italic">Select the products you want to include in this collection.</p>
+                                </div>
                             </div>
                             <div className="pt-6 border-t border-gray-100 flex gap-4">
                                 <button
@@ -277,6 +358,20 @@ export default function AdminCategories() {
                     </div>
                 </div>
             )}
+            {/* Delete Confirmation Modal */}
+            <DeleteConfirmationModal
+                isOpen={deleteModalOpen}
+                onClose={() => setDeleteModalOpen(false)}
+                onConfirm={confirmDelete}
+                title="Delete Collection?"
+                message={`Are you sure you want to permanently delete "${categoryToDelete?.name}"?`}
+                isDeleting={isDeleting}
+                warning={
+                    categoryToDelete?.productCount && categoryToDelete.productCount > 0
+                        ? `This will also delete ALL ${categoryToDelete.productCount} products in this category!`
+                        : undefined
+                }
+            />
         </div>
     );
 }

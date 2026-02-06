@@ -24,10 +24,14 @@ export default function LoginClient() {
         setIsSubmitting(true);
 
         try {
-            await login(email, password);
-            router.replace(from);
+            const result = await login(email, password);
+            if (result.success) {
+                router.replace(from);
+            } else {
+                setError(result.message || 'Invalid email or password');
+            }
         } catch (err: any) {
-            setError(err.message || 'Invalid email or password');
+            setError('An unexpected error occurred during login');
         } finally {
             setIsSubmitting(false);
         }

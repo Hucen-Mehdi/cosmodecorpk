@@ -5,6 +5,13 @@ import { Providers } from "../components/Providers";
 
 const inter = Inter({ subsets: ["latin"] });
 
+// 📱 Viewport settings for mobile responsiveness
+export const viewport = {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+};
+
 export const metadata: Metadata = {
     title: "CosmoDecorPK | Premium Home Decor",
     description: "Transform your space with CosmoDecorPK - Premium home decor, plants, and lighting in Pakistan.",

@@ -3,9 +3,9 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { authenticateToken, AuthRequest } from '../middleware/auth';
 import { userRepository } from '../repositories/userRepository';
+import { JWT_SECRET } from '../config';
 
 const router = express.Router();
-const JWT_SECRET = process.env.JWT_SECRET || 'cosmodecor_secret_key_123';
 
 // Remove runtime seedAdmin() - relying on DB seed script
 
@@ -64,48 +64,70 @@ router.post('/register', async (req, res) => {
 });
 
 router.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-
-    if (!email || !password) {
-        return res.status(400).json({ message: 'Email and password are required' });
-    }
+    console.log('🔑 LOGIN ATTEMPT:', { email: req.body.email });
 
     try {
+        const { email, password } = req.body;
+
+        // 1. Validate input
+        if (!email || !password) {
+            console.log('❌ Missing email or password');
+            return res.status(400).json({ message: 'Email and password required' });
+        }
+
+        // 2. Find user
+        console.log('🔍 Searching user in database...');
         const user = await userRepository.findByEmail(email);
 
-        if (!user || !user.passwordHash) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+        if (!user) {
+            console.log('❌ User not found:', email);
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        console.log('✅ User found:', user.email);
+
+        if (!user.passwordHash) {
+            console.log('❌ User has no password hash (possibly oauth?)');
+            return res.status(401).json({ message: 'Invalid credentials' });
+        }
+
+        // 3. Compare password
         const isMatch = await bcrypt.compare(password, user.passwordHash);
+
         if (!isMatch) {
-            return res.status(401).json({ message: 'Invalid email or password' });
+            console.log('❌ Password mismatch for:', email);
+            return res.status(401).json({ message: 'Invalid credentials' });
         }
 
+        console.log('✅ Login successful for:', email);
+
+        // 4. Generate JWT token
         const token = jwt.sign(
             { id: user.id, name: user.name, email: user.email, role: user.role },
             JWT_SECRET,
-            { expiresIn: '24h' }
+            { expiresIn: '7d' }
         );
 
         res.json({
+            message: 'Login successful',
             token,
             user: {
                 id: user.id,
-                name: user.name,
                 email: user.email,
+                name: user.name,
                 role: user.role
             }
         });
+
     } catch (error: any) {
-        console.error('❌ Login error details:', {
-            message: error.message,
-            stack: error.stack,
-            email // Log the email tried (safe, not password)
-        });
+        console.error('🔥 LOGIN ERROR DETAILS:');
+        console.error('Error message:', error.message);
+        console.error('Error stack:', error.stack);
+        console.error('Request body:', req.body);
+
         res.status(500).json({
-            message: 'Server error during login',
-            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+            message: 'Login failed',
+            error: error.message
         });
     }
 });

@@ -4,13 +4,16 @@ import { Product } from '../api/api';
 
 interface CartItem extends Product {
   quantity: number;
+  selectedVariations?: { [key: string]: string };
+  finalPrice: number; // Price including variation adjustments
+  uniqueId: string;   // Unique ID for cart management (id + variations)
 }
 
 interface CartContextType {
   items: CartItem[];
-  addToCart: (product: Product) => void;
-  removeFromCart: (productId: number) => void;
-  updateQuantity: (productId: number, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, variations?: { [key: string]: string }) => void;
+  removeFromCart: (uniqueId: string) => void;
+  updateQuantity: (uniqueId: string, quantity: number) => void;
   clearCart: () => void;
   totalItems: number;
   totalPrice: number;
@@ -21,32 +24,55 @@ const CartContext = createContext<CartContextType | undefined>(undefined);
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
 
-  const addToCart = (product: Product) => {
+  const addToCart = (product: Product, quantity = 1, variations: { [key: string]: string } = {}) => {
     setItems(prev => {
-      const existing = prev.find(item => item.id === product.id);
+      // Create a deterministic key for variations
+      const variationKey = JSON.stringify(variations || {});
+
+      // Calculate final price based on variations
+      let finalPrice = product.price;
+      if (product.variations && variations) {
+        Object.entries(variations).forEach(([varName, option]) => {
+          const variant = product.variations?.find(v => v.name === varName);
+          if (variant && variant.priceAdjustments[option]) {
+            finalPrice += variant.priceAdjustments[option];
+          }
+        });
+      }
+
+      const existingRequestUniqueId = `${product.id}-${variationKey}`;
+      const existing = prev.find(item => item.uniqueId === existingRequestUniqueId);
+
       if (existing) {
         return prev.map(item =>
-          item.id === product.id
-            ? { ...item, quantity: item.quantity + 1 }
+          item.uniqueId === existingRequestUniqueId
+            ? { ...item, quantity: item.quantity + quantity }
             : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+
+      return [...prev, {
+        ...product,
+        quantity,
+        selectedVariations: variations,
+        finalPrice,
+        uniqueId: existingRequestUniqueId
+      }];
     });
   };
 
-  const removeFromCart = (productId: number) => {
-    setItems(prev => prev.filter(item => item.id !== productId));
+  const removeFromCart = (uniqueId: string) => {
+    setItems(prev => prev.filter(item => item.uniqueId !== uniqueId));
   };
 
-  const updateQuantity = (productId: number, quantity: number) => {
+  const updateQuantity = (uniqueId: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(uniqueId);
       return;
     }
     setItems(prev =>
       prev.map(item =>
-        item.id === productId ? { ...item, quantity } : item
+        item.uniqueId === uniqueId ? { ...item, quantity } : item
       )
     );
   };
@@ -54,7 +80,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = () => setItems([]);
 
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const totalPrice = items.reduce((sum, item) => sum + item.finalPrice * item.quantity, 0);
 
   return (
     <CartContext.Provider value={{

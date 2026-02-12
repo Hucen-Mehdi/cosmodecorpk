@@ -1,0 +1,6 @@
+Handle,Title,Product Category,Variant Price,Variant Compare At Price,Body (HTML),Image Src,Type,Variant Inventory Qty,Option1 Name,Option1 Value,Variant SKU
+luxury-gold-vases,Luxury Gold Vases,Home Decor,4500,6000,<p>Beautiful gold vases set</p>,https://images.unsplash.com/photo-1581783342308-f792cca04557?auto=format&fit=crop&q=80,Vase,20,Size,Large,GV-001
+modern-wall-clock,Modern Wall Clock,Wall Decor,3200,,<p>Minimalist wall clock</p>,https://images.unsplash.com/photo-1563861826100-9cb868fdbe1c?auto=format&fit=crop&q=80,Clock,15,Color,Black,WC-002
+artificial-orchid,Artificial Orchid Pot,Artificial Plants,1800,2500,<p>Realistic orchid plant</p>,https://images.unsplash.com/photo-1545239351-ef35f43d514b?auto=format&fit=crop&q=80,Plant,50,,,AO-003
+crystal-chandelier,Crystal Chandelier,Lighting,15000,18000,<p>Elegant crystal chandelier</p>,https://images.unsplash.com/photo-1543508282-6319a3e2621f?auto=format&fit=crop&q=80,Lighting,5,,,CC-004
+abstract-canvas-art,Abstract Canvas Art,Wall Decor,5500,,<p>Modern abstract art</p>,https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?auto=format&fit=crop&q=80,Art,10,Size,24x36,AC-005

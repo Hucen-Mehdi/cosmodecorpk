@@ -8,14 +8,48 @@ import orderRoutes from './routes/orderRoutes';
 import adminRoutes from './routes/adminRoutes';
 import { productRepository } from './repositories/productRepository';
 import reviewRoutes from './routes/reviewRoutes';
+import productRoutes from './routes/productRoutes';
+import adminProductSortingRoutes from './routes/adminProductSortingRoutes';
+import adminHeroRoutes from './routes/adminHeroRoutes';
+import heroRoutes from './routes/heroRoutes';
+import wishlistRoutes from './routes/wishlistRoutes';
 import { testimonialRepository } from './repositories/testimonialRepository';
 import { contactRepository } from './repositories/contactRepository';
 import { categoryRepository } from './repositories/categoryRepository';
 import { pool } from './db/client';
 import { PORT } from './config';
 import { createProxyMiddleware } from 'http-proxy-middleware';
+import fs from 'fs';
+import path from 'path';
 
 console.log("🔥 ACTIVE ENTRY FILE: server/src/index.ts");
+
+// 💾 AUTO-BACKUP LOGIC
+const runDailyBackup = async () => {
+  try {
+    const backupDir = path.join(process.cwd(), 'server', 'backups');
+    if (!fs.existsSync(backupDir)) fs.mkdirSync(backupDir, { recursive: true });
+
+    const today = new Date().toISOString().split('T')[0];
+    const dailyBackupFile = path.join(backupDir, `auto_backup_${today}.json`);
+
+    if (!fs.existsSync(dailyBackupFile)) {
+      console.log(`💾 Starting automatic daily backup for ${today}...`);
+      const tables = ['users', 'categories', 'products', 'reviews', 'testimonials', 'orders', 'order_items', 'addresses', 'notifications'];
+      const fullData: any = {};
+
+      for (const table of tables) {
+        const { rows } = await pool.query(`SELECT * FROM ${table}`);
+        fullData[table] = rows;
+      }
+
+      fs.writeFileSync(dailyBackupFile, JSON.stringify(fullData, null, 2));
+      console.log(`✅ Auto-backup completed: ${dailyBackupFile}`);
+    }
+  } catch (err) {
+    console.error("⚠️ Auto-backup failed:", err);
+  }
+};
 
 // 🛡️ Prevent Server Crashes
 process.on('uncaughtException', (err) => {
@@ -44,7 +78,6 @@ app.use((req, res, next) => {
 // Middleware
 app.use(cors({
   origin: [
-    'https://*.ngrok-free.dev',
     'http://localhost:3000',
     'http://localhost:3001'
   ],
@@ -55,6 +88,7 @@ app.use(express.json({ limit: '10mb' }));
 
 // ️ 2. NON-FATAL ASYNC DB CHECK
 const checkDatabase = async () => {
+  await runDailyBackup(); // Run auto-backup on startup
   try {
     const res = await pool.query('SELECT NOW()');
     console.log("✅ Database connectivity verified at:", res.rows[0].now);
@@ -96,16 +130,21 @@ checkDatabase();
 // 🚀 Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
-  console.log(`🌐 Ngrok command: ngrok http ${PORT} --region eu`);
-  console.log(`📢 After starting ngrok, share the https://*.ngrok-free.dev URL`);
+
 });
+
 
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/account', accountRoutes);
 app.use('/api/orders', orderRoutes);
+app.use('/api/admin/product-sorting', adminProductSortingRoutes);
+app.use('/api/admin/hero', adminHeroRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/hero', heroRoutes);
+app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
+app.use('/api/products', productRoutes);
 
 app.get('/api', (_req, res) => {
   res.json({
@@ -116,67 +155,6 @@ app.get('/api', (_req, res) => {
   });
 });
 
-// Search endpoint as requested
-app.get('/api/products/search', async (req: Request, res: Response) => {
-  try {
-    const { q, category, sort } = req.query;
-    const products = await productRepository.getAll({
-      category: category ? String(category) : undefined,
-      search: q ? String(q) : undefined
-    });
-
-    // Simple sorting logic if sort param is provided
-    if (sort === 'price_asc') {
-      products.sort((a, b) => a.price - b.price);
-    } else if (sort === 'price_desc') {
-      products.sort((a, b) => b.price - a.price);
-    }
-
-    // Limit to matching the requirement
-    const limitedResults = products.slice(0, 20);
-
-    // Get unique categories for the filters
-    const allCategories = await categoryRepository.getAll();
-    const categoriesNames = allCategories.map(c => c.name);
-
-    res.json({
-      products: limitedResults,
-      total: products.length,
-      categories: categoriesNames
-    });
-  } catch (error: any) {
-    console.error('Search error:', error);
-    res.status(500).json({ message: 'Search temporarily unavailable', details: error.message });
-  }
-});
-
-// General products endpoint
-app.get('/api/products', async (req: Request, res: Response) => {
-  try {
-    const { category, subcategory, search } = req.query;
-    const products = await productRepository.getAll({
-      category: category ? String(category) : undefined,
-      subcategory: subcategory ? String(subcategory) : undefined,
-      search: search ? String(search) : undefined
-    });
-    res.json(products);
-  } catch (error: any) {
-    console.error('Error fetching products:', error);
-    res.status(500).json({ message: 'Server error', details: error.message });
-  }
-});
-
-app.get('/api/products/:id', async (req: Request, res: Response) => {
-  try {
-    const id = Number(req.params.id);
-    const product = await productRepository.getById(id);
-    if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json(product);
-  } catch (error) {
-    console.error('Error fetching product:', error);
-    res.status(500).json({ message: 'Server error' });
-  }
-});
 
 // Categories
 app.get('/api/categories', async (_req: Request, res: Response) => {

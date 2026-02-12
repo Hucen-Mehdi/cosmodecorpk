@@ -1,0 +1,13 @@
+Backup Timestamp: 2/10/2026, 11:12:22 PM
+
+users: 8 rows
+categories: 40 rows
+products: 103 rows
+reviews: 29 rows
+testimonials: 3 rows
+orders: 19 rows
+order_items: 24 rows
+addresses: 0 rows
+notifications: 36 rows
+hero_slides: 3 rows
+category_product_sorting: 30 rows

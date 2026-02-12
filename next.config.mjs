@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    allowedDevOrigins: ['lilith-unsensualistic-amparo.ngrok-free.dev'],
+
     images: {
         remotePatterns: [
             {
@@ -8,6 +8,14 @@ const nextConfig = {
                 hostname: 'images.unsplash.com',
             },
         ],
+    },
+    async rewrites() {
+        return [
+            {
+                source: '/api/:path*',
+                destination: 'http://localhost:5000/api/:path*', // Proxy to Backend
+            },
+        ];
     },
     env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,

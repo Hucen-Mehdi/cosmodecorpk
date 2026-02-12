@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { Plus, Edit2, Trash2, Search, Package } from 'lucide-react';
+import { Plus, Edit2, Trash2, Search, Package, ArrowUpDown, Star } from 'lucide-react';
 import { fetchProducts } from '@/src/api/api';
 import { deleteProduct } from '@/src/api/admin';
 import Link from 'next/link';
@@ -79,12 +79,26 @@ export default function AdminProducts() {
                     <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Products</h1>
                     <p className="text-gray-500 mt-1 font-medium">Manage your inventory and product listings.</p>
                 </div>
-                <Link
-                    href="/admin/products/new"
-                    className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95 self-start md:self-auto"
-                >
-                    <Plus className="w-5 h-5" /> Add Product
-                </Link>
+                <div className="flex flex-wrap gap-3 self-start md:self-auto">
+                    <Link
+                        href="/admin/products/sorting"
+                        className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-2xl font-bold shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-gray-300"
+                    >
+                        <ArrowUpDown className="w-4 h-4" /> Reorder
+                    </Link>
+                    <Link
+                        href="/admin/products/featured"
+                        className="flex items-center gap-2 bg-white text-gray-700 px-5 py-3 rounded-2xl font-bold shadow-sm hover:shadow-md transition-all border border-gray-200 hover:border-gray-300"
+                    >
+                        <Star className="w-4 h-4" /> Featured
+                    </Link>
+                    <Link
+                        href="/admin/products/new"
+                        className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95"
+                    >
+                        <Plus className="w-5 h-5" /> Add Product
+                    </Link>
+                </div>
             </div>
 
             <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden mb-12">

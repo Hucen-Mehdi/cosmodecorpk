@@ -1,0 +1,123 @@
+{
+  "users": [
+    {
+      "id": "1770656556439",
+      "name": "Admin User",
+      "email": "admin@cosmodecor.pk",
+      "password_hash": "$2b$10$UDkZffnUxdfEsbTz7bHYlu2YSZnERb50iolblSpBW6ysUXVkV3.hK",
+      "role": "admin",
+      "first_name": "Admin",
+      "phone": null,
+      "created_at": "2026-02-09T17:02:36.440Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": "living-room",
+      "name": "Living Room",
+      "icon": "sofa",
+      "image_url": null,
+      "parent_id": null,
+      "slug": "living-room",
+      "description": "Comfortable living room furniture"
+    },
+    {
+      "id": "bedroom",
+      "name": "Bedroom",
+      "icon": "bed",
+      "image_url": null,
+      "parent_id": null,
+      "slug": "bedroom",
+      "description": "Cozy bedroom sets"
+    },
+    {
+      "id": "decor",
+      "name": "Decor",
+      "icon": "star",
+      "image_url": null,
+      "parent_id": null,
+      "slug": "decor",
+      "description": "Home decoration items"
+    },
+    {
+      "id": "lighting",
+      "name": "Lighting",
+      "icon": "lamp",
+      "image_url": null,
+      "parent_id": null,
+      "slug": "lighting",
+      "description": "Brighten up your home"
+    }
+  ],
+  "products": [
+    {
+      "id": 1,
+      "name": "Modern Sofa",
+      "price": "45000",
+      "original_price": "50000",
+      "image_url": "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=800&q=80",
+      "category_id": "living-room",
+      "subcategory": null,
+      "rating": "4.5",
+      "reviews": 12,
+      "badge": null,
+      "description": "A beautiful modern sofa for your living room.",
+      "stock": 10,
+      "created_at": "2026-02-09T17:02:36.456Z",
+      "delivery_charge": "0",
+      "additional_images": [],
+      "variations": [],
+      "category_ids": [
+        "living-room"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Table Lamp",
+      "price": "2500",
+      "original_price": "3000",
+      "image_url": "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=800&q=80",
+      "category_id": "lighting",
+      "subcategory": null,
+      "rating": "4.8",
+      "reviews": 8,
+      "badge": null,
+      "description": "Elegant table lamp.",
+      "stock": 25,
+      "created_at": "2026-02-09T17:02:36.460Z",
+      "delivery_charge": "0",
+      "additional_images": [],
+      "variations": [],
+      "category_ids": [
+        "lighting"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Wall Art",
+      "price": "1500",
+      "original_price": "2000",
+      "image_url": "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=800&q=80",
+      "category_id": "decor",
+      "subcategory": null,
+      "rating": "4.2",
+      "reviews": 5,
+      "badge": null,
+      "description": "Abstract wall art.",
+      "stock": 50,
+      "created_at": "2026-02-09T17:02:36.461Z",
+      "delivery_charge": "0",
+      "additional_images": [],
+      "variations": [],
+      "category_ids": [
+        "decor"
+      ]
+    }
+  ],
+  "reviews": [],
+  "testimonials": [],
+  "orders": [],
+  "order_items": [],
+  "addresses": [],
+  "notifications": []
+}

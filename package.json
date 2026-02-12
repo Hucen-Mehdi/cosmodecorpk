@@ -13,7 +13,7 @@
     "start:frontend": "next start",
     "start:server": "node server/dist/index.js",
     "db:migrate": "ts-node server/src/db/migrate.ts",
-    "db:seed": "ts-node server/src/scripts/seedFromJson.ts"
+    "db:seed": "node server/scripts/restore-from-backup.js"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
@@ -27,6 +27,7 @@
     "pg": "^8.17.2",
     "react": "18.3.1",
     "react-dom": "18.3.1",
+    "sharp": "^0.34.5",
     "tailwind-merge": "3.4.0"
   },
   "devDependencies": {

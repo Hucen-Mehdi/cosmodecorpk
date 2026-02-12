@@ -4,6 +4,7 @@ import { productRepository } from '../repositories/productRepository';
 import { categoryRepository } from '../repositories/categoryRepository';
 import { orderRepository } from '../repositories/orderRepository';
 import { notificationRepository } from '../repositories/notificationRepository';
+import { pool } from '../db/client';
 
 const router = express.Router();
 
@@ -188,6 +189,52 @@ router.post('/notifications/:id/read', async (req, res) => {
         res.json({ message: 'Notification marked as read' });
     } catch (error) {
         res.status(500).json({ message: 'Error marking notification as read' });
+    }
+});
+
+// Reviews
+router.get('/reviews', async (req, res) => {
+    try {
+        const result = await pool.query(`
+            SELECT r.*, p.name as product_name, p.image_url as product_image
+            FROM reviews r
+            LEFT JOIN products p ON r.product_id = p.id
+            ORDER BY r.review_date DESC
+        `);
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching reviews:', error);
+        res.status(500).json({ message: 'Error fetching reviews' });
+    }
+});
+
+router.delete('/reviews/:id', async (req, res) => {
+    try {
+        const reviewId = req.params.id;
+
+        // delete review and get product_id to update stats
+        const deleteResult = await pool.query(
+            'DELETE FROM reviews WHERE id = $1 RETURNING product_id',
+            [reviewId]
+        );
+
+        if (deleteResult.rows.length > 0) {
+            const productId = deleteResult.rows[0].product_id;
+
+            // Recalculate stats for the product
+            await pool.query(`
+                UPDATE products p
+                SET 
+                    rating = COALESCE((SELECT AVG(rating) FROM reviews r WHERE r.product_id = p.id), 0),
+                    reviews = (SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id)
+                WHERE id = $1
+            `, [productId]);
+        }
+
+        res.status(204).send();
+    } catch (error) {
+        console.error('Error deleting review:', error);
+        res.status(500).json({ message: 'Error deleting review' });
     }
 });
 

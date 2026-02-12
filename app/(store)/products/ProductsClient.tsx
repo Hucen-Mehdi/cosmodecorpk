@@ -21,8 +21,8 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
     const [selectedCategory, setSelectedCategory] = useState<string | null>(searchParams?.get('category') || null);
     const [priceRange, setPriceRange] = useState<[number, number]>([0, 1000000]);
     const [showFilters, setShowFilters] = useState(false);
-    const [products] = useState<Product[]>(initialProducts);
-    const [categories] = useState<Category[]>(initialCategories);
+    const products = initialProducts;
+    const categories = initialCategories;
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 24;
 
@@ -76,6 +76,18 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
         result = result.filter(p => p.price >= priceRange[0] && p.price <= priceRange[1]);
 
         switch (sortBy) {
+            case 'featured':
+                result.sort((a, b) => {
+                    if (a.isFeatured !== b.isFeatured) return a.isFeatured ? -1 : 1;
+                    return (a.sortOrder ?? 1000) - (b.sortOrder ?? 1000);
+                });
+                break;
+            case 'manual':
+                result.sort((a, b) => (a.sortOrder ?? 1000) - (b.sortOrder ?? 1000));
+                break;
+            case 'bestseller':
+                result.sort((a, b) => (b.salesCount ?? 0) - (a.salesCount ?? 0));
+                break;
             case 'price-low':
                 result.sort((a, b) => a.price - b.price);
                 break;
@@ -86,7 +98,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                 result.sort((a, b) => b.rating - a.rating);
                 break;
             case 'newest':
-                result = result.filter(p => p.badge === 'New').concat(result.filter(p => p.badge !== 'New'));
+                result.sort((a, b) => b.id - a.id);
                 break;
         }
 
@@ -248,6 +260,8 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                     className="px-4 py-2 border border-gray-200 dark:border-gray-700 rounded-lg focus:outline-none focus:border-rose-400 bg-white dark:bg-gray-800 text-gray-800 dark:text-white"
                                 >
                                     <option value="featured">Featured</option>
+                                    <option value="manual">Default (Manual)</option>
+                                    <option value="bestseller">Best Sellers</option>
                                     <option value="newest">Newest</option>
                                     <option value="price-low">Price: Low to High</option>
                                     <option value="price-high">Price: High to Low</option>

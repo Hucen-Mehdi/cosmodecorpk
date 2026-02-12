@@ -22,7 +22,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function CategoryPage({ params, searchParams }: Props) {
-  const { id } = params;
+  const id = params.id;
+  const normalizedId = id.toLowerCase();
   const subFilter = searchParams.sub;
 
   let products: Product[] = [];
@@ -30,7 +31,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
 
   try {
     const [productsData, categoriesData] = await Promise.all([
-      fetchProducts(),
+      fetchProducts({ category: normalizedId }),
       fetchCategories(),
     ]);
     products = productsData;
@@ -40,12 +41,57 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   }
 
   const category = categories.find(
-    (c) => c.id.toLowerCase() === id.toLowerCase()
+    (c: CategoryType) => c.id.toLowerCase() === normalizedId
   );
 
-  const categoryProducts = products.filter(
-    (p) => p.category?.toLowerCase() === id.toLowerCase()
-  );
+  const selectedSub = category?.subcategories?.find((s: any) => s.id === subFilter);
+
+  const categoryProducts = products
+    .filter((p: Product) => {
+      // 1. Verify Product belongs to current Main Category (Primary or via Array)
+      const mainCategoryMatch =
+        (p.category || '').toLowerCase() === normalizedId ||
+        p.categoryIds?.some(cid => cid.toLowerCase() === normalizedId);
+
+      if (!mainCategoryMatch) return false;
+
+      // If no subfilter, return all matching products
+      if (!subFilter) return true;
+
+      // 2. Handle Subfilters (Price & Subcategories)
+      const normalize = (str: string) => str.toLowerCase().replace(/,/g, '').replace('k', '000');
+      const subName = selectedSub ? normalize(selectedSub.name) : '';
+      const subId = normalize(subFilter || '');
+
+      // Price "Virtual" Filters
+      if (subId.includes('under-5000') || subName.includes('under 5000')) {
+        return p.price < 5000;
+      }
+      if (subId.includes('under-10000') || subName.includes('under 10000')) {
+        return p.price < 10000;
+      }
+      if (subId.includes('above-10000') || subName.includes('above 10000')) {
+        return p.price >= 10000;
+      }
+
+      // Standard Subcategory / Type Matching
+      const filterSub = subFilter.toLowerCase();
+      const filterName = selectedSub ? selectedSub.name.toLowerCase() : '';
+      const productSub = (p.subcategory || '').toLowerCase();
+
+      // Check if product matches subcategory via:
+      // - subcategory string name
+      // - category ID (if mapped directly)
+      // - categoryIds array
+      const isSubcategoryMatch =
+        productSub === filterSub ||
+        (filterName && productSub === filterName) ||
+        (p.category || '').toLowerCase() === filterSub ||
+        p.categoryIds?.some(cid => cid.toLowerCase() === filterSub);
+
+      return isSubcategoryMatch;
+    })
+    .sort((a: Product, b: Product) => (a.sortOrder ?? 1000) - (b.sortOrder ?? 1000));
 
   if (categoryProducts.length === 0 && !category) {
     return (

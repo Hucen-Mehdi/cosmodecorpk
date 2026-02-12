@@ -33,13 +33,10 @@ export interface Order {
     shippingNotes?: string;
 }
 
-async function fetchWithAuth(url: string, options: RequestInit = {}) {
-    const token = localStorage.getItem('token');
-    if (!token) throw new Error('Authentication required');
 
-    const headers = {
+async function apiFetch(url: string, options: RequestInit = {}) {
+    const headers: any = {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}`,
         ...options.headers,
     };
 
@@ -56,6 +53,28 @@ async function fetchWithAuth(url: string, options: RequestInit = {}) {
     return data;
 }
 
+async function fetchWithAuth(url: string, options: RequestInit = {}) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    if (!token) throw new Error('Authentication required');
+
+    return apiFetch(url, {
+        ...options,
+        headers: {
+            ...options.headers,
+            'Authorization': `Bearer ${token}`
+        }
+    });
+}
+
+async function fetchWithOptionalAuth(url: string, options: RequestInit = {}) {
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+    const headers: any = { ...options.headers };
+    if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+    }
+    return apiFetch(url, { ...options, headers });
+}
+
 export const createOrder = (payload: {
     items: OrderItem[];
     subtotal: number;
@@ -70,7 +89,7 @@ export const createOrder = (payload: {
     shippingPostalCode?: string;
     shippingNotes?: string;
 }): Promise<Order> =>
-    fetchWithAuth(`${API_BASE_URL}`, {
+    fetchWithOptionalAuth(`${API_BASE_URL}`, {
         method: 'POST',
         body: JSON.stringify(payload)
     });
@@ -91,3 +110,4 @@ export const deleteOrderAdmin = (id: string): Promise<void> =>
     fetchWithAuth(`${BASE_URL}/admin/orders/${id}`, {
         method: 'DELETE'
     });
+

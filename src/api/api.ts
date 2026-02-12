@@ -6,6 +6,17 @@ export interface Category {
     subcategories?: { id: string; name: string }[];
 }
 
+export interface HeroSlide {
+    id: number;
+    title: string;
+    subtitle: string;
+    description: string;
+    image_url: string;
+    cta_text: string;
+    link_url: string;
+    order_index: number;
+}
+
 export interface Product {
     id: number;
     name: string;
@@ -26,6 +37,12 @@ export interface Product {
     deliveryCharge?: number;
     variations?: Variation[];
     additionalImages?: string[];
+
+    // Sorting & Stats
+    sortOrder?: number;
+    isFeatured?: boolean;
+    featuredPosition?: number;
+    salesCount?: number;
 }
 
 export interface Variation {
@@ -38,12 +55,15 @@ export interface Variation {
 
 import { API_BASE_URL } from './config';
 
-export async function fetchProducts(filters: { category?: string; subcategory?: string; search?: string } = {}) {
+export async function fetchProducts(filters: { category?: string; subcategory?: string; search?: string; sortBy?: string; featured?: boolean; limit?: number } = {}) {
     if (!API_BASE_URL) return [];
     const params = new URLSearchParams();
     if (filters.category) params.append('category', filters.category);
     if (filters.subcategory) params.append('subcategory', filters.subcategory);
     if (filters.search) params.append('search', filters.search);
+    if (filters.sortBy) params.append('sort', filters.sortBy);
+    if (filters.featured) params.append('featured', 'true');
+    if (filters.limit) params.append('limit', String(filters.limit));
 
     const query = params.toString();
     const url = `${API_BASE_URL}/products${query ? `?${query}` : ''}`;
@@ -101,6 +121,17 @@ export async function fetchTestimonials() {
     if (!API_BASE_URL) return [];
     try {
         const response = await fetch(`${API_BASE_URL}/testimonials`, { cache: 'no-store' });
+        if (!response.ok) return [];
+        return await response.json();
+    } catch {
+        return [];
+    }
+}
+
+export async function fetchHeroSlides(): Promise<HeroSlide[]> {
+    if (!API_BASE_URL) return [];
+    try {
+        const response = await fetch(`${API_BASE_URL}/hero`, { cache: 'no-store' });
         if (!response.ok) return [];
         return await response.json();
     } catch {

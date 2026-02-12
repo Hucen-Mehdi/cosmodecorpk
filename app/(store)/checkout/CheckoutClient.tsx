@@ -9,7 +9,7 @@ import { createOrder, OrderItem } from '@/src/api/orders';
 import {
     MapPin, Phone, User, Mail, CreditCard, Truck, CheckCircle,
     ArrowLeft, Shield, Clock, ChevronRight, Package, Copy, MessageCircle, AlertCircle,
-    Loader2
+    Loader2, Percent, AlertTriangle, Lock
 } from 'lucide-react';
 
 type PaymentMethod = 'nayapay' | 'jazzcash' | 'easypaisa' | 'cod';
@@ -39,11 +39,15 @@ export default function CheckoutClient() {
     const [confirmedTotal, setConfirmedTotal] = useState(0);
     const [confirmedSubtotal, setConfirmedSubtotal] = useState(0);
     const [confirmedDeliveryFee, setConfirmedDeliveryFee] = useState(0);
+    const [confirmedCodTax, setConfirmedCodTax] = useState(0);
     const [confirmedItems, setConfirmedItems] = useState<any[]>([]);
+
+    const [isGuest, setIsGuest] = useState(false);
 
     // Calculate total delivery fee by summing up delivery charges of all items
     const deliveryFee = items.reduce((sum, item) => sum + ((item as any).deliveryCharge || 0) * item.quantity, 0);
-    const finalTotal = totalPrice + deliveryFee;
+    const codTax = paymentMethod === 'cod' ? totalPrice * 0.05 : 0;
+    const finalTotal = totalPrice + deliveryFee + codTax;
 
     const [formData, setFormData] = useState<FormData>({
         firstName: '',
@@ -64,7 +68,7 @@ export default function CheckoutClient() {
     const paymentAccounts = [
         {
             id: 'nayapay' as const,
-            name: 'NayaPay',
+            name: 'NayaPay (Save 5%)',
             icon: '🏦',
             color: 'from-purple-500 to-purple-600',
             bgColor: 'bg-purple-50',
@@ -74,7 +78,7 @@ export default function CheckoutClient() {
         },
         {
             id: 'jazzcash' as const,
-            name: 'JazzCash',
+            name: 'JazzCash (Save 5%)',
             icon: '📱',
             color: 'from-red-500 to-red-600',
             bgColor: 'bg-red-50',
@@ -84,7 +88,7 @@ export default function CheckoutClient() {
         },
         {
             id: 'easypaisa' as const,
-            name: 'Easypaisa',
+            name: 'Easypaisa (Save 5%)',
             icon: '💚',
             color: 'from-green-500 to-green-600',
             bgColor: 'bg-green-50',
@@ -135,6 +139,7 @@ export default function CheckoutClient() {
         const targetItems = orderPlaced ? confirmedItems : items;
         const targetSubtotal = orderPlaced ? confirmedSubtotal : totalPrice;
         const targetDeliveryFee = orderPlaced ? confirmedDeliveryFee : deliveryFee;
+        const targetCodTax = orderPlaced ? confirmedCodTax : codTax;
         const targetTotal = orderPlaced ? confirmedTotal : finalTotal;
 
         const itemsList = targetItems.map(item => {
@@ -155,6 +160,7 @@ export default function CheckoutClient() {
             `------------------------\n` +
             `Subtotal: ${formatPrice(targetSubtotal)}\n` +
             `Delivery Charges: ${formatPrice(targetDeliveryFee)}\n` +
+            (isCod ? `5% COD Courier Tax: ${formatPrice(targetCodTax)}\n` : '') +
             `Grand Total: ${formatPrice(targetTotal)}\n` +
             `------------------------\n` +
             `Payment Method: ${methodDisplay}\n\n` +
@@ -167,8 +173,9 @@ export default function CheckoutClient() {
     };
 
     const handlePlaceOrder = async () => {
-        if (!user) {
-            setError('You must be logged in to place an order.');
+        // Updated: Allow guest checkout
+        if (!user && !isGuest) {
+            setError('Please login or continue as guest to place an order.');
             return;
         }
 
@@ -191,6 +198,8 @@ export default function CheckoutClient() {
                 selectedVariations: item.selectedVariations
             }));
 
+            // Check if user is logged in for proper typing of createOrder
+            // The API logic handles unauthenticated requests now (Guest)
             const newOrder = await createOrder({
                 items: orderItems,
                 subtotal: totalPrice,
@@ -210,6 +219,7 @@ export default function CheckoutClient() {
             setConfirmedTotal(finalTotal);
             setConfirmedSubtotal(totalPrice);
             setConfirmedDeliveryFee(deliveryFee);
+            setConfirmedCodTax(codTax);
             setConfirmedItems([...items]);
             setOrderPlaced(true);
 
@@ -228,7 +238,6 @@ export default function CheckoutClient() {
             setIsSubmitting(false);
         }
     };
-
 
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -275,38 +284,36 @@ export default function CheckoutClient() {
         setTimeout(() => setCopiedAccount(''), 2000);
     };
 
-    if (items.length === 0 && !orderPlaced) {
-        return (
-            <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4">
-                <div className="text-center bg-white dark:bg-gray-900 p-10 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-800">
-                    <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <Package className="w-10 h-10 text-rose-500" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Your cart is empty</h2>
-                    <p className="text-gray-600 dark:text-gray-300 mb-8">You need to add some items to your cart before you can checkout.</p>
-                    <Link href="/" className="inline-block bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-4 rounded-xl font-bold hover:shadow-lg transition-all">
-                        Start Shopping
-                    </Link>
-                </div>
-            </div>
-        );
-    }
-
-    if (!user && !orderPlaced) {
+    // Auth Choice Screen (Guest / Login)
+    if (!user && !orderPlaced && !isGuest) {
         return (
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4 transition-colors duration-200">
-                <div className="text-center bg-white dark:bg-gray-900 p-10 rounded-3xl shadow-xl max-w-md w-full border border-gray-100 dark:border-gray-800">
+                <div className="text-center bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full border border-gray-100 dark:border-gray-800">
                     <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
                         <User className="w-10 h-10 text-rose-500" />
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Login Required</h2>
-                    <p className="text-gray-600 dark:text-gray-300 mb-8 leading-relaxed">Please sign in to your account to complete your purchase and track your order.</p>
-                    <div className="flex flex-col gap-3">
-                        <Link href="/login" className="bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-bold hover:shadow-lg transition-all">
-                            Sign In to Checkout
+                    <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">How would you like to checkout?</h2>
+                    <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium text-sm">Sign in to save time or continue as a guest.</p>
+
+                    <div className="flex flex-col gap-4">
+                        <Link href="/login?from=/checkout" className="group relative w-full bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-bold overflow-hidden shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-[0.98]">
+                            <span className="relative z-10 flex items-center justify-center gap-2">Sign In <ChevronRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" /></span>
                         </Link>
-                        <Link href="/cart" className="text-gray-500 dark:text-gray-400 hover:text-rose-500 font-medium py-2">
-                            Return to Cart
+
+                        <button
+                            onClick={() => setIsGuest(true)}
+                            className="w-full bg-white dark:bg-gray-800 border-2 border-gray-100 dark:border-gray-700 text-gray-700 dark:text-gray-200 py-4 rounded-xl font-bold hover:bg-gray-50 dark:hover:bg-gray-750 transition-all flex items-center justify-center gap-2 group"
+                        >
+                            Continue as Guest <span className="opacity-0 group-hover:opacity-100 transition-opacity">→</span>
+                        </button>
+
+                        <div className="relative py-2">
+                            <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100 dark:border-gray-700"></span></div>
+                            <span className="relative bg-white dark:bg-gray-900 px-2 text-xs text-gray-400 uppercase tracking-widest font-bold">New to CosmoDecor?</span>
+                        </div>
+
+                        <Link href="/signup?from=/checkout" className="text-rose-500 font-bold hover:underline">
+                            Create an Account
                         </Link>
                     </div>
                 </div>
@@ -686,99 +693,158 @@ export default function CheckoutClient() {
                                 </h2>
                                 <p className="text-gray-600 dark:text-gray-300 mb-6 font-medium">Select how you'd like to pay for your order</p>
 
-                                {/* COD vs Advance Notice */}
-                                <div className={`border-2 rounded-xl p-4 mb-6 transition-colors ${paymentMethod === 'cod'
-                                    ? 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800'
-                                    : 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800'
-                                    }`}>
-                                    <div className="flex items-start gap-3">
-                                        {paymentMethod === 'cod' ? (
-                                            <Truck className="w-5 h-5 sm:w-6 sm:h-6 text-blue-500 flex-shrink-0 mt-0.5" />
-                                        ) : (
-                                            <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-amber-500 flex-shrink-0 mt-0.5" />
-                                        )}
+                                {/* 5% Savings Banner - IMMEDIATE VISIBILITY */}
+                                <div className="bg-[#E6F3E6] border border-green-200 rounded-xl p-4 mb-6 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 p-4 opacity-10">
+                                        <Percent className="w-24 h-24 text-green-800" />
+                                    </div>
+                                    <div className="flex items-start gap-4 relative z-10">
+                                        <div className="p-2 bg-green-200 rounded-full flex-shrink-0">
+                                            <Percent className="w-6 h-6 text-[#1E3A1E]" />
+                                        </div>
                                         <div>
-                                            <p className={`font-semibold text-sm sm:text-base ${paymentMethod === 'cod' ? 'text-blue-800 dark:text-blue-200' : 'text-amber-800 dark:text-amber-200'}`}>
-                                                {paymentMethod === 'cod' ? 'Cash on Delivery (COD)' : 'Advance Payment Required'}
-                                            </p>
-                                            <p className={`text-xs sm:text-sm mt-1 leading-relaxed ${paymentMethod === 'cod' ? 'text-blue-700 dark:text-blue-300' : 'text-amber-700 dark:text-amber-300'}`}>
-                                                {paymentMethod === 'cod'
-                                                    ? 'Pay the total amount in cash to our delivery partner when you receive your package.'
-                                                    : 'We require complete advance payment to process your order. Transfer the amount to any of the accounts below.'}
-                                            </p>
+                                            <h3 className="font-bold text-[#1E3A1E] text-lg leading-tight">🚀 Skip the 5% COD Fee – Pay Online & Save!</h3>
+                                            <p className="text-[#1E3A1E] text-sm mt-1 leading-relaxed">Pay with JazzCash, EasyPaisa, or Card to save 5% courier taxes. Your total will be instantly reduced.</p>
                                         </div>
                                     </div>
                                 </div>
 
-                                {/* Payment Accounts */}
-                                <div className="space-y-3 sm:space-y-4 mb-6">
-                                    {paymentAccounts.map((account) => (
-                                        <label
-                                            key={account.id}
-                                            className={`block border-2 rounded-xl cursor-pointer transition-all ${paymentMethod === account.id
-                                                ? `${account.borderColor} ${account.bgColor} dark:bg-gray-800`
-                                                : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
-                                                }`}
-                                        >
-                                            <div className="p-4">
-                                                <div className="flex items-center gap-3 sm:gap-4">
-                                                    <input
-                                                        type="radio"
-                                                        name="payment"
-                                                        value={account.id}
-                                                        checked={paymentMethod === account.id}
-                                                        onChange={() => setPaymentMethod(account.id)}
-                                                        className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 focus:ring-rose-500"
-                                                    />
-                                                    <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${account.color} flex items-center justify-center text-xl sm:text-2xl`}>
-                                                        {account.icon}
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <p className="font-bold text-gray-800 dark:text-white text-base sm:text-lg">{account.name}</p>
-                                                        <p className="text-[10px] sm:text-sm text-gray-500 dark:text-gray-400">Transfer to {account.name} Account</p>
-                                                    </div>
+                                {/* Dynamic Price Comparison Badge */}
+                                {paymentMethod && (
+                                    <div className={`border-2 rounded-xl p-4 mb-6 transition-all duration-300 ${paymentMethod === 'cod'
+                                        ? 'bg-red-50 border-red-200'
+                                        : 'bg-green-50 border-green-200'
+                                        }`}>
+                                        <div className="flex items-center gap-3">
+                                            {paymentMethod === 'cod' ? (
+                                                <div className="p-2 bg-red-100 rounded-full">
+                                                    <AlertTriangle className="w-6 h-6 text-red-600" />
                                                 </div>
-
-                                                {/* Account Details */}
-                                                {paymentMethod === account.id && (
-                                                    <div className="mt-4 ml-7 sm:ml-9 bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-100 dark:border-gray-700">
-                                                        {account.id !== 'cod' ? (
-                                                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                                                <div>
-                                                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Title</p>
-                                                                    <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">{account.accountTitle}</p>
-                                                                </div>
-                                                                <div>
-                                                                    <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Number</p>
-                                                                    <div className="flex items-center gap-2">
-                                                                        <p className="font-semibold text-gray-800 dark:text-white font-mono text-base sm:text-lg">{account.accountNumber}</p>
-                                                                        <button
-                                                                            type="button"
-                                                                            onClick={() => copyToClipboard(account.accountNumber, account.id)}
-                                                                            className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
-                                                                        >
-                                                                            <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
-                                                                        </button>
-                                                                        {copiedAccount === account.id && (
-                                                                            <span className="text-xs text-green-600 dark:text-green-400 font-medium">Copied!</span>
-                                                                        )}
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-                                                        ) : (
-                                                            <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
-                                                                <Truck className="w-5 h-5" />
-                                                                <p className="text-sm font-bold uppercase tracking-wide">Pay cash to the rider upon delivery</p>
-                                                            </div>
-                                                        )}
-                                                        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
-                                                            <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount to Pay</p>
-                                                            <p className="font-bold text-2xl text-rose-500">{formatPrice(finalTotal)}</p>
-                                                        </div>
-                                                    </div>
+                                            ) : (
+                                                <div className="p-2 bg-green-100 rounded-full">
+                                                    <CheckCircle className="w-6 h-6 text-green-600" />
+                                                </div>
+                                            )}
+                                            <div>
+                                                <p className={`font-bold text-lg ${paymentMethod === 'cod' ? 'text-red-700' : 'text-green-800'}`}>
+                                                    {paymentMethod === 'cod' ? '⚠️ +5% Courier Tax Applied' : '🎉 You Saved 5% Courier Tax!'}
+                                                </p>
+                                                {paymentMethod !== 'cod' && (
+                                                    <p className="text-green-700 text-sm font-medium">Smart choice! You avoided the extra fees.</p>
+                                                )}
+                                                {paymentMethod === 'cod' && (
+                                                    <p className="text-red-600 text-sm font-medium">Switch to online payment to save this fee.</p>
                                                 )}
                                             </div>
-                                        </label>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Payment Accounts */}
+                                <div className="space-y-3 sm:space-y-4 mb-6">
+                                    {paymentAccounts.map((account, index) => (
+                                        <div key={account.id}>
+                                            <label
+                                                className={`block border-2 rounded-xl cursor-pointer transition-all relative overflow-hidden ${paymentMethod === account.id
+                                                    ? `${account.borderColor} ${account.bgColor} dark:bg-gray-800`
+                                                    : 'border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600'
+                                                    }`}
+                                            >
+                                                <div className="p-4">
+                                                    <div className="flex items-center gap-3 sm:gap-4">
+                                                        <input
+                                                            type="radio"
+                                                            name="payment"
+                                                            value={account.id}
+                                                            checked={paymentMethod === account.id}
+                                                            onChange={() => setPaymentMethod(account.id)}
+                                                            className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 focus:ring-rose-500"
+                                                        />
+                                                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${account.color} flex items-center justify-center text-xl sm:text-2xl`}>
+                                                            {account.icon}
+                                                        </div>
+                                                        <div className="flex-1">
+                                                            <div className="flex items-center gap-2 flex-wrap">
+                                                                <p className="font-bold text-gray-800 dark:text-white text-base sm:text-lg">
+                                                                    {account.id === 'cod' ? 'Cash on Delivery (COD) – +5% Courier Tax applicable' : account.name.replace(' (Save 5%)', '')}
+                                                                </p>
+                                                                {account.id !== 'cod' && (
+                                                                    <span className="bg-green-100 text-green-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold border border-green-200">
+                                                                        SAVE 5% TAX
+                                                                    </span>
+                                                                )}
+                                                                {account.id === 'cod' && (
+                                                                    <span className="bg-red-100 text-red-700 text-[10px] sm:text-xs px-2 py-0.5 rounded-full font-bold border border-red-200">
+                                                                        +5% TAX
+                                                                    </span>
+                                                                )}
+                                                            </div>
+                                                            <p className="text-[10px] sm:text-sm text-gray-500 dark:text-gray-400">
+                                                                {account.id === 'cod'
+                                                                    ? '+5% Courier Handling Tax Appliable'
+                                                                    : `Transfer to ${account.name} Account`}
+                                                            </p>
+                                                        </div>
+                                                        {account.id === 'cod' && (
+                                                            <div className="group relative">
+                                                                <AlertCircle className="w-5 h-5 text-gray-400 hover:text-gray-600 cursor-help" />
+                                                                <div className="absolute right-0 bottom-full mb-2 w-48 bg-gray-800 text-white text-xs p-2 rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-20">
+                                                                    The 5% courier handling fee is waived for all digital prepaid orders.
+                                                                    <div className="absolute -bottom-1 right-2 w-2 h-2 bg-gray-800 rotate-45"></div>
+                                                                </div>
+                                                            </div>
+                                                        )}
+                                                    </div>
+
+                                                    {/* Account Details */}
+                                                    {paymentMethod === account.id && (
+                                                        <div className="mt-4 ml-7 sm:ml-9 bg-white dark:bg-gray-800 rounded-xl p-3 sm:p-4 border border-gray-100 dark:border-gray-700">
+                                                            {account.id !== 'cod' ? (
+                                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                                                    <div>
+                                                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Title</p>
+                                                                        <p className="font-semibold text-gray-800 dark:text-white text-sm sm:text-base">{account.accountTitle}</p>
+                                                                    </div>
+                                                                    <div>
+                                                                        <p className="text-[10px] text-gray-500 dark:text-gray-400 uppercase tracking-wide">Account Number</p>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <p className="font-semibold text-gray-800 dark:text-white font-mono text-base sm:text-lg">{account.accountNumber}</p>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => copyToClipboard(account.accountNumber, account.id)}
+                                                                                className="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
+                                                                            >
+                                                                                <Copy className="w-4 h-4 text-gray-600 dark:text-gray-300" />
+                                                                            </button>
+                                                                            {copiedAccount === account.id && (
+                                                                                <span className="text-xs text-green-600 dark:text-green-400 font-medium">Copied!</span>
+                                                                            )}
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            ) : (
+                                                                <div className="flex items-center gap-2 text-blue-600 dark:text-blue-400">
+                                                                    <Truck className="w-5 h-5" />
+                                                                    <p className="text-sm font-bold uppercase tracking-wide">Pay cash to the rider upon delivery</p>
+                                                                </div>
+                                                            )}
+                                                            <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
+                                                                <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount to Pay</p>
+                                                                <p className="font-bold text-2xl text-rose-500">{formatPrice(finalTotal)}</p>
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            </label>
+
+                                            {/* Trust Badge below Prepaid Options (rendered before COD) */}
+                                            {index === 2 && (
+                                                <div className="flex items-center justify-center gap-2 py-2 text-green-700 bg-green-50/50 rounded-lg mb-4 mt-2 border border-green-100">
+                                                    <Lock className="w-4 h-4" />
+                                                    <span className="text-xs sm:text-sm font-semibold">Secure Digital Payment. No extra fees.</span>
+                                                </div>
+                                            )}
+                                        </div>
                                     ))}
                                 </div>
 
@@ -903,6 +969,14 @@ export default function CheckoutClient() {
                                             {deliveryFee === 0 ? 'FREE' : formatPrice(deliveryFee)}
                                         </span>
                                     </div>
+                                    {paymentMethod === 'cod' && (
+                                        <div className="flex justify-between">
+                                            <span className="text-gray-600 dark:text-gray-400">5% COD Courier Tax</span>
+                                            <span className="font-medium dark:text-white">
+                                                {formatPrice(codTax)}
+                                            </span>
+                                        </div>
+                                    )}
                                     <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                                         <div className="flex justify-between items-center">
                                             <span className="font-bold text-gray-800 dark:text-white">Total</span>

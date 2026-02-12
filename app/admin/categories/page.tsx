@@ -230,7 +230,7 @@ export default function AdminCategories() {
             {/* Modal */}
             {showModal && (
                 <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-[100] flex items-center justify-center p-4">
-                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-lg overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
+                    <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl overflow-hidden border border-gray-100 animate-in zoom-in-95 duration-200">
                         <div className="px-8 py-8 border-b border-gray-100 flex items-center justify-between bg-gray-50/50">
                             <div>
                                 <h2 className="text-2xl font-bold text-gray-900">{editingCategory ? 'Edit Collection' : 'New Collection'}</h2>
@@ -272,7 +272,7 @@ export default function AdminCategories() {
                                         placeholder="e.g. Artificial Plants"
                                     />
                                 </div>
-                                <div className="grid grid-cols-2 gap-6">
+                                <div className="grid grid-cols-[140px_1fr] gap-6">
                                     <div>
                                         <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Icon (Emoji)</label>
                                         <input
@@ -294,6 +294,17 @@ export default function AdminCategories() {
                                         />
                                     </div>
                                 </div>
+
+                                {formData.image && (
+                                    <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 flex justify-center animate-in fade-in zoom-in-95 duration-300">
+                                        <img
+                                            src={formData.image}
+                                            alt="Category Preview"
+                                            className="h-32 w-auto object-cover rounded-xl shadow-sm border border-white"
+                                            onError={(e) => (e.currentTarget.style.display = 'none')}
+                                        />
+                                    </div>
+                                )}
 
                                 {/* Product Selection */}
                                 <div>

@@ -26,7 +26,8 @@ export default async function ProductsPage({
 }: {
     searchParams: { [key: string]: string | string[] | undefined };
 }) {
-    const products = await fetchProducts();
+    const category = typeof searchParams.category === 'string' ? searchParams.category : undefined;
+    const products = await fetchProducts({ category });
     const categories = await fetchCategories();
 
     return <ProductsClient initialProducts={products} initialCategories={categories} searchParams={searchParams} />;

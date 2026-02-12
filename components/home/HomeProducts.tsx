@@ -20,7 +20,7 @@ export function HomeProducts({ products }: HomeProductsProps) {
         <section className="py-8 sm:py-16 bg-white dark:bg-gray-900 transition-colors duration-200">
             <div className="max-w-7xl mx-auto px-4">
                 <div className="text-center mb-12">
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4 italic">Best Sellers</h2>
+                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 dark:text-white mb-4" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Best Sellers</h2>
                     <p className="text-gray-600 dark:text-gray-400 text-sm sm:text-base max-w-2xl mx-auto">Our most loved products by customers across Pakistan</p>
                 </div>
 

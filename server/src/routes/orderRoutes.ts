@@ -1,14 +1,32 @@
 import express from 'express';
-import { authenticateToken, AuthRequest } from '../middleware/auth';
+import { authenticateToken, AuthRequest, optionalAuth } from '../middleware/auth';
 import { orderRepository } from '../repositories/orderRepository';
 import { pool } from '../db/client'; // for counting?
 
 const router = express.Router();
 
-router.use(authenticateToken);
+// GET /api/orders/track
+router.get('/track', async (req: any, res) => {
+    const { orderNumber, email } = req.query;
+
+    if (!orderNumber || !email) {
+        return res.status(400).json({ message: 'Order number and email are required' });
+    }
+
+    try {
+        const order = await orderRepository.findByOrderNumberAndEmail(String(orderNumber), String(email));
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        res.json(order);
+    } catch (error) {
+        console.error('Track order error:', error);
+        res.status(500).json({ message: 'Failed to track order' });
+    }
+});
 
 // GET /api/orders/my
-router.get('/my', async (req: AuthRequest, res) => {
+router.get('/my', authenticateToken, async (req: AuthRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ message: 'Unauthorized' });
     try {
         const orders = await orderRepository.findByUserId(req.user.id);
@@ -20,8 +38,7 @@ router.get('/my', async (req: AuthRequest, res) => {
 });
 
 // POST /api/orders
-router.post('/', async (req: AuthRequest, res) => {
-    if (!req.user?.id) return res.status(401).json({ message: 'Unauthorized' });
+router.post('/', optionalAuth, async (req: AuthRequest, res) => {
     try {
         const {
             items, subtotal, shipping, total,
@@ -33,6 +50,9 @@ router.post('/', async (req: AuthRequest, res) => {
             return res.status(400).json({ message: 'Order must contain items' });
         }
 
+        const userId = req.user?.id || null;
+        const isGuest = !userId;
+
         // Generate Order Number
         const countRes = await pool.query('SELECT COUNT(*) FROM orders');
         const count = parseInt(countRes.rows[0].count, 10);
@@ -42,7 +62,9 @@ router.post('/', async (req: AuthRequest, res) => {
         const newOrder = await orderRepository.create({
             id: Date.now().toString(),
             orderNumber,
-            userId: req.user.id,
+            userId: userId as string, // Type assertion, repo needs update to allow null
+            isGuest,
+            guestEmail: isGuest ? shippingEmail : undefined,
             date: new Date().toISOString(),
             status: paymentMethod === 'cod' ? "Confirmed" : "Processing",
             items: items.map((i: any) => ({

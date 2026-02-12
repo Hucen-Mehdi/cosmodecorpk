@@ -1,4 +1,5 @@
 import { pool } from '../db/client';
+import { sendOrderConfirmationEmail } from '../utils/emailService';
 
 export interface OrderItem {
     productId: string | number;
@@ -13,9 +14,11 @@ export interface OrderItem {
 export interface Order {
     id: string;
     orderNumber: string;
-    userId: string;
+    userId: string | null;
     userEmail?: string;
     userName?: string;
+    isGuest?: boolean;
+    guestEmail?: string;
     date: string;
     status: string;
     items: OrderItem[];
@@ -31,6 +34,7 @@ export interface Order {
     shippingCity?: string;
     shippingPostalCode?: string;
     shippingNotes?: string;
+    codTax?: number;
 }
 
 export const orderRepository = {
@@ -58,41 +62,40 @@ export const orderRepository = {
                 item.deliveryCharge = Number(product.delivery_charge) || 0;
                 totalDeliveryCharge += itemDeliveryCharge;
 
-                await client.query('UPDATE products SET stock = stock - $1 WHERE id = $2', [item.quantity, item.productId]);
+                await client.query('UPDATE products SET stock = stock - $1, sales_count = sales_count + $1, last_ordered_at = NOW() WHERE id = $2', [item.quantity, item.productId]);
             }
 
             // Recalculate totals
-            // Using the passed subtotal, but overriding shipping and total
-            const finalShipping = totalDeliveryCharge; // The shipping passed in 'order' might be just the base fee, we want accurate product-based shipping
-            // Wait, usually there is a base shipping fee PLUS product specific ones? Or just product specific?
-            // User said: "different delivery charges for different products... should be automatically pasted when checkout page is coming up"
-            // For now, let's assume the TOTAL shipping is the sum of all product delivery charges.
-            // If the frontend passed a shipping fee, it might be a flat rate. Let's start with product-based summation.
-            // Actually, let's respect what the frontend sent for 'shipping' if it's simpler, 
-            // BUT the user explicitly asked for "delivery charges on those [products]".
-            // So we should probably use the calculated `totalDeliveryCharge` as the source of truth for shipping cost.
+            const finalShipping = totalDeliveryCharge;
+            let finalTotal = order.subtotal + finalShipping;
+            let codTax = 0;
 
-            const finalTotal = order.subtotal + finalShipping;
+            if (order.paymentMethod === 'cod') {
+                codTax = order.subtotal * 0.05;
+                finalTotal += codTax;
+            }
 
 
             // 2. Insert Order
             await client.query(
                 `INSERT INTO orders (
-                    id, order_number, user_id, date, status, items_count, subtotal, shipping, total, 
+                    id, order_number, user_id, is_guest, guest_email, date, status, items_count, subtotal, shipping, total, 
                     payment_method, shipping_name, shipping_email, shipping_phone, 
-                    shipping_address, shipping_city, shipping_postal_code, shipping_notes
+                    shipping_address, shipping_city, shipping_postal_code, shipping_notes, cod_tax
                 )
-         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, $20)`,
                 [
                     order.id,
                     order.orderNumber,
                     order.userId,
+                    order.isGuest || false,
+                    order.guestEmail || null,
                     order.date,
                     order.status,
                     order.itemsCount,
                     order.subtotal,
-                    finalShipping, // Use calculated shipping
-                    finalTotal,    // Use calculated total
+                    finalShipping,
+                    finalTotal,
                     order.paymentMethod,
                     order.shippingName,
                     order.shippingEmail,
@@ -100,7 +103,8 @@ export const orderRepository = {
                     order.shippingAddress,
                     order.shippingCity,
                     order.shippingPostalCode,
-                    order.shippingNotes
+                    order.shippingNotes,
+                    codTax
                 ]
             );
 
@@ -130,21 +134,30 @@ export const orderRepository = {
                 ['New Order Received', `Order #${order.orderNumber} placed for Rs. ${finalTotal.toLocaleString()}`, order.id]
             );
 
-            // For User
-            await client.query(
-                `INSERT INTO notifications (user_id, title, message, type, order_id)
-                 VALUES ($1, $2, $3, 'success', $4)`,
-                [order.userId, 'Order Placed!', `Your order #${order.orderNumber} has been received and is being processed.`, order.id]
-            );
+            // For User (Only if registered)
+            if (order.userId) {
+                await client.query(
+                    `INSERT INTO notifications (user_id, title, message, type, order_id)
+                     VALUES ($1, $2, $3, 'success', $4)`,
+                    [order.userId, 'Order Placed!', `Your order #${order.orderNumber} has been received and is being processed.`, order.id]
+                );
+            }
+
 
             await client.query('COMMIT');
 
-            // Return updated order object with correct totals
-            return {
+            const newOrderResult = {
                 ...order,
                 shipping: finalShipping,
-                total: finalTotal
+                total: finalTotal,
+                codTax
             };
+
+            // Send Email Confirmation (Async, don't block response)
+            sendOrderConfirmationEmail(newOrderResult).catch(err => console.error('Failed to send email:', err));
+
+            // Return updated order object with correct totals
+            return newOrderResult;
         } catch (e) {
             await client.query('ROLLBACK');
             throw e;
@@ -156,7 +169,7 @@ export const orderRepository = {
     async findByUserId(userId: string): Promise<Order[]> {
         const ordersRes = await pool.query(
             `SELECT id, order_number as "orderNumber", user_id as "userId", date, status, 
-              items_count as "itemsCount", subtotal, shipping, total,
+              items_count as "itemsCount", subtotal, shipping, total, cod_tax as "codTax",
               payment_method as "paymentMethod", shipping_name as "shippingName", 
               shipping_email as "shippingEmail", shipping_phone as "shippingPhone", 
               shipping_address as "shippingAddress", shipping_city as "shippingCity", 
@@ -183,6 +196,7 @@ export const orderRepository = {
                 subtotal: Number(row.subtotal),
                 shipping: Number(row.shipping),
                 total: Number(row.total),
+                codTax: Number(row.codTax || 0),
                 itemsCount: Number(row.itemsCount),
                 items: itemsRes.rows.map(i => ({
                     ...i,
@@ -200,7 +214,7 @@ export const orderRepository = {
     async getAll(): Promise<Order[]> {
         const ordersRes = await pool.query(
             `SELECT o.id, o.order_number as "orderNumber", o.user_id as "userId", o.date, o.status, 
-              o.items_count as "itemsCount", o.subtotal, o.shipping, o.total,
+              o.items_count as "itemsCount", o.subtotal, o.shipping, o.total, o.cod_tax as "codTax",
               o.payment_method as "paymentMethod", o.shipping_name as "shippingName", 
               o.shipping_email as "shippingEmail", o.shipping_phone as "shippingPhone", 
               o.shipping_address as "shippingAddress", o.shipping_city as "shippingCity", 
@@ -227,6 +241,7 @@ export const orderRepository = {
                 subtotal: Number(row.subtotal),
                 shipping: Number(row.shipping),
                 total: Number(row.total),
+                codTax: Number(row.codTax || 0),
                 itemsCount: Number(row.itemsCount),
                 items: itemsRes.rows.map(i => ({
                     ...i,
@@ -255,7 +270,7 @@ export const orderRepository = {
             if (status === 'Cancelled' && order.status !== 'Cancelled') {
                 const itemsRes = await client.query('SELECT product_id, quantity FROM order_items WHERE order_id = $1', [id]);
                 for (const item of itemsRes.rows) {
-                    await client.query('UPDATE products SET stock = stock + $1 WHERE id = $2', [item.quantity, item.product_id]);
+                    await client.query('UPDATE products SET stock = stock + $1, sales_count = GREATEST(0, sales_count - $1) WHERE id = $2', [item.quantity, item.product_id]);
                 }
             }
 
@@ -276,6 +291,48 @@ export const orderRepository = {
         } finally {
             client.release();
         }
+    },
+
+
+    async findByOrderNumberAndEmail(orderNumber: string, email: string): Promise<Order | null> {
+        const orderRes = await pool.query(
+            `SELECT id, order_number as "orderNumber", user_id as "userId", date, status, 
+              items_count as "itemsCount", subtotal, shipping, total, cod_tax as "codTax",
+              payment_method as "paymentMethod", shipping_name as "shippingName", 
+              shipping_email as "shippingEmail", shipping_phone as "shippingPhone", 
+              shipping_address as "shippingAddress", shipping_city as "shippingCity", 
+              shipping_postal_code as "shippingPostalCode", shipping_notes as "shippingNotes"
+       FROM orders
+       WHERE order_number = $1 AND (guest_email = $2 OR shipping_email = $2)`,
+            [orderNumber, email]
+        );
+
+        if (orderRes.rows.length === 0) return null;
+
+        const row = orderRes.rows[0];
+        const itemsRes = await pool.query(
+            `SELECT product_id as "productId", name, price, quantity, image_url as image, delivery_charge as "deliveryCharge", selected_variations as "selectedVariations"
+         FROM order_items
+         WHERE order_id = $1`,
+            [row.id]
+        );
+
+        return {
+            ...row,
+            date: row.date.toISOString(),
+            subtotal: Number(row.subtotal),
+            shipping: Number(row.shipping),
+            total: Number(row.total),
+            codTax: Number(row.codTax || 0),
+            itemsCount: Number(row.itemsCount),
+            items: itemsRes.rows.map(i => ({
+                ...i,
+                price: Number(i.price),
+                productId: String(i.productId),
+                deliveryCharge: Number(i.deliveryCharge || 0),
+                selectedVariations: i.selectedVariations
+            }))
+        };
     },
 
     async delete(id: string): Promise<void> {

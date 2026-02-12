@@ -4,7 +4,9 @@ import { useRouter } from 'next/navigation';
 import { ShoppingCart, Heart, Star, Eye, X } from 'lucide-react';
 import { Product } from '../api/api';
 import { useCart } from '../context/CartContext';
-import { useState } from 'react';
+import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from 'react';
+import { addToWishlist, removeFromWishlist, checkInWishlist } from '../api/wishlist';
 
 interface ProductCardProps {
   product: Product;
@@ -12,9 +14,34 @@ interface ProductCardProps {
 
 export function ProductCard({ product }: ProductCardProps) {
   const { addToCart } = useCart();
+  const { user, token } = useAuth();
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [showQuickView, setShowQuickView] = useState(false);
   const router = useRouter();
+
+  // Check if product is in wishlist on mount
+  useEffect(() => {
+    if (user && token) {
+      checkInWishlist(token, product.id).then(setIsWishlisted);
+    }
+  }, [user, token, product.id]);
+
+  const handleWishlistToggle = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+
+    if (!user || !token) {
+      router.push('/account');
+      return;
+    }
+
+    const success = isWishlisted
+      ? await removeFromWishlist(token, product.id)
+      : await addToWishlist(token, product.id);
+
+    if (success) {
+      setIsWishlisted(!isWishlisted);
+    }
+  };
 
   const discount = product.originalPrice
     ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
@@ -72,7 +99,7 @@ export function ProductCard({ product }: ProductCardProps) {
           {/* Quick Actions - Visible on mobile, hover on desktop */}
           <div className="absolute top-2 right-2 sm:top-3 sm:right-3 flex flex-col gap-2 sm:opacity-0 group-hover:opacity-100 transition-opacity">
             <button
-              onClick={(e) => { e.stopPropagation(); setIsWishlisted(!isWishlisted); }}
+              onClick={handleWishlistToggle}
               className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center transition-colors ${isWishlisted ? 'bg-rose-500 text-white' : 'bg-white/90 dark:bg-gray-800/90 text-gray-600 dark:text-gray-300 hover:bg-rose-500 hover:text-white'
                 } shadow-md backdrop-blur-sm`}
             >

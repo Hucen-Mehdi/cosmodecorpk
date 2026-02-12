@@ -41,6 +41,7 @@ export function Footer() {
               <li><Link href="/products" className="hover:text-rose-500 transition-colors">All Products</Link></li>
               <li><Link href="/about" className="hover:text-rose-500 transition-colors">About Us</Link></li>
               <li><Link href="/contact" className="hover:text-rose-500 transition-colors">Contact Us</Link></li>
+              <li><Link href="/track-order" className="hover:text-rose-500 transition-colors">Track Order</Link></li>
             </ul>
           </div>
 
@@ -64,7 +65,7 @@ export function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <MapPin className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
-                <span>Khattak Plaza, China Market, Rawalpindi</span>
+                <span>China Market, Rawalpindi</span>
               </li>
               <li className="flex items-center gap-3">
                 <Phone className="w-5 h-5 text-rose-500" />
@@ -72,7 +73,7 @@ export function Footer() {
               </li>
               <li className="flex items-center gap-3">
                 <Mail className="w-5 h-5 text-rose-500" />
-                <span>admin@cosmodecor.pk</span>
+                <span>cosmodecorr@gmail.com</span>
               </li>
               <li className="flex items-center gap-3">
                 <MessageCircle className="w-5 h-5 text-green-500" />

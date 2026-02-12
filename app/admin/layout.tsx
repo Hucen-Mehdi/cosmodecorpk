@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ShoppingBag, FolderTree, ArrowLeft, Menu, X, LogOut, ClipboardList, Bell, Check, Loader2 } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, FolderTree, ArrowLeft, Menu, X, LogOut, ClipboardList, Bell, Check, Loader2, Image as ImageIcon, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { fetchNotifications, markNotificationAsRead } from '@/src/api/admin';
@@ -62,6 +62,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Products', path: '/admin/products', icon: ShoppingBag },
         { name: 'Categories', path: '/admin/categories', icon: FolderTree },
         { name: 'Orders', path: '/admin/orders', icon: ClipboardList },
+        { name: 'Banners', path: '/admin/banners', icon: ImageIcon },
+        { name: 'Reviews', path: '/admin/reviews', icon: MessageSquare },
     ];
 
     return (

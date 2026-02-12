@@ -1,11 +1,13 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { User as UserIcon, Package, Heart, MapPin, CreditCard, Settings, LogOut, Loader2, Plus } from 'lucide-react';
+import { User as UserIcon, Package, Heart, MapPin, CreditCard, Settings, LogOut, Loader2, Plus, X, Pencil, Trash2 } from 'lucide-react';
 import { useAuth } from '@/src/context/AuthContext';
-import { getProfile, updateProfile, getAddresses, Profile, Address } from '@/src/api/account';
+import { getProfile, updateProfile, getAddresses, createAddress, updateAddress, deleteAddress, getWishlist, Profile, Address } from '@/src/api/account';
 import { getMyOrders, Order } from '@/src/api/orders';
+import { fetchProductById, Product } from '@/src/api/api';
 import { useRouter } from 'next/navigation';
+import { ProductCard } from '@/src/components/ProductCard';
 
 export default function AccountClient() {
     const { user, loading: authLoading, logout } = useAuth();
@@ -22,8 +24,23 @@ export default function AccountClient() {
     const [profile, setProfile] = useState<Profile | null>(null);
     const [orders, setOrders] = useState<Order[]>([]);
     const [addresses, setAddresses] = useState<Address[]>([]);
+    const [wishlistProducts, setWishlistProducts] = useState<Product[]>([]);
     const [saving, setSaving] = useState(false);
     const [message, setMessage] = useState({ type: '', text: '' });
+
+    // Address Modal State
+    const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+    const [editingAddress, setEditingAddress] = useState<Address | null>(null);
+    const [addressForm, setAddressForm] = useState({
+        label: '',
+        line1: '',
+        line2: '',
+        city: '',
+        region: '',
+        postalCode: '',
+        country: 'Pakistan',
+        isDefault: false
+    });
 
     // Profile form state
     const [formData, setFormData] = useState({
@@ -32,34 +49,62 @@ export default function AccountClient() {
         phone: ''
     });
 
-    useEffect(() => {
-        const loadAccountData = async () => {
-            setLoading(true);
-            try {
-                const [profileData, ordersData, addressesData] = await Promise.all([
-                    getProfile(),
-                    getMyOrders(),
-                    getAddresses()
-                ]);
-                setProfile(profileData);
-                setOrders(ordersData);
-                setAddresses(addressesData);
+    const loadAccountData = async () => {
+        setLoading(true);
+        try {
+            const [profileData, ordersData, addressesData] = await Promise.all([
+                getProfile(),
+                getMyOrders(),
+                getAddresses()
+            ]);
+            setProfile(profileData);
+            setOrders(ordersData);
+            setAddresses(addressesData);
 
-                // Initialize form data
-                setFormData({
-                    firstName: profileData.firstName || profileData.name.split(' ')[0] || '',
-                    lastName: profileData.lastName || profileData.name.split(' ').slice(1).join(' ') || '',
-                    phone: profileData.phone || ''
-                });
-            } catch (error) {
-                console.error('Failed to load account data:', error);
-            } finally {
-                setLoading(false);
+            // Initialize form data
+            setFormData({
+                firstName: profileData.firstName || profileData.name.split(' ')[0] || '',
+                lastName: profileData.lastName || profileData.name.split(' ').slice(1).join(' ') || '',
+                phone: profileData.phone || ''
+            });
+
+            // Load Wishlist
+            loadWishlist();
+
+        } catch (error) {
+            console.error('Failed to load account data:', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const loadWishlist = async () => {
+        try {
+            const ids = await getWishlist();
+            if (ids && ids.length > 0) {
+                // Fetch product details for each ID
+                const products = await Promise.all(
+                    ids.map(id => fetchProductById(Number(id)))
+                );
+                setWishlistProducts(products.filter((p): p is Product => p !== null));
+            } else {
+                setWishlistProducts([]);
             }
-        };
+        } catch (err) {
+            console.error("Failed to load wishlist", err);
+        }
+    }
 
+    useEffect(() => {
         if (user) loadAccountData();
     }, [user]);
+
+    // Refresh wishlist when tab is active
+    useEffect(() => {
+        if (activeTab === 'wishlist') {
+            loadWishlist();
+        }
+    }, [activeTab]);
 
     const handleProfileUpdate = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -76,6 +121,69 @@ export default function AccountClient() {
         }
     };
 
+    // Address Handlers
+    const handleAddAddress = () => {
+        setEditingAddress(null);
+        setAddressForm({
+            label: '',
+            line1: '',
+            line2: '',
+            city: '',
+            region: '',
+            postalCode: '',
+            country: 'Pakistan',
+            isDefault: false
+        });
+        setIsAddressModalOpen(true);
+    };
+
+    const handleEditAddress = (addr: Address) => {
+        setEditingAddress(addr);
+        setAddressForm({
+            label: addr.label,
+            line1: addr.line1,
+            line2: addr.line2 || '',
+            city: addr.city,
+            region: addr.region || '',
+            postalCode: addr.postalCode || '',
+            country: addr.country,
+            isDefault: addr.isDefault
+        });
+        setIsAddressModalOpen(true);
+    };
+
+    const handleDeleteAddress = async (id: string) => {
+        if (!confirm('Are you sure you want to delete this address?')) return;
+        try {
+            await deleteAddress(id);
+            const updated = await getAddresses();
+            setAddresses(updated);
+        } catch (err) {
+            console.error("Failed to delete address", err);
+        }
+    };
+
+    const handleSaveAddress = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setSaving(true);
+        try {
+            if (editingAddress) {
+                await updateAddress(editingAddress.id, addressForm);
+            } else {
+                await createAddress(addressForm);
+            }
+            const updated = await getAddresses();
+            setAddresses(updated);
+            setIsAddressModalOpen(false);
+        } catch (err) {
+            console.error("Failed to save address", err);
+            alert('Failed to save address');
+        } finally {
+            setSaving(false);
+        }
+    };
+
+
     if (loading || authLoading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
@@ -85,7 +193,7 @@ export default function AccountClient() {
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-12 transition-colors duration-200">
+        <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 pb-24 sm:py-12 transition-colors duration-200">
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
                 <div className="flex flex-col gap-4 mb-8">
                     <div className="flex justify-between items-start w-full">
@@ -121,27 +229,25 @@ export default function AccountClient() {
                             </div>
                         </div>
 
-                        {/* Mobile Optimized Tabs */}
+                        {/* Navigation Tabs - Optimized for Mobile Grid */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-1.5 transition-all overflow-hidden">
-                            <nav className="flex lg:flex-col overflow-x-auto scrollbar-none gap-1 p-1">
+                            <nav className="grid grid-cols-4 lg:grid-cols-1 gap-1">
                                 {[
                                     { id: 'profile', icon: UserIcon, label: 'Profile' },
                                     { id: 'orders', icon: Package, label: 'Orders' },
-                                    { id: 'wishlist', icon: Heart, label: 'Wish' },
-                                    { id: 'addresses', icon: MapPin, label: 'Addr' },
-                                    { id: 'payment', icon: CreditCard, label: 'Pay' },
-                                    { id: 'settings', icon: Settings, label: 'Set' },
+                                    { id: 'wishlist', icon: Heart, label: 'Wishlist' },
+                                    { id: 'addresses', icon: MapPin, label: 'Address' },
                                 ].map((item) => (
                                     <button
                                         key={item.id}
                                         onClick={() => setActiveTab(item.id)}
-                                        className={`flex items-center gap-2 px-4 py-2.5 sm:py-3.5 rounded-xl transition-all duration-300 whitespace-nowrap lg:w-full ${activeTab === item.id
+                                        className={`flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-3 px-1 py-2 sm:px-4 sm:py-3.5 rounded-xl transition-all duration-300 w-full ${activeTab === item.id
                                             ? 'bg-rose-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900/30'
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                                             }`}
                                     >
-                                        <item.icon className="w-4 h-4" />
-                                        <span className="text-[13px] sm:text-sm font-bold">{item.label}</span>
+                                        <item.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                                        <span className="text-[10px] sm:text-sm font-bold truncate w-full text-center lg:text-left">{item.label}</span>
                                     </button>
                                 ))}
                             </nav>
@@ -304,11 +410,39 @@ export default function AccountClient() {
                                 </div>
                             )}
 
+                            {activeTab === 'wishlist' && (
+                                <div>
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h2 className="text-xl font-bold text-gray-800 dark:text-white">My Wishlist</h2>
+                                        <span className="text-sm text-gray-500">{wishlistProducts.length} Items</span>
+                                    </div>
+
+                                    {wishlistProducts.length === 0 ? (
+                                        <div className="text-center py-20 bg-gray-50 dark:bg-gray-800/50 rounded-3xl border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                            <Heart className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+                                            <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Your wishlist is empty</h3>
+                                            <p className="text-gray-500 dark:text-gray-400">Save items you love to find them easily later.</p>
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+                                            {wishlistProducts.map(product => (
+                                                <div key={product.id} className="h-full">
+                                                    <ProductCard product={product} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+
                             {activeTab === 'addresses' && (
                                 <div>
                                     <div className="flex justify-between items-center mb-6">
                                         <h2 className="text-xl font-bold text-gray-800 dark:text-white">Saved Addresses</h2>
-                                        <button className="flex items-center gap-2 text-rose-500 font-semibold hover:text-rose-600">
+                                        <button
+                                            onClick={handleAddAddress}
+                                            className="flex items-center gap-2 text-rose-500 font-semibold hover:text-rose-600"
+                                        >
                                             <Plus className="w-5 h-5" /> Add New
                                         </button>
                                     </div>
@@ -318,7 +452,10 @@ export default function AccountClient() {
                                             <MapPin className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
                                             <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">No Addresses Saved</h3>
                                             <p className="text-gray-500 dark:text-gray-400">Add an address to speed up your checkout process.</p>
-                                            <button className="mt-6 bg-white dark:bg-gray-800 border border-rose-500 text-rose-500 px-6 py-2 rounded-xl font-medium hover:bg-rose-50 dark:hover:bg-rose-900/20">
+                                            <button
+                                                onClick={handleAddAddress}
+                                                className="mt-6 bg-white dark:bg-gray-800 border border-rose-500 text-rose-500 px-6 py-2 rounded-xl font-medium hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                                            >
                                                 Add My First Address
                                             </button>
                                         </div>
@@ -330,16 +467,36 @@ export default function AccountClient() {
                                                         <span className="absolute top-4 right-4 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 text-xs px-2 py-1 rounded-full font-bold">Default</span>
                                                     )}
                                                     <h3 className="font-semibold text-gray-800 dark:text-white mb-2">{address.label}</h3>
-                                                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed">
+                                                    <p className="text-gray-600 dark:text-gray-400 text-sm leading-relaxed mb-4">
                                                         {address.line1}<br />
                                                         {address.line2 && <>{address.line2}<br /></>}
                                                         {address.city}, {address.region}<br />
                                                         {address.country} {address.postalCode}
                                                     </p>
-                                                    <div className="mt-4 flex gap-4 text-xs font-bold uppercase tracking-wider">
-                                                        <button className="text-gray-400 hover:text-rose-500">Edit</button>
-                                                        {!address.isDefault && <button className="text-gray-400 hover:text-blue-500">Make Default</button>}
-                                                        <button className="text-gray-400 hover:text-red-500 ml-auto">Delete</button>
+                                                    <div className="flex gap-4 text-xs font-bold uppercase tracking-wider">
+                                                        <button
+                                                            onClick={() => handleEditAddress(address)}
+                                                            className="flex items-center gap-1 text-gray-400 hover:text-rose-500"
+                                                        >
+                                                            <Pencil className="w-3.5 h-3.5" /> Edit
+                                                        </button>
+                                                        {!address.isDefault && (
+                                                            <button
+                                                                onClick={async () => {
+                                                                    await updateAddress(address.id, { isDefault: true });
+                                                                    setAddresses(await getAddresses());
+                                                                }}
+                                                                className="text-gray-400 hover:text-blue-500"
+                                                            >
+                                                                Make Default
+                                                            </button>
+                                                        )}
+                                                        <button
+                                                            onClick={() => handleDeleteAddress(address.id)}
+                                                            className="flex items-center gap-1 text-gray-400 hover:text-red-500 ml-auto"
+                                                        >
+                                                            <Trash2 className="w-3.5 h-3.5" /> Delete
+                                                        </button>
                                                     </div>
                                                 </div>
                                             ))}
@@ -348,21 +505,113 @@ export default function AccountClient() {
                                 </div>
                             )}
 
-                            {(activeTab === 'wishlist' || activeTab === 'payment' || activeTab === 'settings') && (
-                                <div className="text-center py-20">
-                                    <div className="w-20 h-20 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mx-auto mb-4">
-                                        {activeTab === 'wishlist' && <Heart className="w-10 h-10 text-gray-300 dark:text-gray-600" />}
-                                        {activeTab === 'payment' && <CreditCard className="w-10 h-10 text-gray-300 dark:text-gray-600" />}
-                                        {activeTab === 'settings' && <Settings className="w-10 h-10 text-gray-300 dark:text-gray-600" />}
-                                    </div>
-                                    <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Coming Soon</h3>
-                                    <p className="text-gray-500 dark:text-gray-400">The {activeTab} feature is currently being connected to our new system.</p>
-                                </div>
-                            )}
                         </div>
                     </main>
                 </div>
             </div>
+
+            {/* Address Modal */}
+            {isAddressModalOpen && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+                    <div className="bg-white dark:bg-gray-900 rounded-3xl w-full max-w-lg p-6 sm:p-8 max-h-[90vh] overflow-y-auto">
+                        <div className="flex justify-between items-center mb-6">
+                            <h2 className="text-2xl font-bold">{editingAddress ? 'Edit Address' : 'Add New Address'}</h2>
+                            <button onClick={() => setIsAddressModalOpen(false)} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full">
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+                        <form onSubmit={handleSaveAddress} className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Label (e.g. Home, Office)</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={addressForm.label}
+                                    onChange={e => setAddressForm({ ...addressForm, label: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Address Line 1</label>
+                                <input
+                                    type="text"
+                                    required
+                                    value={addressForm.line1}
+                                    onChange={e => setAddressForm({ ...addressForm, line1: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium mb-1">Address Line 2 (Optional)</label>
+                                <input
+                                    type="text"
+                                    value={addressForm.line2}
+                                    onChange={e => setAddressForm({ ...addressForm, line2: e.target.value })}
+                                    className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">City</label>
+                                    <input
+                                        type="text"
+                                        required
+                                        value={addressForm.city}
+                                        onChange={e => setAddressForm({ ...addressForm, city: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Region/State</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.region}
+                                        onChange={e => setAddressForm({ ...addressForm, region: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                    />
+                                </div>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Postal Code</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.postalCode}
+                                        onChange={e => setAddressForm({ ...addressForm, postalCode: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                    />
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium mb-1">Country</label>
+                                    <input
+                                        type="text"
+                                        value={addressForm.country}
+                                        onChange={e => setAddressForm({ ...addressForm, country: e.target.value })}
+                                        className="w-full px-4 py-2 rounded-xl border border-gray-200 dark:border-gray-700 bg-transparent"
+                                    />
+                                </div>
+                            </div>
+                            <div className="flex items-center gap-2 pt-2">
+                                <input
+                                    type="checkbox"
+                                    id="isDefault"
+                                    checked={addressForm.isDefault}
+                                    onChange={e => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
+                                    className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500"
+                                />
+                                <label htmlFor="isDefault" className="text-sm font-medium">Set as default address</label>
+                            </div>
+                            <button
+                                type="submit"
+                                disabled={saving}
+                                className="w-full bg-rose-500 text-white py-3 rounded-xl font-bold hover:bg-rose-600 transition-colors mt-4"
+                            >
+                                {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Save Address'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

@@ -161,7 +161,7 @@ router.post('/wishlist', async (req: AuthRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ message: 'Unauthorized' });
     try {
         const { productId } = req.body;
-        await wishlistRepository.addToWishlist(req.user.id, Number(productId));
+        await wishlistRepository.add(req.user.id, Number(productId));
         const items = await wishlistRepository.getByUserId(req.user.id);
         res.json(items);
     } catch (e) {
@@ -173,7 +173,7 @@ router.delete('/wishlist/:productId', async (req: AuthRequest, res) => {
     if (!req.user?.id) return res.status(401).json({ message: 'Unauthorized' });
     try {
         const productId = req.params.productId;
-        await wishlistRepository.removeFromWishlist(req.user.id, Number(productId));
+        await wishlistRepository.remove(req.user.id, Number(productId));
         const items = await wishlistRepository.getByUserId(req.user.id);
         res.json(items);
     } catch (e) {

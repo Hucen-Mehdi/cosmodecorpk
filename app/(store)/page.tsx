@@ -11,19 +11,20 @@ import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCaro
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-    title: 'CosmoDecorPK | Premium Artificial Plants & Home Decor in Pakistan',
-    description: 'Transform your space with CosmoDecorPK - Pakistan\'s premium home decor brand. Shop lifelike artificial plants, floral arrangements, and elegant decor items with fast nationwide delivery.',
+    title: 'CosmoDecorPK - Pakistan No.1 Home Decor & Artificial Plants Store',
+    description: 'Shop premium quality artificial plants, home decor, wall decor, room decor, wedding decor and gift items in Pakistan. Best prices in Karachi, Lahore, Islamabad. Fast delivery across Pakistan.',
+    keywords: "Home Decor Pakistan, Artificial Plants Pakistan, Decoration Items, Modern Home Decor, Wall Decor, Room Decor, Wedding Decor, Gift Items, Artificial Flowers, Home Accessories, Luxury Decor, Pakistani Decor Brands, Best Home Decor Store, Online Decor Shopping Pakistan, Interior Design Ideas, Furniture Pakistan, Rustic Decor, Minimalist Decor, Plant Decor, Office Decor, CosmoDecorPK",
     openGraph: {
-        title: 'CosmoDecorPK | Premium Artificial Plants & Home Decor in Pakistan',
+        title: 'CosmoDecorPK - Pakistan No.1 Home Decor & Artificial Plants Store',
         description: 'Transform your space with CosmoDecorPK - Pakistan\'s premium home decor brand. Shop lifelike artificial plants, floral arrangements, and elegant decor items.',
         url: 'https://cosmodecorpk.com',
-        siteName: 'CosmoDecorPK',
+        siteName: 'CosmoDecorPK Pakistan',
         images: [
             {
                 url: 'https://images.unsplash.com/photo-1459411552884-841db9b3cc2a?w=1200&h=630&fit=crop',
                 width: 1200,
                 height: 630,
-                alt: 'CosmoDecorPK Home Decor',
+                alt: 'CosmoDecorPK Home Decor Pakistan',
             },
         ],
         locale: 'en_PK',

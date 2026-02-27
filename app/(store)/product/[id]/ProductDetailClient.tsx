@@ -40,7 +40,37 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         fetchReviews(product.id).then(setReviews);
     }, [product.id]);
 
-    const handlePhotoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const resizeImage = (file: File): Promise<string> => {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    let { width, height } = img;
+                    const max_size = 800;
+
+                    if (width > height && width > max_size) {
+                        height *= max_size / width;
+                        width = max_size;
+                    } else if (height > max_size) {
+                        width *= max_size / height;
+                        height = max_size;
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx?.drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.6));
+                };
+                img.src = e.target?.result as string;
+            };
+            reader.readAsDataURL(file);
+        });
+    };
+
+    const handlePhotoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         const files = e.target.files;
         if (!files) return;
 
@@ -50,13 +80,13 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
             return;
         }
 
-        Array.from(files).forEach(file => {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                setReviewForm(prev => ({ ...prev, pictures: [...prev.pictures, reader.result as string] }));
-            };
-            reader.readAsDataURL(file);
-        });
+        const newPictures: string[] = [];
+        for (let i = 0; i < files.length; i++) {
+            const resized = await resizeImage(files[i]);
+            newPictures.push(resized);
+        }
+
+        setReviewForm(prev => ({ ...prev, pictures: [...prev.pictures, ...newPictures] }));
     };
 
     const handleReviewSubmit = async (e: React.FormEvent) => {
@@ -427,9 +457,107 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                             )}
                         </div>
 
-                        {/* Review Form REMOVED */}
-                        <div className="hidden">
-                            {/* Form was here */}
+                        {/* Review Form */}
+                        <div className="bg-white dark:bg-gray-900 p-8 rounded-2xl border border-gray-100 dark:border-gray-800 h-fit">
+                            <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-6">Write a Review</h3>
+                            <form onSubmit={handleReviewSubmit} className="space-y-4">
+                                {/* Rating */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Rating</label>
+                                    <div className="flex gap-2">
+                                        {[1, 2, 3, 4, 5].map((star) => (
+                                            <button
+                                                type="button"
+                                                key={star}
+                                                onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
+                                                className="focus:outline-none"
+                                            >
+                                                <Star className={`w-6 h-6 ${reviewForm.rating >= star ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-gray-600 hover:text-amber-200'}`} />
+                                            </button>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                    {/* Name */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Name</label>
+                                        <input
+                                            type="text"
+                                            required
+                                            value={reviewForm.name}
+                                            onChange={(e) => setReviewForm(prev => ({ ...prev, name: e.target.value }))}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
+                                            placeholder="John Doe"
+                                        />
+                                    </div>
+                                    {/* Email */}
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Email</label>
+                                        <input
+                                            type="email"
+                                            required
+                                            value={reviewForm.email}
+                                            onChange={(e) => setReviewForm(prev => ({ ...prev, email: e.target.value }))}
+                                            className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none"
+                                            placeholder="john@example.com"
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Comment */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Review</label>
+                                    <textarea
+                                        required
+                                        rows={4}
+                                        value={reviewForm.comment}
+                                        onChange={(e) => setReviewForm(prev => ({ ...prev, comment: e.target.value }))}
+                                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 transition-all outline-none resize-none"
+                                        placeholder="What did you like or dislike?"
+                                    />
+                                </div>
+
+                                {/* Pictures */}
+                                <div>
+                                    <label className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Pictures (Optional, max 3)</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handlePhotoUpload}
+                                        disabled={reviewForm.pictures.length >= 3}
+                                        className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 dark:file:bg-gray-800 dark:file:text-gray-300 dark:hover:file:bg-gray-700 transition-all"
+                                    />
+                                    {reviewForm.pictures.length > 0 && (
+                                        <div className="flex gap-2 mt-3">
+                                            {reviewForm.pictures.map((url, idx) => (
+                                                <div key={idx} className="relative group">
+                                                    <img src={url} alt="Upload preview" className="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setReviewForm(prev => ({
+                                                            ...prev,
+                                                            pictures: prev.pictures.filter((_, i) => i !== idx)
+                                                        }))}
+                                                        className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                                                    >
+                                                        <Minus className="w-3 h-3" />
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={submittingReview}
+                                    className="w-full bg-gray-900 dark:bg-white text-white dark:text-gray-900 py-4 rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-gray-100 transition-all disabled:opacity-50"
+                                >
+                                    {submittingReview ? 'Submitting...' : 'Submit Review'}
+                                </button>
+                            </form>
                         </div>
                     </div>
                 </div>

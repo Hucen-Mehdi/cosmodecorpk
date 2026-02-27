@@ -33,23 +33,46 @@ export interface Variation {
 
 export const productRepository = {
     async getAll(filters: { category?: string; subcategory?: string; search?: string; sortBy?: string; limit?: number; featured?: boolean }): Promise<Product[]> {
-        let query = `
-      SELECT p.id, p.name, p.price, p.original_price as "originalPrice", p.image_url as image, 
-             p.category_id as category, p.category_ids as "categoryIds", p.subcategory, p.rating, p.reviews, p.badge, p.description, p.stock, p.delivery_charge as "deliveryCharge",
-             p.variations, p.additional_images as "additionalImages",
-             p.is_featured as "isFeatured", p.sales_count as "salesCount",
-             COALESCE(cps.sort_order, p.sort_order) as "sortOrder"
-      FROM products p
-      LEFT JOIN category_product_sorting cps ON p.id = cps.product_id AND cps.category_id = $1
-      WHERE 1=1
-    `;
-        const params: any[] = [filters.category || 'GLOBAL'];
-        let paramIndex = 2; // Start from 2 because $1 is reserved for category join
+        let selectFields = `
+            p.id, p.name, p.price, p.original_price as "originalPrice", p.image_url as image, 
+            p.category_id as category, 
+            p.subcategory, p.rating, p.reviews, p.badge, p.description, p.stock, p.delivery_charge as "deliveryCharge",
+            p.variations, p.additional_images as "additionalImages",
+            p.is_featured as "isFeatured", p.sales_count as "salesCount",
+            (SELECT array_agg(collection_id) FROM product_collections WHERE product_id = p.id) as "categoryIds"
+        `;
 
+        let fromClause = `FROM products p`;
+        const params: any[] = [];
+        let paramIndex = 1;
+
+        // Dynamic Join for Sorting
         if (filters.category) {
-            query += ` AND (p.category_id = $${paramIndex} OR $${paramIndex} = ANY(p.category_ids))`;
+            selectFields += `, COALESCE(cps.sort_order, p.sort_order) as "sortOrder"`;
+            fromClause += ` LEFT JOIN category_product_sorting cps ON p.id = cps.product_id AND cps.category_id = $${paramIndex}`;
             params.push(filters.category);
             paramIndex++;
+        } else {
+            selectFields += `, p.sort_order as "sortOrder"`;
+        }
+
+        let query = `SELECT ${selectFields} ${fromClause} WHERE 1=1`;
+
+        // Filter Logic
+        if (filters.category) {
+            // We reuse the param we pushed for the join, OR we push if we didn't join (unlikely given the if above, but safely:)
+            // Actually, we entered the block above, so filters.category IS in params at index 0 (value $1).
+            // But let's be cleaner and separate if needed, or just use the known index.
+            // Since we established paramIndex++ after pushing, the param is at $1 (if paramIndex is 2).
+            const catParamIdx = paramIndex - 1;
+            query += ` AND (
+                p.id IN (
+                    SELECT pc.product_id 
+                    FROM product_collections pc 
+                    JOIN collections c ON pc.collection_id = c.id 
+                    WHERE c.id = $${catParamIdx} OR c.slug = $${catParamIdx}
+                )
+            )`;
         }
 
         if (filters.subcategory) {
@@ -75,8 +98,7 @@ export const productRepository = {
                 query += ` AND (
                     LOWER(p.name) LIKE $${paramIndex} OR 
                     LOWER(p.description) LIKE $${paramIndex} OR 
-                    p.category_id ILIKE $${paramIndex} OR 
-                    p.subcategory ILIKE $${paramIndex}
+                    COALESCE(p.subcategory, '') ILIKE $${paramIndex}
                 )`;
                 params.push(`%${searchVal}%`);
                 paramIndex++;
@@ -113,6 +135,7 @@ export const productRepository = {
             query += ` LIMIT $${paramIndex}`;
             params.push(filters.limit);
         }
+
 
         try {
             const result = await pool.query(query, params);
@@ -253,18 +276,46 @@ export const productRepository = {
     },
 
     async updateCategoryProducts(categoryId: string, productIds: number[]): Promise<void> {
-        await pool.query(`
-            UPDATE products 
-            SET category_ids = array_remove(category_ids, $1)
-            WHERE $1 = ANY(category_ids) AND NOT (id = ANY($2))
-        `, [categoryId, productIds]);
+        const client = await pool.connect();
+        try {
+            await client.query('BEGIN');
 
-        await pool.query(`
-            UPDATE products 
-            SET category_ids = array_append(category_ids, $1)
-            WHERE id = ANY($2) AND NOT ($1 = ANY(category_ids))
-        `, [categoryId, productIds]);
+            // 1. Remove all existing products from this category association
+            await client.query('DELETE FROM product_collections WHERE collection_id = $1', [categoryId]);
+
+            // 2. Add new associations
+            if (productIds.length > 0) {
+                const values = productIds.map((pid, i) => `($1, $${i + 2})`).join(', ');
+                await client.query(`
+                    INSERT INTO product_collections (collection_id, product_id)
+                    VALUES ${values}
+                `, [categoryId, ...productIds]);
+            }
+
+            // 3. Update products.category_ids array for backward compatibility (optional but good for now)
+            await client.query(`
+                UPDATE products 
+                SET category_ids = array_remove(category_ids, $1)
+                WHERE $1 = ANY(category_ids)
+            `, [categoryId]);
+
+            if (productIds.length > 0) {
+                await client.query(`
+                    UPDATE products 
+                    SET category_ids = array_append(COALESCE(category_ids, '{}'), $1)
+                    WHERE id = ANY($2)
+                `, [categoryId, productIds]);
+            }
+
+            await client.query('COMMIT');
+        } catch (e) {
+            await client.query('ROLLBACK');
+            throw e;
+        } finally {
+            client.release();
+        }
     },
+
 
     async updateSortOrder(items: { id: number; position: number }[], categoryId?: string): Promise<void> {
         if (items.length === 0) return;

@@ -109,7 +109,7 @@ export async function fetchProductById(id: number) {
 export async function fetchCategories() {
     if (!API_BASE_URL) return [];
     try {
-        const response = await fetch(`${API_BASE_URL}/categories`, { cache: 'no-store' });
+        const response = await fetch(`${API_BASE_URL}/collections`, { cache: 'no-store' });
         if (!response.ok) return [];
         return await response.json();
     } catch {
@@ -173,9 +173,19 @@ export async function submitReview(data: Omit<Review, 'id' | 'review_date' | 've
         body: JSON.stringify(data),
     });
 
-    const result = await response.json();
-    if (!response.ok) throw new Error(result.message || 'Failed to submit review');
-    return result;
+    const contentType = response.headers.get("content-type");
+    if (contentType && contentType.indexOf("application/json") !== -1) {
+        const result = await response.json();
+        if (!response.ok) throw new Error(result.message || 'Failed to submit review');
+        return result;
+    } else {
+        const text = await response.text();
+        if (!response.ok) {
+            if (response.status === 413) throw new Error('Images are too large. Please upload smaller images.');
+            throw new Error(`Server Error: ${response.statusText}`);
+        }
+        return { message: 'Success' };
+    }
 }
 
 export async function submitContactForm(data: { name: string; email: string; subject?: string; message: string }) {

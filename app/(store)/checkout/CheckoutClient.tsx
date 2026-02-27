@@ -73,8 +73,8 @@ export default function CheckoutClient() {
             color: 'from-purple-500 to-purple-600',
             bgColor: 'bg-purple-50',
             borderColor: 'border-purple-500',
-            accountTitle: 'CosmoDecor PK',
-            accountNumber: '0332-5932181',
+            accountTitle: 'Malaika ajmal',
+            accountNumber: '03325932181',
         },
         {
             id: 'jazzcash' as const,
@@ -83,8 +83,8 @@ export default function CheckoutClient() {
             color: 'from-red-500 to-red-600',
             bgColor: 'bg-red-50',
             borderColor: 'border-red-500',
-            accountTitle: 'CosmoDecor PK',
-            accountNumber: '0332-5932181',
+            accountTitle: 'Malaika ajmal',
+            accountNumber: '03209937113',
         },
         {
             id: 'easypaisa' as const,
@@ -93,8 +93,8 @@ export default function CheckoutClient() {
             color: 'from-green-500 to-green-600',
             bgColor: 'bg-green-50',
             borderColor: 'border-green-500',
-            accountTitle: 'CosmoDecor PK',
-            accountNumber: '0332-5932181',
+            accountTitle: 'Malaika ajmal',
+            accountNumber: '03325932181',
         },
         {
             id: 'cod' as const,

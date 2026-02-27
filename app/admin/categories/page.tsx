@@ -2,8 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Plus, Edit2, Trash2, FolderTree, AlertCircle, X, Search, MoreVertical } from 'lucide-react';
-import { fetchCategories, fetchProducts } from '@/src/api/api';
-import { createCategory, updateCategory, deleteCategory, updateCategoryProducts } from '@/src/api/admin';
+import { fetchProducts } from '@/src/api/api';
+import { createCategory, updateCategory, deleteCategory, updateCategoryProducts, fetchAdminCategories } from '@/src/api/admin';
 import { DeleteConfirmationModal } from '../_components/DeleteConfirmationModal';
 import { Check } from 'lucide-react';
 
@@ -33,7 +33,7 @@ export default function AdminCategories() {
         setLoading(true);
         try {
             const [cats, prods] = await Promise.all([
-                fetchCategories(),
+                fetchAdminCategories(),
                 fetchProducts()
             ]);
             setCategories(cats);

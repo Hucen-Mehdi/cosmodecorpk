@@ -121,13 +121,40 @@ router.post('/submit/:token', async (req, res) => {
 // Legacy POST (keep for potential backward compatibility or manual submission if needed, 
 // but typically we are disabling manual submission. 
 // However, existing non-token POST route should probably remain OR be disabled if user insists STRICTLY.
-// User said: "REMOVE review form from product page". 
-// Backend validation: "Prevent duplicate reviews". 
-// I will keep the legacy route but maybe secure it? 
-// Actually, I'll update the existing 'get' route to match the new path structure if needed.
-// The frontend calls `fetchReviews` which hits `${API_BASE_URL}/reviews/${id}`. 
-// My new code above uses `/product/${id}` for GET.
-// I should make sure I don't break existing GET.
+// User said: "REMOVE review form from product page". -> Now user said: ADD it back.
+
+router.post('/', async (req, res) => {
+    try {
+        const { product_id, rating, comment, reviewer_name, reviewer_email, picture_urls } = req.body;
+
+        await pool.query('BEGIN');
+
+        const reviewRes = await pool.query(`
+            INSERT INTO reviews 
+            (product_id, rating, comment, reviewer_name, reviewer_email, picture_urls, status, verified_purchase, review_date)
+            VALUES ($1, $2, $3, $4, $5, $6, 'approved', false, NOW())
+            RETURNING *
+        `, [product_id, rating, comment, reviewer_name, reviewer_email, picture_urls || []]);
+
+        // Update Product Stats
+        await pool.query(`
+            UPDATE products p
+            SET 
+                rating = COALESCE((SELECT AVG(rating)::numeric(3,1) FROM reviews r WHERE r.product_id = p.id AND status = 'approved'), 0),
+                reviews = (SELECT COUNT(*)::int FROM reviews r WHERE r.product_id = p.id AND status = 'approved')
+            WHERE id = $1
+        `, [product_id]);
+
+        await pool.query('COMMIT');
+
+        res.json(reviewRes.rows[0]);
+
+    } catch (error) {
+        await pool.query('ROLLBACK');
+        console.error('Submit plain review error:', error);
+        res.status(500).json({ message: 'Failed to submit review' });
+    }
+});
 
 router.get('/:productId', async (req, res) => {
     // This handles GET /reviews/:id

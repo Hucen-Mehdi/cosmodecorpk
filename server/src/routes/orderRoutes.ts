@@ -54,10 +54,30 @@ router.post('/', optionalAuth, async (req: AuthRequest, res) => {
         const isGuest = !userId;
 
         // Generate Order Number
-        const countRes = await pool.query('SELECT COUNT(*) FROM orders');
-        const count = parseInt(countRes.rows[0].count, 10);
-        const nextNum = (count + 1).toString().padStart(4, '0');
-        const orderNumber = `ORD-${new Date().getFullYear()}${nextNum}`;
+        const currentYear = new Date().getFullYear();
+        const maxOrderRes = await pool.query(
+            "SELECT order_number FROM orders WHERE order_number LIKE $1 ORDER BY order_number DESC LIMIT 1",
+            [`ORD-${currentYear}%`]
+        );
+
+        let nextNum = 1;
+        if (maxOrderRes.rows.length > 0) {
+            const lastOrderNum = maxOrderRes.rows[0].order_number;
+            const numPart = lastOrderNum.replace(`ORD-${currentYear}`, '');
+            const parsedNum = parseInt(numPart, 10);
+            if (!isNaN(parsedNum)) {
+                nextNum = parsedNum + 1;
+            } else {
+                const countRes = await pool.query('SELECT COUNT(*) FROM orders');
+                nextNum = parseInt(countRes.rows[0].count, 10) + 1;
+            }
+        } else {
+            const countRes = await pool.query('SELECT COUNT(*) FROM orders');
+            nextNum = parseInt(countRes.rows[0].count, 10) + 1;
+        }
+
+        // Final fallback if nextNum somehow conflicts
+        const orderNumber = `ORD-${currentYear}${nextNum.toString().padStart(4, '0')}`;
 
         const newOrder = await orderRepository.create({
             id: Date.now().toString(),

@@ -18,13 +18,13 @@ router.get('/search', async (req, res) => {
         });
 
         const limitedResults = products.slice(0, 20);
-        const allCategories = await categoryRepository.getAll();
-        const categoriesNames = allCategories.map(c => c.name);
+        const allCollections = await categoryRepository.getAll();
+        const collectionsNames = allCollections.map(c => c.name);
 
         res.json({
             products: limitedResults,
             total: products.length,
-            categories: categoriesNames
+            categories: collectionsNames
         });
     } catch (error: any) {
         console.error('Search error:', error);

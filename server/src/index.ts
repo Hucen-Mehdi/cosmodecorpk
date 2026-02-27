@@ -39,7 +39,8 @@ const runDailyBackup = async () => {
       const fullData: any = {};
 
       for (const table of tables) {
-        const { rows } = await pool.query(`SELECT * FROM ${table}`);
+        const tableName = table === 'categories' ? 'collections' : table;
+        const { rows } = await pool.query(`SELECT * FROM ${tableName}`);
         fullData[table] = rows;
       }
 
@@ -100,17 +101,7 @@ const checkDatabase = async () => {
         ADD COLUMN IF NOT EXISTS variations JSONB DEFAULT '[]'
       `);
 
-      await pool.query(`
-        ALTER TABLE products 
-        ADD COLUMN IF NOT EXISTS category_ids TEXT[] DEFAULT '{}'
-      `);
-
-      await pool.query(`
-        UPDATE products 
-        SET category_ids = ARRAY[category_id] 
-        WHERE category_id IS NOT NULL 
-        AND (category_ids IS NULL OR array_length(category_ids, 1) IS NULL)
-      `);
+      // Legacy category_id to category_ids migration moved to proper migration scripts
 
       await pool.query(`
         ALTER TABLE order_items 
@@ -156,15 +147,20 @@ app.get('/api', (_req, res) => {
 });
 
 
-// Categories
-app.get('/api/categories', async (_req: Request, res: Response) => {
+// Collections (formerly Categories)
+app.get('/api/collections', async (_req: Request, res: Response) => {
   try {
     const categories = await categoryRepository.getAll();
     res.json(categories);
   } catch (error) {
-    console.error('Error fetching categories:', error);
+    console.error('Error fetching collections:', error);
     res.status(500).json({ message: 'Server error' });
   }
+});
+
+// Legacy alias for compatibility
+app.get('/api/categories', async (_req: Request, res: Response) => {
+  res.redirect(301, '/api/collections');
 });
 
 // Testimonials

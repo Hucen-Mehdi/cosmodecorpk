@@ -44,59 +44,67 @@ router.get('/stats', async (req, res) => {
     }
 });
 
-// Categories
-router.get('/categories', async (req, res) => {
+// Collections (Admin)
+router.get('/collections', async (req, res) => {
     try {
-        const categories = await categoryRepository.getAll();
-        // User requested [{id, name, slug}], but getAll usually returns that + icons etc. 
-        // We'll return full objects which is compatible.
-        res.json(categories);
+        const includeDeleted = req.query.include_deleted === 'true';
+        const collections = await categoryRepository.getAll(includeDeleted);
+        res.json(collections);
     } catch (error: any) {
-        res.status(500).json({ message: 'Error fetching categories' });
+        res.status(500).json({ message: 'Error fetching collections' });
     }
 });
 
-router.post('/categories', async (req, res) => {
+router.post('/collections', async (req, res) => {
     try {
-        const category = await categoryRepository.create(req.body);
-        res.status(201).json(category);
+        const collection = await categoryRepository.create(req.body);
+        res.status(201).json(collection);
     } catch (error: any) {
-        console.warn('Create category failed:', error.message);
+        console.warn('Create collection failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
 
-router.put('/categories/:id', async (req, res) => {
+router.put('/collections/:id', async (req, res) => {
     try {
-        const category = await categoryRepository.update(req.params.id, req.body);
-        res.json(category);
+        const collection = await categoryRepository.update(req.params.id, req.body);
+        res.json(collection);
     } catch (error: any) {
-        console.warn('Update category failed:', error.message);
+        console.warn('Update collection failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
 
-router.delete('/categories/:id', async (req, res) => {
+router.delete('/collections/:id', async (req, res) => {
     try {
-        await categoryRepository.delete(req.params.id);
+        const hardDelete = req.query.permanent === 'true' || true;
+        await categoryRepository.delete(req.params.id, hardDelete);
         res.status(204).send();
     } catch (error: any) {
-        console.warn('Delete category failed:', error.message);
+        console.warn('Delete collection failed:', error.message);
         res.status(400).json({ message: error.message });
     }
 });
 
-router.put('/categories/:id/products', async (req, res) => {
+router.put('/collections/:id/products', async (req, res) => {
     try {
         const { productIds } = req.body;
-        const categoryId = req.params.id;
-        await productRepository.updateCategoryProducts(categoryId, productIds || []);
-        res.json({ message: 'Category products updated successfully' });
+        const collectionId = req.params.id;
+        await productRepository.updateCategoryProducts(collectionId, productIds || []);
+        res.json({ message: 'Collection products updated successfully' });
     } catch (error: any) {
-        console.error('Update category products failed:', error);
+        console.error('Update collection products failed:', error);
         res.status(500).json({ message: error.message });
     }
 });
+
+// Aliases for backward compatibility
+router.get('/categories', (req, res) => res.redirect(301, '/api/admin/collections'));
+router.post('/categories', (req, res) => res.redirect(307, '/api/admin/collections'));
+router.put('/categories/:id', (req, res) => res.redirect(307, `/api/admin/collections/${req.params.id}`));
+router.delete('/categories/:id', (req, res) => res.redirect(307, `/api/admin/collections/${req.params.id}`));
+router.put('/categories/:id/products', (req, res) => res.redirect(307, `/api/admin/collections/${req.params.id}/products`));
+
 
 // Products
 router.post('/products', async (req, res) => {
@@ -225,8 +233,8 @@ router.delete('/reviews/:id', async (req, res) => {
             await pool.query(`
                 UPDATE products p
                 SET 
-                    rating = COALESCE((SELECT AVG(rating) FROM reviews r WHERE r.product_id = p.id), 0),
-                    reviews = (SELECT COUNT(*) FROM reviews r WHERE r.product_id = p.id)
+                    rating = COALESCE((SELECT AVG(rating)::numeric(3,1) FROM reviews r WHERE r.product_id = p.id AND status = 'approved'), 0),
+                    reviews = (SELECT COUNT(*)::int FROM reviews r WHERE r.product_id = p.id AND status = 'approved')
                 WHERE id = $1
             `, [productId]);
         }

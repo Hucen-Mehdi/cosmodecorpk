@@ -18,62 +18,63 @@ export async function fetchAdminStats() {
     return response.json();
 }
 
-// Categories
+// Collections
 export async function fetchAdminCategories() {
-    const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+    const response = await fetch(`${API_BASE_URL}/admin/collections`, {
         headers: getAuthHeaders()
     });
-    if (!response.ok) throw new Error('Failed to fetch categories');
+    if (!response.ok) throw new Error('Failed to fetch collections');
     return response.json();
 }
 
-// Categories
+// Collections
 export async function createCategory(data: Partial<Category>) {
-    const response = await fetch(`${API_BASE_URL}/admin/categories`, {
+    const response = await fetch(`${API_BASE_URL}/admin/collections`, {
         method: 'POST',
         headers: getAuthHeaders(),
         body: JSON.stringify(data)
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to create category');
+        throw new Error(error.message || 'Failed to create collection');
     }
     return response.json();
 }
 
 export async function updateCategory(id: string, data: Partial<Category>) {
-    const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+    const response = await fetch(`${API_BASE_URL}/admin/collections/${id}`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify(data)
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to update category');
+        throw new Error(error.message || 'Failed to update collection');
     }
     return response.json();
 }
-export async function deleteCategory(id: string) {
-    const response = await fetch(`${API_BASE_URL}/admin/categories/${id}`, {
+export async function deleteCategory(id: string, permanent: boolean = true) {
+    const response = await fetch(`${API_BASE_URL}/admin/collections/${id}?permanent=${permanent}`, {
         method: 'DELETE',
         headers: getAuthHeaders()
     });
+
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to delete category');
+        throw new Error(error.message || 'Failed to delete collection');
     }
     return true;
 }
 
 export async function updateCategoryProducts(id: string, productIds: number[]) {
-    const response = await fetch(`${API_BASE_URL}/admin/categories/${id}/products`, {
+    const response = await fetch(`${API_BASE_URL}/admin/collections/${id}/products`, {
         method: 'PUT',
         headers: getAuthHeaders(),
         body: JSON.stringify({ productIds })
     });
     if (!response.ok) {
         const error = await response.json();
-        throw new Error(error.message || 'Failed to update category products');
+        throw new Error(error.message || 'Failed to update collection products');
     }
     return response.json();
 }

@@ -20,6 +20,15 @@ const nextConfig = {
     env: {
         NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL,
     },
+    async redirects() {
+        return [
+            {
+                source: '/ur',
+                destination: '/',
+                permanent: true,
+            },
+        ];
+    },
 };
 
 export default nextConfig;

@@ -44,9 +44,27 @@ router.get('/status', async (req, res) => {
                OR additional_images::text LIKE '%cloudinary%'
             ORDER BY id ASC
         `);
+        // Collections
+        const categoriesResult = await pool.query(`
+            SELECT id::text, name, image_url as "imageUrl"
+            FROM collections
+            WHERE image_url LIKE '%cloudinary%'
+            ORDER BY name ASC
+        `);
+
+        // Hero Slides
+        const heroResult = await pool.query(`
+            SELECT id::text, title as name, image_url as "imageUrl", mobile_image_url as "additionalImages"
+            FROM hero_slides
+            WHERE image_url LIKE '%cloudinary%' OR mobile_image_url LIKE '%cloudinary%'
+            ORDER BY id ASC
+        `);
+
         res.json({
-            count: rows.length,
-            products: rows
+            count: rows.length + categoriesResult.rows.length + heroResult.rows.length,
+            products: rows,
+            categories: categoriesResult.rows,
+            heroSlides: heroResult.rows
         });
     } catch (error: any) {
         console.error('Migration status error:', error);
@@ -60,7 +78,7 @@ router.get('/status', async (req, res) => {
  */
 router.post('/upload', upload.single('image'), async (req, res) => {
     try {
-        const { productId, field, index } = req.body;
+        const { productId, field, index, type = 'product' } = req.body;
         const file = req.file;
 
         if (!productId || !field || !file) {
@@ -69,21 +87,33 @@ router.post('/upload', upload.single('image'), async (req, res) => {
 
         const newUrl = `/uploads/products/${file.filename}`;
 
-        if (field === 'imageUrl') {
-            await pool.query('UPDATE products SET image_url = $1 WHERE id = $2', [newUrl, productId]);
-        } else if (field === 'additionalImages') {
-            const idx = parseInt(index);
-            const { rows } = await pool.query('SELECT additional_images FROM products WHERE id = $1', [productId]);
-            const currentImages = rows[0]?.additional_images || [];
-            
-            if (isNaN(idx)) {
-                // Append if index not provided
-                currentImages.push(newUrl);
+        if (type === 'category') {
+            await pool.query('UPDATE collections SET image_url = $1 WHERE id = $2', [newUrl, productId]);
+        } else if (type === 'hero') {
+            // field can be "imageUrl" or "mobileImageUrl"
+            if (field === 'mobileImageUrl') {
+                 await pool.query('UPDATE hero_slides SET mobile_image_url = $1 WHERE id = $2', [newUrl, parseInt(productId)]);
             } else {
-                currentImages[idx] = newUrl;
+                 await pool.query('UPDATE hero_slides SET image_url = $1 WHERE id = $2', [newUrl, parseInt(productId)]);
             }
+        } else {
+            // Handle product
+            if (field === 'imageUrl') {
+                await pool.query('UPDATE products SET image_url = $1 WHERE id = $2', [newUrl, productId]);
+            } else if (field === 'additionalImages') {
+                const idx = parseInt(index);
+                const { rows } = await pool.query('SELECT additional_images FROM products WHERE id = $1', [productId]);
+                const currentImages = rows[0]?.additional_images || [];
+                
+                if (isNaN(idx)) {
+                    // Append if index not provided
+                    currentImages.push(newUrl);
+                } else {
+                    currentImages[idx] = newUrl;
+                }
 
-            await pool.query('UPDATE products SET additional_images = $1 WHERE id = $2', [currentImages, productId]);
+                await pool.query('UPDATE products SET additional_images = $1 WHERE id = $2', [currentImages, productId]);
+            }
         }
 
         res.json({

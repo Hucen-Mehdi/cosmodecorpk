@@ -16,6 +16,7 @@ import wishlistRoutes from './routes/wishlistRoutes';
 import { testimonialRepository } from './repositories/testimonialRepository';
 import { contactRepository } from './repositories/contactRepository';
 import { categoryRepository } from './repositories/categoryRepository';
+import migrationRoutes from './routes/migrationRoutes';
 import { pool } from './db/client';
 import { PORT } from './config';
 import { createProxyMiddleware } from 'http-proxy-middleware';
@@ -70,8 +71,8 @@ const frontendProxy = createProxyMiddleware({
 });
 
 app.use((req, res, next) => {
-  if (req.path.startsWith('/api')) {
-    return next(); // Go to backend API routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    return next(); // Go to backend routes (API or static uploads)
   }
   return frontendProxy(req, res, next); // Everything else → Next.js
 });
@@ -118,6 +119,9 @@ const checkDatabase = async () => {
 };
 checkDatabase();
 
+// Static files for uploads
+app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+
 // 🚀 Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Server running on port ${PORT}`);
@@ -136,6 +140,7 @@ app.use('/api/hero', heroRoutes);
 app.use('/api/wishlist', wishlistRoutes);
 app.use('/api/reviews', reviewRoutes);
 app.use('/api/products', productRoutes);
+app.use('/api/migration', migrationRoutes);
 
 app.get('/api', (_req, res) => {
   res.json({

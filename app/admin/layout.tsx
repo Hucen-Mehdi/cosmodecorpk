@@ -62,8 +62,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Products', path: '/admin/products', icon: ShoppingBag },
         { name: 'Categories', path: '/admin/categories', icon: FolderTree },
         { name: 'Orders', path: '/admin/orders', icon: ClipboardList },
-        { name: 'Banners', path: '/admin/banners', icon: ImageIcon },
+        { name: 'Labels (Banners)', path: '/admin/banners', icon: ImageIcon },
         { name: 'Reviews', path: '/admin/reviews', icon: MessageSquare },
+        { name: 'Image Migration', path: '/admin/migration', icon: Bell }, // Using Bell for now, maybe change to something else
     ];
 
     return (

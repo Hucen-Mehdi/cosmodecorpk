@@ -167,13 +167,12 @@ export default function MigrationPage() {
                                                 <div className="text-[10px] uppercase font-black px-2 py-1 rounded text-white bg-gray-800">
                                                     {item.type}
                                                 </div>
-                                                <p className="font-bold text-gray-900">{item.name || \`ID: \${item.id}\`}</p>
+                                                <p className="font-bold text-gray-900">{item.name || `ID: ${item.id}`}</p>
                                             </div>
                                         </td>
                                         <td className="px-8 py-6">
                                             <div className="space-y-3">
-                                                {/* Main Image */}
-                                                {item.imageUrl?.includes('cloudinary') && (
+                                                {item.imageUrl && !item.imageUrl.startsWith('/uploads') && !item.imageUrl.startsWith('/api') && (
                                                     <div className="flex items-center gap-3 text-rose-500">
                                                         <AlertTriangle className="w-4 h-4" />
                                                         <p className="text-[10px] font-mono bg-rose-50 px-2 py-1 rounded truncate max-w-xs">{item.imageUrl}</p>
@@ -200,7 +199,7 @@ export default function MigrationPage() {
                                         <td className="px-8 py-6">
                                             <div className="flex flex-col gap-2 items-center">
                                                 {/* Upload Main */}
-                                                {item.imageUrl?.includes('cloudinary') && (
+                                                {item.imageUrl && !item.imageUrl.startsWith('/uploads') && !item.imageUrl.startsWith('/api') && (
                                                     <label className="w-full max-w-[140px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white shadow-sm">
                                                         <input 
                                                             type="file" 

@@ -37,26 +37,28 @@ router.use(requireAdmin);
  */
 router.get('/status', async (req, res) => {
     try {
+        // Products
         const { rows } = await pool.query(`
             SELECT id, name, image_url as "imageUrl", additional_images as "additionalImages"
             FROM products
-            WHERE image_url LIKE '%cloudinary%'
-               OR additional_images::text LIKE '%cloudinary%'
+            WHERE (image_url IS NOT NULL AND image_url !~ '^/(uploads|api)')
+               OR (additional_images::text LIKE '%http%')
             ORDER BY id ASC
         `);
+
         // Collections
         const categoriesResult = await pool.query(`
             SELECT id::text, name, image_url as "imageUrl"
             FROM collections
-            WHERE image_url LIKE '%cloudinary%'
+            WHERE image_url IS NOT NULL AND image_url !~ '^/(uploads|api)'
             ORDER BY name ASC
         `);
 
         // Hero Slides
         const heroResult = await pool.query(`
-            SELECT id::text, title as name, image_url as "imageUrl", mobile_image_url as "additionalImages"
+            SELECT id::text, title as name, image_url as "imageUrl"
             FROM hero_slides
-            WHERE image_url LIKE '%cloudinary%' OR mobile_image_url LIKE '%cloudinary%'
+            WHERE image_url IS NOT NULL AND image_url !~ '^/(uploads|api)'
             ORDER BY id ASC
         `);
 
@@ -90,12 +92,7 @@ router.post('/upload', upload.single('image'), async (req, res) => {
         if (type === 'category') {
             await pool.query('UPDATE collections SET image_url = $1 WHERE id = $2', [newUrl, productId]);
         } else if (type === 'hero') {
-            // field can be "imageUrl" or "mobileImageUrl"
-            if (field === 'mobileImageUrl') {
-                 await pool.query('UPDATE hero_slides SET mobile_image_url = $1 WHERE id = $2', [newUrl, parseInt(productId)]);
-            } else {
-                 await pool.query('UPDATE hero_slides SET image_url = $1 WHERE id = $2', [newUrl, parseInt(productId)]);
-            }
+            await pool.query('UPDATE hero_slides SET image_url = $1 WHERE id = $2', [newUrl, parseInt(productId)]);
         } else {
             // Handle product
             if (field === 'imageUrl') {

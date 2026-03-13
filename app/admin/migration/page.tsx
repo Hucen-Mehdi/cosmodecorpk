@@ -22,7 +22,7 @@ export default function MigrationPage() {
     const loadStatus = async () => {
         try {
             setLoading(true);
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/migration/status`, {
+            const res = await fetch(`/api/migration/status`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
@@ -55,7 +55,7 @@ export default function MigrationPage() {
         if (index !== undefined) formData.append('index', index.toString());
 
         try {
-            const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/migration/upload`, {
+            const res = await fetch(`/api/migration/upload`, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${token}`

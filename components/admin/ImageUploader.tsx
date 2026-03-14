@@ -32,8 +32,8 @@ export function ImageUploader({ currentImage, onImageChange, label, folder }: Im
     setError(null);
 
     const formData = new FormData();
-    formData.append('image', file);
     formData.append('folder', folder);
+    formData.append('image', file);
 
     try {
       const token = localStorage.getItem('token');

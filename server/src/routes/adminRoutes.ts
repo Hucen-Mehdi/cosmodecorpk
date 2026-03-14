@@ -1,4 +1,7 @@
 import express from 'express';
+import multer from 'multer';
+import path from 'path';
+import fs from 'fs';
 import { authenticateToken, requireAdmin } from '../middleware/auth';
 import { productRepository } from '../repositories/productRepository';
 import { categoryRepository } from '../repositories/categoryRepository';
@@ -8,9 +11,60 @@ import { pool } from '../db/client';
 
 const router = express.Router();
 
-// All routes here require admin access
+// Configure Multer for local storage
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const { folder = 'general' } = req.body;
+        const uploadPath = path.join(__dirname, '../../..', 'public', 'uploads', folder);
+        
+        // Ensure folder exists
+        if (!fs.existsSync(uploadPath)) {
+            fs.mkdirSync(uploadPath, { recursive: true });
+        }
+        cb(null, uploadPath);
+    },
+    filename: (req, file, cb) => {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        const ext = path.extname(file.originalname);
+        cb(null, file.fieldname + '-' + uniqueSuffix + ext);
+    }
+});
+
+const upload = multer({ 
+    storage,
+    limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+    fileFilter: (req, file, cb) => {
+        const allowedTypes = /jpeg|jpg|png|webp/;
+        const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+        const mime = allowedTypes.test(file.mimetype);
+        if (ext && mime) return cb(null, true);
+        cb(new Error('Only images (jpg, png, webp) are allowed'));
+    }
+});
+
+// All routes here require admin access 
 router.use(authenticateToken);
 router.use(requireAdmin);
+
+// Upload endpoint
+router.post('/upload', upload.single('image'), (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ message: 'No file uploaded' });
+        }
+        
+        const folder = req.body.folder || 'general';
+        const fileUrl = `/uploads/${folder}/${req.file.filename}`;
+        
+        res.json({ 
+            url: fileUrl,
+            message: 'File uploaded successfully'
+        });
+    } catch (error: any) {
+        console.error('Upload error:', error);
+        res.status(500).json({ message: 'Upload failed', error: error.message });
+    }
+});
 
 // Dashboard stats
 router.get('/stats', async (req, res) => {

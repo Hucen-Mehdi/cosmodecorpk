@@ -7,6 +7,7 @@ import { createProduct, updateProduct, fetchAdminCategories } from '@/src/api/ad
 import { ArrowLeft, Save, AlertCircle, Loader2, Image as ImageIcon, Plus, Trash2, X } from 'lucide-react';
 import Link from 'next/link';
 import { Variation } from '@/src/api/api';
+import { ImageUploader } from './ImageUploader';
 
 export default function ProductForm({ id }: { id?: string }) {
     const router = useRouter();
@@ -383,25 +384,13 @@ export default function ProductForm({ id }: { id?: string }) {
                                 <h3 className="text-sm font-bold text-rose-500 uppercase tracking-widest border-l-4 border-rose-500 pl-4">Media & Presentation</h3>
 
                                 <div>
-                                    <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-widest mb-3 ml-1">High-Res Image URL</label>
-                                    <div className="relative group">
-                                        <ImageIcon className="absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-300 group-focus-within:text-rose-400 transition-colors" />
-                                        <input
-                                            type="text"
-                                            required
-                                            value={formData.image}
-                                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                            className="w-full pl-14 pr-6 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-4 focus:ring-rose-50/50 focus:border-rose-400 transition-all font-medium text-sm"
-                                            placeholder="https://images.unsplash.com/..."
-                                        />
-                                    </div>
+                                    <ImageUploader 
+                                        label="Primary Product Image"
+                                        currentImage={formData.image}
+                                        onImageChange={(url) => setFormData({ ...formData, image: url })}
+                                        folder="products"
+                                    />
                                 </div>
-
-                                {formData.image && (
-                                    <div className="p-4 bg-gray-50 rounded-[1.5rem] border border-gray-100 flex justify-center animate-in fade-in zoom-in-95 duration-300">
-                                        <img src={formData.image} alt="Preview" className="h-40 w-auto rounded-xl shadow-lg border border-white" onError={(e) => (e.currentTarget.style.display = 'none')} />
-                                    </div>
-                                )}
 
                                 <div className="pt-6 border-t border-gray-100 space-y-4">
                                     <div className="flex items-center justify-between">
@@ -466,25 +455,16 @@ export default function ProductForm({ id }: { id?: string }) {
                                     </div>
 
                                     {formData.additionalImages.length < 5 && (
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="text"
-                                                className="flex-1 px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-400 text-xs font-bold"
-                                                placeholder="Paste additional image URL and press Enter"
-                                                onKeyDown={(e) => {
-                                                    if (e.key === 'Enter') {
-                                                        e.preventDefault();
-                                                        const val = e.currentTarget.value.trim();
-                                                        if (val && !formData.additionalImages.includes(val)) {
-                                                            setFormData({
-                                                                ...formData,
-                                                                additionalImages: [...formData.additionalImages, val]
-                                                            });
-                                                            e.currentTarget.value = '';
-                                                        }
-                                                    }
-                                                }}
+                                        <div className="space-y-3">
+                                            <ImageUploader 
+                                                label="Upload Gallery Image"
+                                                onImageChange={(url) => setFormData({
+                                                    ...formData,
+                                                    additionalImages: [...formData.additionalImages, url]
+                                                })}
+                                                folder="products"
                                             />
+                                            <p className="text-[10px] text-gray-400 mt-2 px-1 italic text-center">Images will be added to the gallery above.</p>
                                         </div>
                                     )}
                                 </div>

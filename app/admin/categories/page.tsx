@@ -6,6 +6,7 @@ import { fetchProducts } from '@/src/api/api';
 import { createCategory, updateCategory, deleteCategory, updateCategoryProducts, fetchAdminCategories } from '@/src/api/admin';
 import { DeleteConfirmationModal } from '../_components/DeleteConfirmationModal';
 import { Check } from 'lucide-react';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 export default function AdminCategories() {
     const [categories, setCategories] = useState<any[]>([]);
@@ -283,28 +284,15 @@ export default function AdminCategories() {
                                             placeholder="🌿"
                                         />
                                     </div>
-                                    <div>
-                                        <label className="block text-xs font-bold text-gray-400 uppercase tracking-widest mb-2 px-1">Image URL</label>
-                                        <input
-                                            type="text"
-                                            value={formData.image}
-                                            onChange={(e) => setFormData({ ...formData, image: e.target.value })}
-                                            className="w-full px-5 py-4 bg-gray-50 border border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-rose-100 focus:border-rose-400 transition-all font-medium text-sm"
-                                            placeholder="https://..."
+                                    <div className="col-span-2">
+                                        <ImageUploader 
+                                            label="Collection Image"
+                                            currentImage={formData.image}
+                                            onImageChange={(url) => setFormData({ ...formData, image: url })}
+                                            folder="categories"
                                         />
                                     </div>
                                 </div>
-
-                                {formData.image && (
-                                    <div className="mt-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 flex justify-center animate-in fade-in zoom-in-95 duration-300">
-                                        <img
-                                            src={formData.image}
-                                            alt="Category Preview"
-                                            className="h-32 w-auto object-cover rounded-xl shadow-sm border border-white"
-                                            onError={(e) => (e.currentTarget.style.display = 'none')}
-                                        />
-                                    </div>
-                                )}
 
                                 {/* Product Selection */}
                                 <div>

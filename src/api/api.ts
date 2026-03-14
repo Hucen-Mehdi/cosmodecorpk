@@ -150,12 +150,26 @@ export interface Review {
     review_date: string;
     picture_urls?: string[];
     verified_purchase: boolean;
+    product_name?: string;
+    product_image?: string;
+    location?: string;
 }
 
 export async function fetchReviews(productId: number) {
     if (!API_BASE_URL) return [];
     try {
         const response = await fetch(`${API_BASE_URL}/reviews/${productId}`, { cache: 'no-store' });
+        if (!response.ok) return [];
+        return await response.json();
+    } catch {
+        return [];
+    }
+}
+
+export async function fetchRecentReviews(limit = 12) {
+    if (!API_BASE_URL) return [];
+    try {
+        const response = await fetch(`${API_BASE_URL}/reviews/recent?limit=${limit}`, { cache: 'no-store' });
         if (!response.ok) return [];
         return await response.json();
     } catch {

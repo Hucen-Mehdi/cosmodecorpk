@@ -120,7 +120,7 @@ const checkDatabase = async () => {
 checkDatabase();
 
 // Static files for uploads
-app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
+app.use('/uploads', express.static(path.join(__dirname, '../../public/uploads')));
 
 // 🚀 Start Server
 app.listen(PORT, '0.0.0.0', () => {

@@ -4,10 +4,11 @@ export const revalidate = 0;
 import { ArrowRight, Truck, Shield, CreditCard, Headphones, Star } from 'lucide-react';
 import Link from 'next/link';
 import { ProductCard } from '@/src/components/ProductCard';
-import { fetchProducts, fetchCategories, fetchTestimonials, Product, Category } from '@/src/api/api';
+import { fetchProducts, fetchCategories, fetchRecentReviews, Product, Category } from '@/src/api/api';
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { HomeProducts } from '@/components/home/HomeProducts';
 import { FeaturedProductsCarousel } from '@/components/home/FeaturedProductsCarousel';
+import { ReviewsCarousel } from '@/components/home/ReviewsCarousel';
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -41,17 +42,17 @@ export const metadata: Metadata = {
 export default async function Home() {
     let products: Product[] = [];
     let categories: Category[] = [];
-    let testimonials: any[] = [];
+    let reviews: any[] = [];
 
     try {
-        const [productsData, categoriesData, testimonialsData] = await Promise.all([
+        const [productsData, categoriesData, reviewsData] = await Promise.all([
             fetchProducts(),
             fetchCategories(),
-            fetchTestimonials()
+            fetchRecentReviews(100)
         ]);
         products = productsData;
         categories = categoriesData;
-        testimonials = testimonialsData;
+        reviews = reviewsData;
     } catch (error) {
         console.error('Error loading home data:', error);
     }
@@ -106,44 +107,8 @@ export default async function Home() {
             <HomeProducts products={otherProducts} />
 
             {/* Testimonials - Smaller & Compact */}
-            {testimonials.length > 0 && (
-                <section className="py-12 bg-gray-50 dark:bg-gray-950 transition-colors duration-200 border-t dark:border-gray-900">
-                    <div className="max-w-7xl mx-auto px-4">
-                        <div className="text-center mb-8">
-                            <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2" style={{ fontFamily: '"Times New Roman", Times, serif' }}>Customer Reviews</h2>
-                            <p className="text-gray-500 dark:text-gray-400 text-sm">See what our customers are saying</p>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {testimonials.map((testimonial, idx) => (
-                                <div key={testimonial.id} className="relative">
-                                    <div className="bg-white dark:bg-gray-900 rounded-xl p-4 shadow-sm border border-gray-100 dark:border-gray-800 h-full flex flex-col">
-                                        <div className="flex items-center gap-1 mb-2">
-                                            {[...Array(5)].map((_, i) => (
-                                                <Star
-                                                    key={i}
-                                                    className={`w-3 h-3 ${i < testimonial.rating ? 'text-amber-400 fill-amber-400' : 'text-gray-200 dark:text-gray-700'}`}
-                                                />
-                                            ))}
-                                        </div>
-                                        <p className="text-gray-600 dark:text-gray-300 mb-4 text-xs leading-relaxed flex-grow line-clamp-4">
-                                            "{testimonial.text}"
-                                        </p>
-                                        <div className="flex items-center gap-2 pt-3 border-t border-gray-100 dark:border-gray-800">
-                                            <div>
-                                                <h4 className="font-semibold text-gray-800 dark:text-white text-xs">{testimonial.name}</h4>
-                                                <p className="text-[10px] text-gray-500">{testimonial.location}</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    {/* Mobile separator line */}
-                                    {idx !== testimonials.length - 1 && (
-                                        <div className="md:hidden absolute -bottom-2 left-6 right-6 h-px bg-gray-100 dark:bg-gray-800" />
-                                    )}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                </section>
+            {reviews.length > 0 && (
+                <ReviewsCarousel initialReviews={reviews} />
             )}
 
 

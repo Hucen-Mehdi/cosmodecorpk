@@ -3,6 +3,30 @@ import { pool } from '../db/client';
 
 const router = express.Router();
 
+// GET recent approved reviews for homepage
+router.get('/recent', async (req, res) => {
+    try {
+        const limit = parseInt(req.query.limit as string) || 12;
+        const result = await pool.query(
+            `SELECT r.*, p.name as product_name, p.image_url as product_image,
+                (SELECT o.shipping_city 
+                 FROM orders o 
+                 WHERE (o.guest_email = r.reviewer_email OR o.shipping_email = r.reviewer_email)
+                 ORDER BY o.date DESC LIMIT 1) as location
+             FROM reviews r
+             JOIN products p ON r.product_id = p.id
+             WHERE r.status = 'approved' 
+             ORDER BY CARDINALITY(r.picture_urls) > 0 DESC, r.review_date DESC
+             LIMIT $1`,
+            [limit]
+        );
+        res.json(result.rows);
+    } catch (error) {
+        console.error('Error fetching recent reviews:', error);
+        res.status(500).json({ message: 'Error fetching recent reviews' });
+    }
+});
+
 // GET reviews for a product (existing)
 router.get('/product/:productId', async (req, res) => {
     try {

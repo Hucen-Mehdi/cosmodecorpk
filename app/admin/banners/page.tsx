@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { fetchAdminHeroSlides, updateHeroSlide, createHeroSlide, deleteHeroSlide, updateHeroSlideOrder } from '@/src/api/admin';
 import { Loader2, Plus, Trash2, Save, GripVertical, Image as ImageIcon, Link as LinkIcon, Type, FileText } from 'lucide-react';
 import { HeroSlide } from '@/src/api/api';
+import { ImageUploader } from '@/components/admin/ImageUploader';
 
 export default function AdminBannersPage() {
     const [slides, setSlides] = useState<HeroSlide[]>([]);
@@ -135,23 +136,12 @@ export default function AdminBannersPage() {
                         <div className="grid md:grid-cols-2 gap-8 p-6">
                             {/* Preview/Image */}
                             <div>
-                                <label className="block text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Banner Image</label>
-                                <div className="aspect-[2/1] bg-gray-100 rounded-xl overflow-hidden mb-4 border relative group/img">
-                                    <img src={slide.image_url} alt="Preview" className="w-full h-full object-cover" />
-                                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center">
-                                        <p className="text-white text-xs font-bold">Image Preview</p>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-3 bg-gray-50 p-3 rounded-xl border border-dashed border-gray-300">
-                                    <ImageIcon className="w-5 h-5 text-gray-400" />
-                                    <input
-                                        type="text"
-                                        value={slide.image_url}
-                                        onChange={(e) => handleUpdateSlide(slide.id, 'image_url', e.target.value)}
-                                        placeholder="Image URL (e.g. Unsplash link)"
-                                        className="bg-transparent border-none focus:ring-0 text-sm w-full font-medium"
-                                    />
-                                </div>
+                                <ImageUploader 
+                                    label="Banner Image"
+                                    currentImage={slide.image_url}
+                                    onImageChange={(url) => handleUpdateSlide(slide.id, 'image_url', url)}
+                                    folder="banners"
+                                />
                             </div>
 
                             {/* Content Fields */}

@@ -3,7 +3,10 @@ export const revalidate = 0;
 
 import { ArrowRight, Truck, Shield, CreditCard, Headphones, Star } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ProductCard } from '@/src/components/ProductCard';
+
+const blurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
 import { fetchProducts, fetchCategories, fetchRecentReviews, Product, Category } from '@/src/api/api';
 import { HeroSlider } from '@/components/home/HeroSlider';
 import { HomeProducts } from '@/components/home/HomeProducts';
@@ -77,17 +80,22 @@ export default async function Home() {
                 </div>
 
                 <div className="flex gap-6 overflow-x-auto pb-6 scrollbar-hide snap-x">
-                    {categories.map((category) => (
+                    {categories.map((category, index) => (
                         <Link
                             key={category.id}
                             href={`/category/${category.id}`}
                             className="flex flex-col items-center gap-3 min-w-[100px] snap-center group flex-shrink-0"
                         >
                             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-rose-500 transition-all p-1">
-                                <div className="w-full h-full rounded-full overflow-hidden bg-gray-100 shadow-sm">
-                                    <img
+                                <div className="relative w-full h-full rounded-full overflow-hidden bg-gray-100 shadow-sm">
+                                    <Image
                                         src={category.image}
                                         alt={category.name}
+                                        fill
+                                        sizes="(max-width: 640px) 100px, 120px"
+                                        priority={index < 4}
+                                        placeholder="blur"
+                                        blurDataURL={blurDataURL}
                                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                     />
                                 </div>

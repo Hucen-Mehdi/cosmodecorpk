@@ -3,6 +3,9 @@
 import Link from 'next/link';
 import { Trash2, Plus, Minus, ShoppingBag, ArrowRight, Tag } from 'lucide-react';
 import { useCart } from '@/src/context/CartContext';
+import Image from 'next/image';
+
+const blurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
 
 export default function CartClient() {
     const { items, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
@@ -48,11 +51,15 @@ export default function CartClient() {
                     <div className="lg:col-span-2 space-y-4">
                         {items.map((item) => (
                             <div key={item.id} className="bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-row gap-4 sm:gap-6 border dark:border-gray-800">
-                                <Link href={`/product/${item.id}`} className="w-20 h-20 sm:w-32 sm:h-32 rounded-xl overflow-hidden flex-shrink-0">
-                                    <img
+                                <Link href={`/product/${item.id}`} className="relative w-20 h-20 sm:w-32 sm:h-32 rounded-xl overflow-hidden flex-shrink-0">
+                                    <Image
                                         src={item.image}
                                         alt={item.name}
-                                        className="w-full h-full object-cover hover:scale-110 transition-transform"
+                                        fill
+                                        sizes="(max-width: 640px) 80px, 128px"
+                                        placeholder="blur"
+                                        blurDataURL={blurDataURL}
+                                        className="object-cover hover:scale-110 transition-transform"
                                     />
                                 </Link>
                                 <div className="flex-1">

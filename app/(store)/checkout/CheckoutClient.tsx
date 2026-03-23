@@ -11,6 +11,7 @@ import {
     ArrowLeft, Shield, Clock, ChevronRight, Package, Copy, MessageCircle, AlertCircle,
     Loader2, Percent, AlertTriangle, Lock
 } from 'lucide-react';
+import EidNotice from '@/components/checkout/EidNotice';
 
 type PaymentMethod = 'nayapay' | 'jazzcash' | 'easypaisa' | 'cod';
 
@@ -488,6 +489,9 @@ export default function CheckoutClient() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 transition-colors duration-200">
             <div className="max-w-7xl mx-auto px-4">
+                {/* Eid Delivery Notice Banner */}
+                <EidNotice />
+                
                 {/* Back Button */}
                 <Link href="/cart" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-rose-500 mb-6 transition-colors">
                     <ArrowLeft className="w-5 h-5" />

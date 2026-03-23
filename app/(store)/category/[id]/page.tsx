@@ -1,6 +1,9 @@
 import { ChevronRight } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { ProductCard } from '@/src/components/ProductCard';
+
+const blurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
 import { fetchProducts, fetchCategories, Product, Category as CategoryType } from '@/src/api/api';
 import { Metadata } from 'next';
 
@@ -121,11 +124,15 @@ export default async function CategoryPage({ params, searchParams }: Props) {
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-950">
       {/* Hero Banner */}
-      <div className="relative h-64 md:h-80">
-        <img
+      <div className="relative h-64 md:h-80 w-full">
+        <Image
           src={categoryImage}
           alt={categoryName}
-          className="w-full h-full object-cover"
+          fill
+          priority
+          placeholder="blur"
+          blurDataURL={blurDataURL}
+          className="object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-r from-black/70 to-black/30" />
         <div className="absolute inset-0 flex items-center">

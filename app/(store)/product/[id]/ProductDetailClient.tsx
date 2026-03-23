@@ -7,6 +7,9 @@ import { useRouter } from 'next/navigation';
 import { useCart } from '@/src/context/CartContext';
 import { ProductCard } from '@/src/components/ProductCard';
 import { Product, Review, fetchReviews, submitReview } from '@/src/api/api';
+import Image from 'next/image';
+
+const blurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
 
 interface ProductDetailClientProps {
     product: Product;
@@ -44,7 +47,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
         return new Promise((resolve) => {
             const reader = new FileReader();
             reader.onload = (e) => {
-                const img = new Image();
+                const img = new window.Image();
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
                     let { width, height } = img;
@@ -159,9 +162,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     {/* Product Image */}
                     <div className="space-y-4">
                         <div className="relative aspect-square rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-sm border dark:border-gray-800">
-                            <img
+                            <Image
                                 src={displayImage}
                                 alt={product.name}
+                                fill
+                                sizes="(max-width: 768px) 100vw, 50vw"
+                                priority={true}
+                                placeholder="blur"
+                                blurDataURL={blurDataURL}
                                 className="w-full h-full object-cover transition-opacity duration-300"
                             />
                             {product.badge && (
@@ -189,7 +197,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                     onClick={() => setDisplayImage(product.image)}
                                     className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${displayImage === product.image ? 'border-rose-500 scale-95' : 'border-transparent hover:border-rose-200'}`}
                                 >
-                                    <img src={product.image} className="w-full h-full object-cover" alt="Main" />
+                                    <Image src={product.image} fill sizes="80px" className="object-cover" alt="Main" />
                                 </button>
                                 {product.additionalImages.map((img, idx) => (
                                     <button
@@ -197,7 +205,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         onClick={() => setDisplayImage(img)}
                                         className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${displayImage === img ? 'border-rose-500 scale-95' : 'border-transparent hover:border-rose-200'}`}
                                     >
-                                        <img src={img} className="w-full h-full object-cover" alt={`Gallery ${idx}`} />
+                                        <Image src={img} fill sizes="80px" className="object-cover" alt={`Gallery ${idx}`} />
                                     </button>
                                 ))}
                             </div>
@@ -442,13 +450,16 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         {review.picture_urls && review.picture_urls.length > 0 && (
                                             <div className="flex gap-2 mt-3 overflow-x-auto pb-2">
                                                 {review.picture_urls.map((url, idx) => (
-                                                    <img
-                                                        key={idx}
-                                                        src={url}
-                                                        alt={`Review by ${review.reviewer_name}`}
-                                                        className="w-20 h-20 object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
-                                                        onClick={() => window.open(url, '_blank')}
-                                                    />
+                                                    <div key={idx} className="relative w-20 h-20 flex-shrink-0">
+                                                        <Image
+                                                            src={url}
+                                                            alt={`Review by ${review.reviewer_name}`}
+                                                            fill
+                                                            sizes="80px"
+                                                            className="object-cover rounded-lg border border-gray-200 dark:border-gray-700 cursor-pointer hover:opacity-90 active:scale-95 transition-all"
+                                                            onClick={() => window.open(url, '_blank')}
+                                                        />
+                                                    </div>
                                                 ))}
                                             </div>
                                         )}
@@ -532,8 +543,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                     {reviewForm.pictures.length > 0 && (
                                         <div className="flex gap-2 mt-3">
                                             {reviewForm.pictures.map((url, idx) => (
-                                                <div key={idx} className="relative group">
-                                                    <img src={url} alt="Upload preview" className="w-16 h-16 object-cover rounded-lg border border-gray-200" />
+                                                <div key={idx} className="relative group w-16 h-16 flex-shrink-0">
+                                                    <Image src={url} fill sizes="64px" alt="Upload preview" className="object-cover rounded-lg border border-gray-200" />
                                                     <button
                                                         type="button"
                                                         onClick={() => setReviewForm(prev => ({

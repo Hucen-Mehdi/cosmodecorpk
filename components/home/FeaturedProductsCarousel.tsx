@@ -25,9 +25,9 @@ export function FeaturedProductsCarousel({ products }: { products: Product[] }) 
 
             <div className="max-w-7xl mx-auto px-4">
                 <div className="flex gap-6 overflow-x-auto pb-8 scrollbar-hide snap-x -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-                    {products.map(product => (
+                    {products.map((product, index) => (
                         <div key={product.id} className="min-w-[260px] sm:min-w-[300px] snap-center">
-                            <ProductCard product={product} />
+                            <ProductCard product={product} priority={index < 3} />
                         </div>
                     ))}
                 </div>

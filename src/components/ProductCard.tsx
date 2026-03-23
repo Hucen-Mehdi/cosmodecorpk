@@ -8,11 +8,16 @@ import { useAuth } from '../context/AuthContext';
 import { useState, useEffect } from 'react';
 import { addToWishlist, removeFromWishlist, checkInWishlist } from '../api/wishlist';
 
+import Image from 'next/image';
+
+const blurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
+
 interface ProductCardProps {
   product: Product;
+  priority?: boolean;
 }
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, priority = false }: ProductCardProps) {
   const { addToCart } = useCart();
   const { user, token } = useAuth();
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -71,9 +76,14 @@ export function ProductCard({ product }: ProductCardProps) {
       >
         {/* Image Container */}
         <div className="relative overflow-hidden aspect-square flex-shrink-0">
-          <img
+          <Image
             src={product.image}
             alt={product.name}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            priority={priority}
+            placeholder="blur"
+            blurDataURL={blurDataURL}
             className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
           />
 
@@ -174,8 +184,16 @@ export function ProductCard({ product }: ProductCardProps) {
             >
               <X className="w-5 h-5" />
             </button>
-            <div className="w-full md:w-1/2 aspect-square flex-shrink-0">
-              <img src={product.image} alt={product.name} className="w-full h-full rounded-2xl object-cover" />
+            <div className="relative w-full md:w-1/2 aspect-square flex-shrink-0">
+              <Image 
+                src={product.image} 
+                alt={product.name} 
+                fill 
+                sizes="(max-width: 768px) 100vw, 50vw"
+                placeholder="blur"
+                blurDataURL={blurDataURL}
+                className="rounded-2xl object-cover" 
+              />
             </div>
             <div className="flex-1 flex flex-col">
               <h3 className="text-xl sm:text-2xl font-bold text-gray-800 dark:text-white mb-2 leading-tight">{product.name}</h3>

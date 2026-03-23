@@ -3,22 +3,12 @@
 import { useState, useEffect } from 'react';
 import { ArrowRight, ChevronLeft, ChevronRight } from 'lucide-react';
 import Link from 'next/link';
-import Image from 'next/image';
 import { fetchHeroSlides, HeroSlide } from '@/src/api/api';
-
-const heroMessages = [
-    "🚚 Fast Nationwide Delivery Across Pakistan",
-    "🌟 Premium Quality Artificial Plants & Decor",
-    "💎 100% Customer Satisfaction Guaranteed"
-];
-const blurDataURL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+ip1sAAAAASUVORK5CYII=";
 
 export function HeroSlider() {
     const [slides, setSlides] = useState<HeroSlide[]>([]);
     const [currentSlide, setCurrentSlide] = useState(0);
     const [loading, setLoading] = useState(true);
-    const [msgIndex, setMsgIndex] = useState(0);
-    const [isHovered, setIsHovered] = useState(false);
 
     useEffect(() => {
         const loadSlides = async () => {
@@ -44,14 +34,6 @@ export function HeroSlider() {
         return () => clearInterval(timer);
     }, [slides]);
 
-    useEffect(() => {
-        if (isHovered) return;
-        const messageTimer = setInterval(() => {
-            setMsgIndex((prev) => (prev + 1) % heroMessages.length);
-        }, 4500);
-        return () => clearInterval(messageTimer);
-    }, [isHovered]);
-
     if (loading) {
         return <div className="h-[220px] sm:h-[400px] md:h-[550px] bg-gray-100 animate-pulse flex items-center justify-center">
             <div className="w-10 h-10 border-4 border-rose-500 border-t-transparent rounded-full animate-spin" />
@@ -69,15 +51,9 @@ export function HeroSlider() {
                         }`}
                 >
                     <div className="absolute inset-0 bg-gradient-to-r from-black/60 to-black/20 z-10" />
-                    <Image
+                    <img
                         src={slide.image_url}
                         alt={slide.title}
-                        fill
-                        priority={index <= 1}
-                        sizes="100vw"
-                        placeholder="blur"
-                        blurDataURL={blurDataURL}
-                        style={{ objectFit: 'cover' }}
                         className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 z-20 flex items-center">
@@ -87,22 +63,7 @@ export function HeroSlider() {
                                     {slide.description}
                                 </span>
                                 <h2 className="text-lg sm:text-2xl md:text-4xl font-bold text-white mb-1">{slide.subtitle}</h2>
-                                <div 
-                                    className="relative text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-5 leading-tight"
-                                    onMouseEnter={() => setIsHovered(true)}
-                                    onMouseLeave={() => setIsHovered(false)}
-                                >
-                                    <div className="grid grid-cols-1 grid-rows-1">
-                                        {heroMessages.map((msg, idx) => (
-                                            <h1 
-                                                key={idx}
-                                                className={`col-start-1 row-start-1 transition-opacity duration-1000 ease-in-out ${idx === msgIndex ? 'opacity-100' : 'opacity-0 invisible'}`}
-                                            >
-                                                {msg}
-                                            </h1>
-                                        ))}
-                                    </div>
-                                </div>
+                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-white mb-3 sm:mb-5 leading-tight">{slide.title}</h1>
                                 <Link
                                     href={slide.link_url}
                                     className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-4 py-2 sm:px-6 sm:py-3 rounded-full font-semibold text-sm sm:text-base hover:shadow-lg hover:scale-105 transition-all active:scale-95"

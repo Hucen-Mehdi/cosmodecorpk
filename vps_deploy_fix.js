@@ -16,45 +16,35 @@ async function run() {
         console.log('✅ Connected!');
 
         const appDir = '/var/www/cosmodecorpk.com';
+        
+        console.log('🗑️ Deleting Next.js API routes that intercept Express...');
+        await ssh.execCommand(`rm -rf ${appDir}/app/api/admin/orders`);
+        await ssh.execCommand(`rm -rf ${appDir}/app/api/admin/reports`);
 
-        // 1. Fix VPS git state safely by stashing modifications and deleting the previously ad-hoc uploaded untracked files
-        console.log('📥 Cleaning up previous loose SSH uploads on VPS working tree...');
-        await ssh.execCommand('git stash', { cwd: appDir });
-        await ssh.execCommand('rm -f components/admin/ImageUploader.tsx components/home/ReviewsCarousel.tsx server/src/routes/reviewRoutes.ts', { cwd: appDir });
+        console.log('📤 Uploading modified Express server files...');
+        await ssh.putFile('d:\\cosmodecor\\server\\src\\routes\\adminRoutes.ts', `${appDir}/server/src/routes/adminRoutes.ts`);
+        await ssh.putFile('d:\\cosmodecor\\server\\package.json', `${appDir}/server/package.json`);
+        await ssh.putFile('d:\\cosmodecor\\app\\admin\\orders\\page.tsx', `${appDir}/app/admin/orders/page.tsx`);
+        
+        console.log('⚙️ Installing dependencies and building Express server...');
+        const installProcess = await ssh.execCommand('npm install', { cwd: `${appDir}/server` });
+        console.log('Install output:', installProcess.stdout);
+        const buildServer = await ssh.execCommand('npm run build', { cwd: `${appDir}/server` });
+        console.log('Build output server:', buildServer.stdout);
 
-        const gitPull = await ssh.execCommand('git pull origin main', { cwd: appDir });
-        console.log(gitPull.stdout);
-        if (gitPull.stderr) console.error(gitPull.stderr);
+        console.log('🏗️ Rebuilding Next.js without conflicting API routes...');
+        const buildNext = await ssh.execCommand('npm run build:frontend', { cwd: appDir });
+        console.log('Build output Next:', buildNext.stdout);
 
-        // 2. Install dependencies (just in case)
-        console.log('📦 Installing root dependencies...');
-        await ssh.execCommand('npm ci', { cwd: appDir });
-        await ssh.execCommand('npm ci', { cwd: `${appDir}/server` });
-
-        // 3. Move images to the public folder to fix the issue on the live server
-        console.log('📂 Migrating existing uploaded images to public/uploads (if any exist)...');
-        await ssh.execCommand('mkdir -p public/uploads', { cwd: appDir });
-        await ssh.execCommand('cp -R uploads/* public/uploads/ 2>/dev/null || true', { cwd: appDir });
-
-        // 4. Build both frontend and backend
-        console.log('🏗️  Building application...');
-        const buildProcess = await ssh.execCommand('npm run build', { cwd: appDir });
-        console.log('Build Output:', buildProcess.stdout);
-        if (buildProcess.stderr) {
-            console.error('Build Error:', buildProcess.stderr);
-        }
-
-        // 5. Restart PM2 services
-        console.log('🔄 Restarting PM2...');
-        const pm2Restart = await ssh.execCommand('pm2 restart cosmo-frontend cosmo-server', { cwd: appDir });
-        console.log(pm2Restart.stdout);
-
-        console.log('\n✨ Deployment Complete! ✨');
+        console.log('🔄 Restarting PM2 processes...');
+        await ssh.execCommand('pm2 restart cosmodecor-api');
+        await ssh.execCommand('pm2 restart cosmodecor-web');
+        
+        console.log('✅ All done!');
         ssh.dispose();
     } catch (err) {
-        console.error('❌ Deployment failed:', err);
+        console.error('❌ Failed:', err);
         process.exit(1);
     }
 }
-
 run();

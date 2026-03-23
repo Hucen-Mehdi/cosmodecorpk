@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import {
     Search, ClipboardList, Eye, CheckCircle, XCircle,
-    Truck, PauseCircle, Clock, MoreVertical, X, Phone, Mail, MapPin, Package, AlertCircle, Trash2
+    Truck, PauseCircle, Clock, MoreVertical, X, Phone, Mail, MapPin, Package, AlertCircle, Trash2, Calendar, Download
 } from 'lucide-react';
 import { getAllOrdersAdmin, updateOrderStatusAdmin, deleteOrderAdmin, Order } from '@/src/api/orders';
 
@@ -22,6 +22,10 @@ export default function AdminOrders() {
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
     const [isUpdating, setIsUpdating] = useState<string | null>(null);
+    const [fromDate, setFromDate] = useState<string>('');
+    const [toDate, setToDate] = useState<string>('');
+    const [isExporting, setIsExporting] = useState(false);
+    const [paymentFilter, setPaymentFilter] = useState<string>('all');
 
     const loadOrders = async () => {
         setLoading(true);
@@ -83,10 +87,53 @@ export default function AdminOrders() {
         }
     };
 
-    const filteredOrders = orders.filter(o =>
-        o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (o.userEmail && o.userEmail.toLowerCase().includes(searchTerm.toLowerCase()))
-    );
+    const filteredOrders = orders.filter(o => {
+        const matchesSearch = o.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (o.userEmail && o.userEmail.toLowerCase().includes(searchTerm.toLowerCase()));
+        
+        const orderDate = new Date(o.date);
+        let matchesDate = true;
+        if (fromDate) {
+            matchesDate = matchesDate && orderDate >= new Date(fromDate);
+        }
+        if (toDate) {
+            // Include entire end date
+            const end = new Date(toDate);
+            end.setHours(23, 59, 59, 999);
+            matchesDate = matchesDate && orderDate <= end;
+        }
+        return matchesSearch && matchesDate;
+    });
+
+    const exportV2 = async () => {
+        setIsExporting(true);
+        try {
+            const token = localStorage.getItem('token');
+            const url = new URL('/api/admin/orders/export', window.location.origin);
+            if (fromDate) url.searchParams.append('from', fromDate);
+            if (toDate) url.searchParams.append('to', toDate);
+            if (paymentFilter !== 'all') url.searchParams.append('payment', paymentFilter);
+
+            const res = await fetch(url.toString(), {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (!res.ok) throw new Error('Export failed');
+            const blob = await res.blob();
+            const downloadUrl = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = `orders_${fromDate || 'all'}_to_${toDate || 'all'}.xlsx`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(downloadUrl);
+            a.remove();
+        } catch (err: any) {
+            alert(err.message);
+        } finally {
+            setIsExporting(false);
+        }
+    };
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-PK', {
@@ -110,8 +157,8 @@ export default function AdminOrders() {
             </div>
 
             <div className="bg-white rounded-[2rem] border border-gray-200 shadow-sm overflow-hidden mb-12">
-                <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row gap-4 justify-between items-center">
-                    <div className="relative w-full md:w-96">
+                <div className="p-6 border-b border-gray-100 bg-gray-50/50 flex flex-col md:flex-row gap-4 justify-between items-center flex-wrap">
+                    <div className="relative w-full md:w-80 border-r border-gray-200 pr-4">
                         <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <input
                             type="text"
@@ -121,6 +168,49 @@ export default function AdminOrders() {
                             className="w-full pl-11 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-100 focus:border-rose-400 transition-all font-medium text-sm"
                         />
                     </div>
+                    
+                    <div className="flex flex-wrap md:flex-nowrap gap-3 items-center w-full md:w-auto flex-1">
+                        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-gray-200">
+                            <Calendar className="w-4 h-4 text-gray-500" />
+                            <span className="text-xs font-semibold text-gray-600">From:</span>
+                            <input 
+                                type="date" 
+                                value={fromDate} 
+                                onChange={(e) => setFromDate(e.target.value)} 
+                                className="text-sm bg-transparent outline-none text-gray-800"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-gray-200">
+                            <span className="text-xs font-semibold text-gray-600">To:</span>
+                            <input 
+                                type="date" 
+                                value={toDate} 
+                                onChange={(e) => setToDate(e.target.value)} 
+                                className="text-sm bg-transparent outline-none text-gray-800"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-gray-200">
+                            <span className="text-xs font-semibold text-gray-600">Payment:</span>
+                            <select 
+                                value={paymentFilter} 
+                                onChange={(e) => setPaymentFilter(e.target.value)}
+                                className="text-sm bg-transparent outline-none text-gray-800 font-medium cursor-pointer"
+                            >
+                                <option value="all">All Orders</option>
+                                <option value="cod">COD Only</option>
+                                <option value="advance">Advance Only</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <button 
+                        onClick={exportV2}
+                        disabled={isExporting}
+                        className="bg-gray-900 border border-gray-900 hover:bg-gray-800 text-white font-bold py-2.5 px-5 rounded-xl shadow-sm transition-all text-sm flex items-center gap-2 flex-shrink-0 disabled:opacity-50"
+                    >
+                        <Download className="w-4 h-4" />
+                        {isExporting ? 'Exporting...' : '📥 Export All Orders'}
+                    </button>
                 </div>
 
                 <div className="overflow-x-auto scrollbar-thin">

@@ -103,7 +103,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
             Category Not Found
           </h1>
-          <Link href="/products" className="text-rose-500 hover:underline">
+          <Link href="/products" className="text-primary hover:underline">
             Browse All Products
           </Link>
         </div>
@@ -166,7 +166,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
             <div className="flex overflow-x-auto gap-3 no-scrollbar pb-2">
               <Link
                 href={`/category/${id}`}
-                className={`flex-shrink-0 px-6 py-2 rounded-full font-medium transition-all ${!subFilter ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-400'}`}
+                className={`flex-shrink-0 px-6 py-2 rounded-full font-medium transition-all ${!subFilter ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-400'}`}
               >
                 All
               </Link>
@@ -174,7 +174,7 @@ export default async function CategoryPage({ params, searchParams }: Props) {
                 <Link
                   key={sub.id}
                   href={`/category/${id}?sub=${sub.id}`}
-                  className={`flex-shrink-0 px-6 py-2 rounded-full font-medium transition-all ${subFilter === sub.id ? 'bg-rose-500 text-white shadow-lg shadow-rose-500/20' : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-400'}`}
+                  className={`flex-shrink-0 px-6 py-2 rounded-full font-medium transition-all ${subFilter === sub.id ? 'bg-primary text-white shadow-lg shadow-primary/20' : 'bg-white dark:bg-gray-800 border dark:border-gray-700 text-gray-600 dark:text-gray-400'}`}
                 >
                   {sub.name}
                 </Link>

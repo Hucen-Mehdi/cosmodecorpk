@@ -131,7 +131,7 @@ export default function AdminCategories() {
                         setSelectedProductIds([]);
                         setShowModal(true);
                     }}
-                    className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95 self-start md:self-auto"
+                    className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-light text-white px-8 py-4 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95 self-start md:self-auto"
                 >
                     <Plus className="w-5 h-5" /> Add Collection
                 </button>
@@ -322,10 +322,10 @@ export default function AdminCategories() {
                                                             </div>
                                                             <div className="flex-1 min-w-0">
                                                                 <p className="text-sm font-bold text-gray-900 truncate">{product.name}</p>
-                                                                <p className="text-[10px] text-gray-400 font-medium">Rs. {product.price.toLocaleString()}</p>
+                                                                <p className="text-[10px] text-gray-400 font-medium">Rs {product.price.toLocaleString()}</p>
                                                             </div>
                                                             {isSelected && (
-                                                                <div className="w-6 h-6 bg-rose-500 rounded-full flex items-center justify-center text-white">
+                                                                <div className="w-6 h-6 bg-primary rounded-full flex items-center justify-center text-white">
                                                                     <Check className="w-4 h-4" />
                                                                 </div>
                                                             )}

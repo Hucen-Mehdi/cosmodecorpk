@@ -79,7 +79,7 @@ export default function ProductSortingPage() {
     };
 
     if (loading && products.length === 0) {
-        return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-rose-500" /></div>;
+        return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
     }
 
     return (
@@ -105,7 +105,7 @@ export default function ProductSortingPage() {
                     <button
                         onClick={saveOrder}
                         disabled={saving}
-                        className="px-6 py-2 bg-rose-500 text-white rounded-lg font-bold flex items-center gap-2 hover:bg-rose-600 disabled:opacity-50 transition-colors"
+                        className="px-6 py-2 bg-primary text-white rounded-lg font-bold flex items-center gap-2 hover:bg-rose-600 disabled:opacity-50 transition-colors"
                     >
                         {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
                         Save Order

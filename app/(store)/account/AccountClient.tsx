@@ -187,7 +187,7 @@ export default function AccountClient() {
     if (loading || authLoading || !user) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
-                <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+                <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
         );
     }
@@ -217,7 +217,7 @@ export default function AccountClient() {
                         {/* Compact Profile Info */}
                         <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm border border-gray-100 dark:border-gray-800 p-4 sm:p-6 transition-all overflow-hidden">
                             <div className="flex items-center gap-4">
-                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-rose-500 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-rose-100 dark:shadow-rose-900/20">
+                                <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-primary to-primary-light rounded-full flex items-center justify-center flex-shrink-0 shadow-lg shadow-rose-100 dark:shadow-rose-900/20">
                                     <span className="text-xl sm:text-2xl font-black text-white uppercase">
                                         {profile?.name?.charAt(0) || user?.name?.charAt(0) || '?'}
                                     </span>
@@ -242,7 +242,7 @@ export default function AccountClient() {
                                         key={item.id}
                                         onClick={() => setActiveTab(item.id)}
                                         className={`flex flex-col lg:flex-row items-center justify-center lg:justify-start gap-1 lg:gap-3 px-1 py-2 sm:px-4 sm:py-3.5 rounded-xl transition-all duration-300 w-full ${activeTab === item.id
-                                            ? 'bg-rose-500 text-white shadow-md shadow-rose-200 dark:shadow-rose-900/30'
+                                            ? 'bg-primary text-white shadow-md shadow-rose-200 dark:shadow-rose-900/30'
                                             : 'text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800'
                                             }`}
                                     >
@@ -260,7 +260,7 @@ export default function AccountClient() {
                             {activeTab === 'profile' && (
                                 <div className="max-w-2xl">
                                     <div className="flex items-center gap-3 mb-8">
-                                        <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 rounded-xl flex items-center justify-center text-rose-500 flex-shrink-0">
+                                        <div className="w-10 h-10 bg-rose-50 dark:bg-rose-900/20 rounded-xl flex items-center justify-center text-primary flex-shrink-0">
                                             <UserIcon className="w-5 h-5" />
                                         </div>
                                         <div>
@@ -319,7 +319,7 @@ export default function AccountClient() {
                                         <button
                                             type="submit"
                                             disabled={saving}
-                                            className="bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-rose-100 dark:shadow-rose-900/20 hover:shadow-rose-200 dark:hover:shadow-rose-900/40 transition-all flex items-center gap-2 disabled:opacity-70"
+                                            className="bg-gradient-to-r from-primary to-primary-light text-white px-8 py-3 rounded-xl font-semibold shadow-lg shadow-rose-100 dark:shadow-rose-900/20 hover:shadow-rose-200 dark:hover:shadow-rose-900/40 transition-all flex items-center gap-2 disabled:opacity-70"
                                         >
                                             {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
                                         </button>
@@ -352,7 +352,7 @@ export default function AccountClient() {
                                                             )}
                                                         </div>
                                                         <div className="flex items-center justify-between sm:justify-end gap-6">
-                                                            <span className="font-bold text-gray-800 dark:text-white text-sm sm:text-base">Rs. {order.total.toLocaleString()}</span>
+                                                            <span className="font-bold text-gray-800 dark:text-white text-sm sm:text-base">Rs {order.total.toLocaleString()}</span>
                                                             <div className={`px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider ${order.status === 'Completed' ? 'bg-green-50 text-green-600 border border-green-100' :
                                                                 order.status === 'Cancelled' ? 'bg-red-50 text-red-600 border border-red-100' :
                                                                     order.status === 'On Hold' ? 'bg-amber-50 text-amber-600 border border-amber-100' :
@@ -389,10 +389,10 @@ export default function AccountClient() {
 
                                                                     return (
                                                                         <div key={step.status} className="flex flex-col items-center relative z-10 w-1/5">
-                                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isCurrent ? 'bg-rose-500 text-white scale-125 shadow-lg shadow-rose-200' :
+                                                                            <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${isCurrent ? 'bg-primary text-white scale-125 shadow-lg shadow-rose-200' :
                                                                                 isPast ? 'bg-rose-100 text-rose-600' : 'bg-gray-100 text-gray-400'
                                                                                 }`}>
-                                                                                <div className={`w-2.5 h-2.5 rounded-full ${isCurrent ? 'bg-white' : isPast ? 'bg-rose-500' : 'bg-gray-300'}`}></div>
+                                                                                <div className={`w-2.5 h-2.5 rounded-full ${isCurrent ? 'bg-white' : isPast ? 'bg-primary' : 'bg-gray-300'}`}></div>
                                                                             </div>
                                                                             <span className={`text-[10px] mt-3 font-bold uppercase tracking-widest ${isCurrent ? 'text-rose-600' : isPast ? 'text-gray-900 dark:text-gray-200' : 'text-gray-400'
                                                                                 }`}>
@@ -441,7 +441,7 @@ export default function AccountClient() {
                                         <h2 className="text-xl font-bold text-gray-800 dark:text-white">Saved Addresses</h2>
                                         <button
                                             onClick={handleAddAddress}
-                                            className="flex items-center gap-2 text-rose-500 font-semibold hover:text-rose-600"
+                                            className="flex items-center gap-2 text-primary font-semibold hover:text-rose-600"
                                         >
                                             <Plus className="w-5 h-5" /> Add New
                                         </button>
@@ -454,7 +454,7 @@ export default function AccountClient() {
                                             <p className="text-gray-500 dark:text-gray-400">Add an address to speed up your checkout process.</p>
                                             <button
                                                 onClick={handleAddAddress}
-                                                className="mt-6 bg-white dark:bg-gray-800 border border-rose-500 text-rose-500 px-6 py-2 rounded-xl font-medium hover:bg-rose-50 dark:hover:bg-rose-900/20"
+                                                className="mt-6 bg-white dark:bg-gray-800 border border-rose-500 text-primary px-6 py-2 rounded-xl font-medium hover:bg-rose-50 dark:hover:bg-rose-900/20"
                                             >
                                                 Add My First Address
                                             </button>
@@ -476,7 +476,7 @@ export default function AccountClient() {
                                                     <div className="flex gap-4 text-xs font-bold uppercase tracking-wider">
                                                         <button
                                                             onClick={() => handleEditAddress(address)}
-                                                            className="flex items-center gap-1 text-gray-400 hover:text-rose-500"
+                                                            className="flex items-center gap-1 text-gray-400 hover:text-primary"
                                                         >
                                                             <Pencil className="w-3.5 h-3.5" /> Edit
                                                         </button>
@@ -597,14 +597,14 @@ export default function AccountClient() {
                                     id="isDefault"
                                     checked={addressForm.isDefault}
                                     onChange={e => setAddressForm({ ...addressForm, isDefault: e.target.checked })}
-                                    className="w-4 h-4 rounded text-rose-500 focus:ring-rose-500"
+                                    className="w-4 h-4 rounded text-primary focus:ring-rose-500"
                                 />
                                 <label htmlFor="isDefault" className="text-sm font-medium">Set as default address</label>
                             </div>
                             <button
                                 type="submit"
                                 disabled={saving}
-                                className="w-full bg-rose-500 text-white py-3 rounded-xl font-bold hover:bg-rose-600 transition-colors mt-4"
+                                className="w-full bg-primary text-white py-3 rounded-xl font-bold hover:bg-rose-600 transition-colors mt-4"
                             >
                                 {saving ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Save Address'}
                             </button>

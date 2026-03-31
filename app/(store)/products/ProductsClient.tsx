@@ -229,7 +229,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                         <div className="lg:hidden mb-6 overflow-x-auto scrollbar-hide -mx-4 px-4 flex items-center gap-2 no-scrollbar">
                             <button
                                 onClick={() => setSelectedCategory(null)}
-                                className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${!selectedCategory ? 'bg-rose-500 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border dark:border-gray-800'}`}
+                                className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${!selectedCategory ? 'bg-primary text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border dark:border-gray-800'}`}
                             >
                                 All
                             </button>
@@ -237,7 +237,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                 <button
                                     key={cat.id}
                                     onClick={() => setSelectedCategory(cat.id)}
-                                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${selectedCategory === cat.id ? 'bg-rose-500 text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border dark:border-gray-800'}`}
+                                    className={`flex-shrink-0 px-4 py-2 rounded-xl text-sm font-semibold transition-all shadow-sm ${selectedCategory === cat.id ? 'bg-primary text-white' : 'bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 border dark:border-gray-800'}`}
                                 >
                                     {cat.name}
                                 </button>
@@ -271,13 +271,13 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                 <div className="hidden sm:flex items-center gap-1 border border-gray-200 dark:border-gray-700 rounded-lg p-1">
                                     <button
                                         onClick={() => setViewMode('grid')}
-                                        className={`p-2 rounded ${viewMode === 'grid' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400' : 'text-gray-400 dark:text-gray-500'}`}
+                                        className={`p-2 rounded ${viewMode === 'grid' ? 'bg-rose-100 dark:bg-rose-900/30 text-primary dark:text-rose-400' : 'text-gray-400 dark:text-gray-500'}`}
                                     >
                                         <Grid className="w-5 h-5" />
                                     </button>
                                     <button
                                         onClick={() => setViewMode('list')}
-                                        className={`p-2 rounded ${viewMode === 'list' ? 'bg-rose-100 dark:bg-rose-900/30 text-rose-500 dark:text-rose-400' : 'text-gray-400 dark:text-gray-500'}`}
+                                        className={`p-2 rounded ${viewMode === 'list' ? 'bg-rose-100 dark:bg-rose-900/30 text-primary dark:text-rose-400' : 'text-gray-400 dark:text-gray-500'}`}
                                     >
                                         <List className="w-5 h-5" />
                                     </button>
@@ -315,7 +315,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                 )}
                                 {(priceRange[0] > 0 || priceRange[1] < 1000000) && (
                                     <span className="inline-flex items-center gap-1 px-3 py-1 bg-rose-100 dark:bg-rose-900/30 text-rose-600 dark:text-rose-400 rounded-full text-sm">
-                                        Rs. {priceRange[0].toLocaleString()} - Rs. {priceRange[1].toLocaleString()}
+                                        Rs {priceRange[0].toLocaleString()} - Rs {priceRange[1].toLocaleString()}
                                         <button onClick={() => setPriceRange([0, 1000000])}>
                                             <X className="w-4 h-4" />
                                         </button>
@@ -356,7 +356,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                             window.scrollTo({ top: 0, behavior: 'smooth' });
                                         }}
                                         className={`w-10 h-10 flex items-center justify-center rounded-lg border transition-colors font-medium ${currentPage === page
-                                            ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                                            ? 'bg-primary border-rose-500 text-white shadow-sm'
                                             : 'border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800'
                                             }`}
                                     >
@@ -385,7 +385,7 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                         setSelectedCategory(null);
                                         setPriceRange([0, 1000000]);
                                     }}
-                                    className="mt-4 text-rose-500 font-medium hover:underline"
+                                    className="mt-4 text-primary font-medium hover:underline"
                                 >
                                     Clear all filters
                                 </button>
@@ -443,15 +443,15 @@ export default function ProductsClient({ initialProducts, initialCategories }: P
                                 className="w-full accent-rose-500"
                             />
                             <div className="flex items-center gap-2 mt-2">
-                                <span className="text-sm text-gray-600 dark:text-gray-400">Rs. {priceRange[0].toLocaleString()}</span>
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Rs {priceRange[0].toLocaleString()}</span>
                                 <span className="text-gray-400">-</span>
-                                <span className="text-sm text-gray-600 dark:text-gray-400">Rs. {priceRange[1].toLocaleString()}</span>
+                                <span className="text-sm text-gray-600 dark:text-gray-400">Rs {priceRange[1].toLocaleString()}</span>
                             </div>
                         </div>
 
                         <button
                             onClick={() => setShowFilters(false)}
-                            className="w-full bg-gradient-to-r from-rose-500 to-orange-400 text-white py-3 rounded-xl font-semibold shadow-lg"
+                            className="w-full bg-gradient-to-r from-primary to-primary-light text-white py-3 rounded-xl font-semibold shadow-lg"
                         >
                             Apply Filters
                         </button>

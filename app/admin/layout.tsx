@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, ShoppingBag, FolderTree, ArrowLeft, Menu, X, LogOut, ClipboardList, Bell, Check, Loader2, Image as ImageIcon, MessageSquare } from 'lucide-react';
+import { LayoutDashboard, ShoppingBag, FolderTree, ArrowLeft, Menu, X, LogOut, ClipboardList, Bell, Check, Loader2, Image as ImageIcon, MessageSquare, TrendingUp } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/src/context/AuthContext';
 import { fetchNotifications, markNotificationAsRead } from '@/src/api/admin';
@@ -41,7 +41,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (loading || !user || !isAdmin) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+                <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
         );
     }
@@ -64,7 +64,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         { name: 'Orders', path: '/admin/orders', icon: ClipboardList },
         { name: 'Labels (Banners)', path: '/admin/banners', icon: ImageIcon },
         { name: 'Reviews', path: '/admin/reviews', icon: MessageSquare },
-        { name: 'Image Migration', path: '/admin/migration', icon: Bell }, // Using Bell for now, maybe change to something else
+        { name: 'Image Migration', path: '/admin/migration', icon: Bell },
+        { name: 'Reports', path: '/admin/reports', icon: TrendingUp },
     ];
 
     return (
@@ -72,7 +73,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             {/* Mobile Header */}
             <header className="md:hidden bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between sticky top-0 z-50">
                 <Link href="/admin/dashboard" className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-rose-500 to-orange-400 rounded-lg flex items-center justify-center">
+                    <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-light rounded-lg flex items-center justify-center">
                         <span className="text-white font-bold">C</span>
                     </div>
                     <span className="font-bold text-lg">Admin Panel</span>
@@ -94,11 +95,11 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             <aside className={`fixed md:sticky top-0 left-0 bottom-0 w-72 bg-white border-r border-gray-200 z-50 transition-transform duration-300 md:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
                 <div className="p-6 h-full flex flex-col">
                     <div className="hidden md:flex items-center gap-3 mb-10">
-                        <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-400 rounded-xl flex items-center justify-center shadow-lg shadow-rose-100">
+                        <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center shadow-lg shadow-rose-100">
                             <span className="text-white font-bold text-xl">C</span>
                         </div>
                         <div>
-                            <h1 className="font-bold text-gray-900">CosmoDecor<span className="text-rose-500">PK</span></h1>
+                            <h1 className="font-bold text-gray-900">CosmoDecor<span className="text-primary">PK</span></h1>
                             <p className="text-xs text-gray-500 font-medium tracking-wide border-t border-gray-100 mt-1 pt-1">ADMIN DASHBOARD</p>
                         </div>
                     </div>
@@ -112,7 +113,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                 <div className="relative">
                                     <Bell className="w-5 h-5 text-gray-400 group-hover:text-rose-600" />
                                     {unreadCount > 0 && (
-                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-rose-500 text-white text-[10px] flex items-center justify-center rounded-full animate-pulse">
+                                        <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary text-white text-[10px] flex items-center justify-center rounded-full animate-pulse">
                                             {unreadCount}
                                         </span>
                                     )}
@@ -125,7 +126,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                             <div className="absolute top-full left-0 w-full mt-2 bg-white border border-gray-100 rounded-2xl shadow-2xl z-[60] py-4 max-h-80 overflow-y-auto scrollbar-thin animate-in slide-in-from-top-2 duration-200">
                                 <div className="px-4 pb-2 mb-2 border-b border-gray-50 flex justify-between items-center">
                                     <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Recent Activity</span>
-                                    <button onClick={() => setShowNotifs(false)} className="text-[10px] font-bold text-rose-500">Close</button>
+                                    <button onClick={() => setShowNotifs(false)} className="text-[10px] font-bold text-primary">Close</button>
                                 </div>
                                 {notifications.length === 0 ? (
                                     <p className="px-4 py-8 text-center text-xs text-gray-400 italic">No notifications yet</p>
@@ -135,7 +136,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                             <div className="flex justify-between gap-2 mb-1">
                                                 <p className="font-bold text-gray-800 text-xs">{n.title}</p>
                                                 {!n.is_read && (
-                                                    <button onClick={() => handleMarkRead(n.id)} className="p-1 hover:bg-rose-100 rounded-md text-rose-500">
+                                                    <button onClick={() => handleMarkRead(n.id)} className="p-1 hover:bg-rose-100 rounded-md text-primary">
                                                         <Check className="w-3 h-3" />
                                                     </button>
                                                 )}
@@ -162,7 +163,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                                     : 'text-gray-500 hover:bg-gray-50 hover:text-gray-900'
                                     }`}
                             >
-                                <item.icon className={`w-5 h-5 ${pathname === item.path ? 'text-rose-500' : 'text-gray-400'}`} />
+                                <item.icon className={`w-5 h-5 ${pathname === item.path ? 'text-primary' : 'text-gray-400'}`} />
                                 {item.name}
                             </Link>
                         ))}
@@ -188,7 +189,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                     <div className="mt-8 bg-gray-50 rounded-2xl p-4 border border-gray-100">
                         <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mb-3">Active Admin</p>
                         <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center font-bold text-rose-500 shadow-sm border border-gray-100">
+                            <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center font-bold text-primary shadow-sm border border-gray-100">
                                 {user?.name?.charAt(0)}
                             </div>
                             <div className="truncate">

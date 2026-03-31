@@ -18,6 +18,7 @@ import { localBusinessSchema } from "./schema";
 export const metadata: Metadata = siteMetadata;
 
 import { HashRedirect } from "../components/HashRedirect";
+import { MarqueeBanner } from "../components/MarqueeBanner";
 // ... imports
 
 export default function RootLayout({
@@ -53,6 +54,7 @@ export default function RootLayout({
             <body className={inter.className}>
                 <Providers>
                     <HashRedirect />
+                    <MarqueeBanner />
                     {children}
                 </Providers>
             </body>

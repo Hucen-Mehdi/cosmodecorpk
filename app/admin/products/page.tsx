@@ -94,7 +94,7 @@ export default function AdminProducts() {
                     </Link>
                     <Link
                         href="/admin/products/new"
-                        className="flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95"
+                        className="flex items-center gap-2 bg-gradient-to-r from-primary to-primary-light text-white px-6 py-3 rounded-2xl font-bold shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-95"
                     >
                         <Plus className="w-5 h-5" /> Add Product
                     </Link>
@@ -107,7 +107,7 @@ export default function AdminProducts() {
                         onSubmit={(e) => { e.preventDefault(); router.push(`/admin/products?search=${encodeURIComponent(searchTerm)}`); }}
                         className="relative w-full md:w-96 group"
                     >
-                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-rose-500 transition-colors" />
+                        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 group-focus-within:text-primary transition-colors" />
                         <input
                             type="text"
                             placeholder="Search name, category or ID (CD-0001)..."
@@ -178,13 +178,13 @@ export default function AdminProducts() {
                                                 <div className="w-14 h-14 relative flex-shrink-0">
                                                     <img src={p.image} alt={p.name} className="w-full h-full object-cover rounded-xl border border-gray-100 shadow-sm" />
                                                     {p.badge && (
-                                                        <span className="absolute -top-1.5 -right-1.5 bg-rose-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
+                                                        <span className="absolute -top-1.5 -right-1.5 bg-primary text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm">
                                                             {p.badge}
                                                         </span>
                                                     )}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-bold text-gray-900 text-base leading-tight truncate group-hover:text-rose-500 transition-colors">{p.name}</p>
+                                                    <p className="font-bold text-gray-900 text-base leading-tight truncate group-hover:text-primary transition-colors">{p.name}</p>
                                                     <p className="text-[11px] text-gray-400 font-medium mt-0.5 uppercase tracking-wider">ID: CD-{p.id.toString().padStart(4, '0')}</p>
                                                 </div>
                                             </div>
@@ -195,9 +195,9 @@ export default function AdminProducts() {
                                             </span>
                                         </td>
                                         <td className="px-6 py-5 whitespace-nowrap">
-                                            <p className="font-bold text-gray-900 text-sm">Rs. {p.price.toLocaleString()}</p>
+                                            <p className="font-bold text-gray-900 text-sm">Rs {p.price.toLocaleString()}</p>
                                             {p.originalPrice && (
-                                                <p className="text-[10px] text-gray-400 line-through font-medium">Rs. {p.originalPrice.toLocaleString()}</p>
+                                                <p className="text-[10px] text-gray-400 line-through font-medium">Rs {p.originalPrice.toLocaleString()}</p>
                                             )}
                                         </td>
                                         <td className="px-6 py-5 whitespace-nowrap">
@@ -270,7 +270,7 @@ export default function AdminProducts() {
                                     <div className="flex-1 min-w-0">
                                         <div className="flex justify-between items-start gap-2">
                                             <p className="font-bold text-gray-900 text-base leading-tight truncate">{p.name}</p>
-                                            <p className="font-black text-rose-500 text-sm flex-shrink-0">Rs. {p.price.toLocaleString()}</p>
+                                            <p className="font-black text-primary text-sm flex-shrink-0">Rs {p.price.toLocaleString()}</p>
                                         </div>
                                         <p className="text-[10px] text-gray-400 font-bold uppercase tracking-wider mt-1">ID: CD-{p.id.toString().padStart(4, '0')}</p>
                                         <div className="flex items-center gap-2 mt-3">

@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: Props) {
           <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">
             Product Not Found
           </h1>
-          <Link href="/products" className="text-rose-500 hover:underline">
+          <Link href="/products" className="text-primary hover:underline">
             Browse All Products
           </Link>
         </div>

@@ -89,7 +89,7 @@ export default async function Home() {
                             <div className="w-24 h-24 sm:w-28 sm:h-28 rounded-full overflow-hidden border-2 border-transparent group-hover:border-rose-500 transition-all p-1">
                                 <div className="relative w-full h-full rounded-full overflow-hidden bg-gray-100 shadow-sm">
                                     <Image
-                                        src={category.image}
+                                        src={category.image || '/placeholder.png'}
                                         alt={category.name}
                                         fill
                                         sizes="(max-width: 640px) 100px, 120px"
@@ -100,7 +100,7 @@ export default async function Home() {
                                     />
                                 </div>
                             </div>
-                            <h3 className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200 text-center group-hover:text-rose-500 transition-colors line-clamp-2 max-w-[120px]">
+                            <h3 className="text-sm sm:text-base font-medium text-gray-800 dark:text-gray-200 text-center group-hover:text-primary transition-colors line-clamp-2 max-w-[120px]">
                                 {category.name}
                             </h3>
                         </Link>

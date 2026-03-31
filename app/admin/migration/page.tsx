@@ -97,8 +97,8 @@ export default function MigrationPage() {
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
                 <div>
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
-                        <ImageIcon className="w-8 h-8 text-rose-500" />
-                        Image Migration <span className="text-rose-500 font-medium text-sm px-3 py-1 bg-rose-50 rounded-full border border-rose-100 ml-2">Cloudinary → VPS</span>
+                        <ImageIcon className="w-8 h-8 text-primary" />
+                        Image Migration <span className="text-primary font-medium text-sm px-3 py-1 bg-rose-50 rounded-full border border-rose-100 ml-2">Cloudinary → VPS</span>
                     </h1>
                     <p className="text-gray-500 mt-2 font-medium max-w-xl">
                         Identify and replace completely ALL broken images across your store (Products, Categories, Banners).
@@ -108,7 +108,7 @@ export default function MigrationPage() {
                 <div className="flex gap-4">
                     <div className="bg-white border border-gray-100 px-6 py-4 rounded-3xl shadow-sm">
                         <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Pending Fixes</p>
-                        <p className="text-2xl font-black text-rose-500">{stats.pending}</p>
+                        <p className="text-2xl font-black text-primary">{stats.pending}</p>
                     </div>
                 </div>
             </div>
@@ -149,7 +149,7 @@ export default function MigrationPage() {
                                 <tr>
                                     <td colSpan={3} className="py-24 text-center">
                                         <div className="flex flex-col items-center gap-3">
-                                            <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+                                            <Loader2 className="w-10 h-10 text-primary animate-spin" />
                                         </div>
                                     </td>
                                 </tr>
@@ -173,7 +173,7 @@ export default function MigrationPage() {
                                         <td className="px-8 py-6">
                                             <div className="space-y-3">
                                                 {item.imageUrl && !item.imageUrl.startsWith('/uploads') && !item.imageUrl.startsWith('/api') && (
-                                                    <div className="flex items-center gap-3 text-rose-500">
+                                                    <div className="flex items-center gap-3 text-primary">
                                                         <AlertTriangle className="w-4 h-4" />
                                                         <p className="text-[10px] font-mono bg-rose-50 px-2 py-1 rounded truncate max-w-xs">{item.imageUrl}</p>
                                                     </div>
@@ -200,7 +200,7 @@ export default function MigrationPage() {
                                             <div className="flex flex-col gap-2 items-center">
                                                 {/* Upload Main */}
                                                 {item.imageUrl && !item.imageUrl.startsWith('/uploads') && !item.imageUrl.startsWith('/api') && (
-                                                    <label className="w-full max-w-[140px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer bg-rose-50 text-rose-600 hover:bg-rose-500 hover:text-white shadow-sm">
+                                                    <label className="w-full max-w-[140px] flex items-center justify-center gap-2 px-4 py-3 rounded-xl text-xs font-bold transition-all cursor-pointer bg-rose-50 text-rose-600 hover:bg-primary hover:text-white shadow-sm">
                                                         <input 
                                                             type="file" 
                                                             className="hidden" 

@@ -73,14 +73,6 @@ export function Navbar() {
 
   return (
     <header className="bg-white dark:bg-gray-900 shadow-sm sticky top-0 z-50">
-      {/* Top Bar - SUPER COMPACT */}
-      <div className="bg-gradient-to-r from-rose-500 to-orange-400 text-white text-[10px] px-4 py-1">
-        <div className="max-w-7xl mx-auto flex justify-between items-center">
-          <span>🚚 Fast Nationwide Delivery Across Pakistan</span>
-          <span className="hidden md:block text-[10px]">📞 Call us: 0320-9937113</span>
-        </div>
-      </div>
-
       {/* Main Navbar - MINIMAL padding */}
       <nav className="max-w-7xl mx-auto px-4 py-0">
         <div className="flex items-center justify-between h-14">
@@ -88,7 +80,7 @@ export function Navbar() {
           <div className="lg:hidden w-8 flex items-center flex-none">
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="p-1 text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors"
+              className="p-1 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
               aria-label="Toggle menu"
             >
               {isMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -120,7 +112,7 @@ export function Navbar() {
                 className="w-full pl-9 pr-3 py-1.5 border border-gray-200 dark:border-gray-700 rounded-full focus:outline-none focus:border-rose-400 focus:ring-1 focus:ring-rose-100 dark:focus:ring-rose-900 dark:bg-gray-800 dark:text-gray-100 transition-all text-xs"
               />
               <button type="submit" className="absolute left-2.5 top-1/2 -translate-y-1/2">
-                <Search className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 hover:text-rose-500 transition-colors" />
+                <Search className="w-3.5 h-3.5 text-gray-400 dark:text-gray-500 hover:text-primary transition-colors" />
               </button>
             </form>
 
@@ -147,10 +139,10 @@ export function Navbar() {
                       >
                         <img src={product.image} alt="" className="w-8 h-8 rounded object-cover" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-bold text-gray-800 dark:text-white truncate text-xs group-hover:text-rose-500 transition-colors">{product.name}</p>
+                          <p className="font-bold text-gray-800 dark:text-white truncate text-xs group-hover:text-primary transition-colors">{product.name}</p>
                           <p className="text-[9px] text-gray-500 dark:text-gray-400 capitalize">{product.category}</p>
                         </div>
-                        <p className="font-black text-rose-500 text-xs">Rs. {product.price.toLocaleString()}</p>
+                        <p className="font-black text-primary text-xs">Rs {product.price.toLocaleString()}</p>
                       </Link>
                     ))}
                   </div>
@@ -169,14 +161,14 @@ export function Navbar() {
             {/* Mobile Search Icon */}
             <button
               onClick={() => setIsMenuOpen(true)}
-              className="lg:hidden p-1 text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors"
+              className="lg:hidden p-1 text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
               aria-label="Search"
             >
               <Search className="w-4 h-4" />
             </button>
 
             {/* Wishlist - Desktop Only */}
-            <Link href="/wishlist" className="hidden lg:flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors">
+            <Link href="/wishlist" className="hidden lg:flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
               <Heart className="w-4 h-4" />
               <span className="hidden lg:block text-[8px] font-medium">Wishlist</span>
             </Link>
@@ -184,13 +176,13 @@ export function Navbar() {
             {/* Auth - Desktop Only */}
             {user ? (
               <div className="hidden lg:flex items-center gap-2">
-                <Link href="/account" className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors">
+                <Link href="/account" className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
                   <User className="w-4 h-4" />
                   <span className="hidden lg:block text-[8px] font-medium">{user.name.split(' ')[0]}</span>
                 </Link>
                 <button
                   onClick={logout}
-                  className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors"
+                  className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-primary transition-colors"
                   title="Logout"
                 >
                   <LogOut className="w-4 h-4" />
@@ -199,7 +191,7 @@ export function Navbar() {
               </div>
             ) : (
               <div className="hidden lg:flex items-center">
-                <Link href="/login" className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors">
+                <Link href="/login" className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-primary transition-colors">
                   <User className="w-4 h-4" />
                   <span className="hidden lg:block text-[8px] font-medium">Log in</span>
                 </Link>
@@ -207,10 +199,10 @@ export function Navbar() {
             )}
 
             {/* Cart */}
-            <Link href="/cart" className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-rose-500 transition-colors relative">
+            <Link href="/cart" className="flex flex-col items-center text-gray-600 dark:text-gray-300 hover:text-primary transition-colors relative">
               <ShoppingCart className="w-4 h-4" />
               {totalItems > 0 && (
-                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold shadow-sm">
+                <span className="absolute -top-1 -right-1 bg-primary text-white text-[8px] w-3.5 h-3.5 rounded-full flex items-center justify-center font-bold shadow-sm">
                   {totalItems}
                 </span>
               )}
@@ -226,7 +218,7 @@ export function Navbar() {
             <Link
               key={item.path}
               href={item.path}
-              className={`font-medium transition-colors text-xs ${pathname === item.path ? 'text-rose-500' : 'text-gray-700 dark:text-gray-300 hover:text-rose-500'}`}
+              className={`font-medium transition-colors text-xs ${pathname === item.path ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:text-primary'}`}
             >
               {item.name}
             </Link>
@@ -238,7 +230,7 @@ export function Navbar() {
             onMouseEnter={() => setIsShopOpen(true)}
             onMouseLeave={() => setIsShopOpen(false)}
           >
-            <button className="flex items-center gap-0.5 font-medium text-gray-700 dark:text-gray-300 hover:text-rose-500 transition-colors text-xs">
+            <button className="flex items-center gap-0.5 font-medium text-gray-700 dark:text-gray-300 hover:text-primary transition-colors text-xs">
               Shop by Collection <ChevronDown className="w-2.5 h-2.5" />
             </button>
 
@@ -251,10 +243,10 @@ export function Navbar() {
                       Plants
                     </h3>
                     <div className="space-y-0.5">
-                      <Link href="/category/artificial-plants" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 font-medium text-xs">
+                      <Link href="/category/artificial-plants" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary font-medium text-xs">
                         Artificial Plants
                       </Link>
-                      <Link href="/category/floral-plants" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 font-medium text-xs">
+                      <Link href="/category/floral-plants" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary font-medium text-xs">
                         Floral Plants
                       </Link>
                     </div>
@@ -266,13 +258,13 @@ export function Navbar() {
                       Home Decor
                     </h3>
                     <div className="space-y-0.5">
-                      <Link href="/category/table-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs">
+                      <Link href="/category/table-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary text-xs">
                         Table Decor
                       </Link>
-                      <Link href="/category/corner-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs">
+                      <Link href="/category/corner-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary text-xs">
                         Corner Decor
                       </Link>
-                      <Link href="/category/wall-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs">
+                      <Link href="/category/wall-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary text-xs">
                         Wall Decor
                       </Link>
                     </div>
@@ -284,13 +276,13 @@ export function Navbar() {
                       More
                     </h3>
                     <div className="space-y-0.5">
-                      <Link href="/category/lighting-lamps" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs">
+                      <Link href="/category/lighting-lamps" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary text-xs">
                         Lighting & Lamps
                       </Link>
-                      <Link href="/category/ramadan-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs">
+                      <Link href="/category/ramadan-decor" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary text-xs">
                         Ramadan Decor
                       </Link>
-                      <Link href="/category/gift-ideas" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs">
+                      <Link href="/category/gift-ideas" className="block py-0.5 text-gray-600 dark:text-gray-300 hover:text-primary text-xs">
                         Gift Ideas
                       </Link>
                     </div>
@@ -314,7 +306,7 @@ export function Navbar() {
 
                 {/* View All Link */}
                 <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-700 text-center">
-                  <Link href="/products" className="text-rose-500 font-semibold hover:underline text-xs">
+                  <Link href="/products" className="text-primary font-semibold hover:underline text-xs">
                     View All Products →
                   </Link>
                 </div>
@@ -324,13 +316,13 @@ export function Navbar() {
 
           <Link
             href="/about"
-            className={`font-medium transition-colors text-xs ${pathname === '/about' ? 'text-rose-500' : 'text-gray-700 dark:text-gray-300 hover:text-rose-500'}`}
+            className={`font-medium transition-colors text-xs ${pathname === '/about' ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:text-primary'}`}
           >
             About Us
           </Link>
           <Link
             href="/contact"
-            className={`font-medium transition-colors text-xs ${pathname === '/contact' ? 'text-rose-500' : 'text-gray-700 dark:text-gray-300 hover:text-rose-500'}`}
+            className={`font-medium transition-colors text-xs ${pathname === '/contact' ? 'text-primary' : 'text-gray-700 dark:text-gray-300 hover:text-primary'}`}
           >
             Contact Us
           </Link>
@@ -377,7 +369,7 @@ export function Navbar() {
                           <p className="font-bold text-gray-800 dark:text-white truncate text-xs">{product.name}</p>
                           <p className="text-[9px] text-gray-500 dark:text-gray-400 capitalize">{product.category}</p>
                         </div>
-                        <p className="font-bold text-rose-500 text-xs italic">Rs. {product.price.toLocaleString()}</p>
+                        <p className="font-bold text-primary text-xs italic">Rs {product.price.toLocaleString()}</p>
                       </Link>
                     ))}
                   </div>
@@ -391,14 +383,14 @@ export function Navbar() {
             {/* Main Menu Links */}
             <Link
               href="/"
-              className={`px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 border-l-2 border-transparent hover:border-rose-500 transition-all font-semibold text-sm ${pathname === '/' ? 'text-rose-500 border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : ''}`}
+              className={`px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 border-l-2 border-transparent hover:border-rose-500 transition-all font-semibold text-sm ${pathname === '/' ? 'text-primary border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Home
             </Link>
             <Link
               href="/products?filter=bestseller"
-              className={`px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 border-l-2 border-transparent hover:border-rose-500 transition-all font-semibold text-sm ${pathname === '/products' && searchQuery === 'bestseller' ? 'text-rose-500 border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : ''}`}
+              className={`px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 border-l-2 border-transparent hover:border-rose-500 transition-all font-semibold text-sm ${pathname === '/products' && searchQuery === 'bestseller' ? 'text-primary border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : ''}`}
               onClick={() => setIsMenuOpen(false)}
             >
               Best Sellers
@@ -416,14 +408,14 @@ export function Navbar() {
                   className="w-full px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 flex items-center justify-between border-b border-gray-50 dark:border-gray-800/50 transition-colors"
                 >
                   <span className="font-medium text-sm">{category.name}</span>
-                  <ChevronRight className={`w-3 h-3 transition-transform duration-300 ${expandedMobileCategory === category.id ? 'rotate-90 text-rose-500' : 'text-gray-400'}`} />
+                  <ChevronRight className={`w-3 h-3 transition-transform duration-300 ${expandedMobileCategory === category.id ? 'rotate-90 text-primary' : 'text-gray-400'}`} />
                 </button>
 
                 {expandedMobileCategory === category.id && (
                   <div className="bg-gray-50/50 dark:bg-gray-800/30 py-1 border-b border-gray-100 dark:border-gray-800/50 animate-in slide-in-from-top-4 duration-300">
                     <Link
                       href={`/category/${category.id}`}
-                      className="block px-5 py-1.5 text-rose-500 font-bold text-xs"
+                      className="block px-5 py-1.5 text-primary font-bold text-xs"
                       onClick={() => setIsMenuOpen(false)}
                     >
                       View All {category.name}
@@ -432,7 +424,7 @@ export function Navbar() {
                       <Link
                         key={sub.id}
                         href={`/category/${category.id}?sub=${sub.id}`}
-                        className="block px-5 py-1 text-gray-600 dark:text-gray-300 hover:text-rose-500 text-xs font-medium transition-colors"
+                        className="block px-5 py-1 text-gray-600 dark:text-gray-300 hover:text-primary text-xs font-medium transition-colors"
                         onClick={() => setIsMenuOpen(false)}
                       >
                         {sub.name}
@@ -447,14 +439,14 @@ export function Navbar() {
             <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800">
               <Link
                 href="/about"
-                className="px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-rose-500 font-semibold flex items-center transition-all text-sm"
+                className="px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-primary font-semibold flex items-center transition-all text-sm"
                 onClick={() => setIsMenuOpen(false)}
               >
                 About Us
               </Link>
               <Link
                 href="/contact"
-                className="px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-rose-500 font-semibold flex items-center transition-all text-sm"
+                className="px-3 py-2 text-gray-700 dark:text-gray-200 hover:bg-rose-50 dark:hover:bg-gray-800 hover:text-primary font-semibold flex items-center transition-all text-sm"
                 onClick={() => setIsMenuOpen(false)}
               >
                 Contact Us
@@ -466,7 +458,7 @@ export function Navbar() {
               {!user ? (
                 <Link
                   href="/login"
-                  className="w-full flex items-center justify-center gap-1.5 bg-rose-500 text-white py-2 rounded-lg font-bold hover:bg-rose-600 transition-all shadow-sm shadow-rose-200 dark:shadow-none text-xs"
+                  className="w-full flex items-center justify-center gap-1.5 bg-primary text-white py-2 rounded-lg font-bold hover:bg-rose-600 transition-all shadow-sm shadow-rose-200 dark:shadow-none text-xs"
                   onClick={() => setIsMenuOpen(false)}
                 >
                   <User className="w-3.5 h-3.5" /> Log in
@@ -474,17 +466,17 @@ export function Navbar() {
               ) : (
                 <div className="space-y-1.5">
                   <div className="flex items-center gap-2 p-2 bg-white dark:bg-gray-800 rounded-lg border border-gray-100 dark:border-gray-700">
-                    <div className="w-6 h-6 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-rose-500 font-bold text-xs">
+                    <div className="w-6 h-6 rounded-full bg-rose-100 dark:bg-rose-900/30 flex items-center justify-center text-primary font-bold text-xs">
                       {user.name.charAt(0)}
                     </div>
                     <div>
                       <p className="font-bold text-gray-800 dark:text-white text-xs">{user.name}</p>
-                      <Link href="/account" className="text-xs text-rose-500 font-medium" onClick={() => setIsMenuOpen(false)}>My Account →</Link>
+                      <Link href="/account" className="text-xs text-primary font-medium" onClick={() => setIsMenuOpen(false)}>My Account →</Link>
                     </div>
                   </div>
                   <button
                     onClick={() => { logout(); setIsMenuOpen(false); }}
-                    className="w-full flex items-center justify-center gap-1.5 border border-rose-200 dark:border-rose-950 text-rose-500 dark:text-rose-400 py-2 rounded-lg font-bold hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all text-xs"
+                    className="w-full flex items-center justify-center gap-1.5 border border-rose-200 dark:border-rose-950 text-primary dark:text-rose-400 py-2 rounded-lg font-bold hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-all text-xs"
                   >
                     <LogOut className="w-3.5 h-3.5" /> Logout
                   </button>

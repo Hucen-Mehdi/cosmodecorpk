@@ -46,7 +46,7 @@ export default function FeaturedProductsPage() {
         }
     };
 
-    if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-rose-500" /></div>;
+    if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
 
     const featuredCount = products.filter(p => p.isFeatured).length;
 
@@ -91,7 +91,7 @@ export default function FeaturedProductsPage() {
                                     disabled={updating === product.id}
                                     className={`px-4 py-2 rounded-full font-bold text-sm transform active:scale-95 transition-all flex items-center gap-2 ${product.isFeatured
                                         ? 'bg-white text-gray-900 hover:bg-gray-100'
-                                        : 'bg-rose-500 text-white hover:bg-rose-600 shadow-lg'}`}
+                                        : 'bg-primary text-white hover:bg-rose-600 shadow-lg'}`}
                                 >
                                     {updating === product.id ? <Loader2 className="w-4 h-4 animate-spin" /> : (product.isFeatured ? 'Unfeature' : 'Feature')}
                                 </button>

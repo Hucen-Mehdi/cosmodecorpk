@@ -11,7 +11,6 @@ import {
     ArrowLeft, Shield, Clock, ChevronRight, Package, Copy, MessageCircle, AlertCircle,
     Loader2, Percent, AlertTriangle, Lock
 } from 'lucide-react';
-import EidNotice from '@/components/checkout/EidNotice';
 
 type PaymentMethod = 'nayapay' | 'jazzcash' | 'easypaisa' | 'cod';
 
@@ -110,12 +109,8 @@ export default function CheckoutClient() {
     ];
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-PK', {
-            style: 'currency',
-            currency: 'PKR',
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
+    return 'Rs ' + Math.round(price).toLocaleString('en-US');
+  };
 
     const cities = [
         'Karachi', 'Lahore', 'Islamabad', 'Rawalpindi', 'Faisalabad',
@@ -291,13 +286,13 @@ export default function CheckoutClient() {
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center p-4 transition-colors duration-200">
                 <div className="text-center bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] shadow-2xl max-w-md w-full border border-gray-100 dark:border-gray-800">
                     <div className="w-20 h-20 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <User className="w-10 h-10 text-rose-500" />
+                        <User className="w-10 h-10 text-primary" />
                     </div>
                     <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">How would you like to checkout?</h2>
                     <p className="text-gray-500 dark:text-gray-400 mb-8 font-medium text-sm">Sign in to save time or continue as a guest.</p>
 
                     <div className="flex flex-col gap-4">
-                        <Link href="/login?from=/checkout" className="group relative w-full bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-bold overflow-hidden shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-[0.98]">
+                        <Link href="/login?from=/checkout" className="group relative w-full bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-bold overflow-hidden shadow-lg shadow-rose-100 hover:shadow-rose-200 transition-all active:scale-[0.98]">
                             <span className="relative z-10 flex items-center justify-center gap-2">Sign In <ChevronRight className="w-4 h-4 opacity-70 group-hover:translate-x-1 transition-transform" /></span>
                         </Link>
 
@@ -313,7 +308,7 @@ export default function CheckoutClient() {
                             <span className="relative bg-white dark:bg-gray-900 px-2 text-xs text-gray-400 uppercase tracking-widest font-bold">New to CosmoDecor?</span>
                         </div>
 
-                        <Link href="/signup?from=/checkout" className="text-rose-500 font-bold hover:underline">
+                        <Link href="/signup?from=/checkout" className="text-primary font-bold hover:underline">
                             Create an Account
                         </Link>
                     </div>
@@ -339,7 +334,7 @@ export default function CheckoutClient() {
                         {/* Order ID */}
                         <div className="bg-gradient-to-r from-rose-50 to-orange-50 dark:from-rose-900/20 dark:to-orange-900/20 rounded-2xl p-4 sm:p-6 mb-8 text-center border dark:border-rose-900/30">
                             <p className="text-gray-600 dark:text-gray-300 mb-2">Your Order ID</p>
-                            <p className="text-2xl sm:text-3xl font-bold text-rose-500">{orderId}</p>
+                            <p className="text-2xl sm:text-3xl font-bold text-primary">{orderId}</p>
                         </div>
 
                         {/* IMPORTANT: Payment Proof Section / COD Section */}
@@ -373,7 +368,7 @@ export default function CheckoutClient() {
                                         </div>
                                     ) : (
                                         <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 text-center sm:text-left">
-                                            <div className="w-14 h-14 bg-gradient-to-r from-rose-500 to-orange-400 rounded-full flex items-center justify-center flex-shrink-0">
+                                            <div className="w-14 h-14 bg-gradient-to-r from-primary to-primary-light rounded-full flex items-center justify-center flex-shrink-0">
                                                 <AlertCircle className="w-8 h-8 text-white" />
                                             </div>
                                             <div className="flex-1">
@@ -382,7 +377,7 @@ export default function CheckoutClient() {
                                                 </h3>
                                                 <div className="space-y-3 text-gray-700 dark:text-gray-200">
                                                     <p className="font-medium">
-                                                        To confirm your order, you <span className="text-rose-500 font-bold">MUST</span> send the
+                                                        To confirm your order, you <span className="text-primary font-bold">MUST</span> send the
                                                         <span className="bg-yellow-200 dark:bg-yellow-900/50 dark:text-yellow-200 px-2 py-0.5 rounded font-bold mx-1">screenshot of your payment</span>
                                                         to our WhatsApp number.
                                                     </p>
@@ -440,15 +435,15 @@ export default function CheckoutClient() {
                         {/* Delivery Info */}
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
-                                <Package className="w-8 h-8 text-rose-500 mx-auto mb-2" />
+                                <Package className="w-8 h-8 text-primary mx-auto mb-2" />
                                 <p className="text-sm text-gray-600 dark:text-gray-300">Order Confirmed</p>
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
-                                <Truck className="w-8 h-8 text-rose-500 mx-auto mb-2" />
+                                <Truck className="w-8 h-8 text-primary mx-auto mb-2" />
                                 <p className="text-sm text-gray-600 dark:text-gray-300">Ships in 24-48 hrs</p>
                             </div>
                             <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-center">
-                                <Clock className="w-8 h-8 text-rose-500 mx-auto mb-2" />
+                                <Clock className="w-8 h-8 text-primary mx-auto mb-2" />
                                 <p className="text-sm text-gray-600 dark:text-gray-300">Delivery: 3-5 Days</p>
                             </div>
                         </div>
@@ -469,13 +464,13 @@ export default function CheckoutClient() {
                         <div className="flex flex-col sm:flex-row gap-4 justify-center">
                             <Link
                                 href="/account"
-                                className="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-900 border-2 border-rose-500 text-rose-500 px-8 py-3 rounded-full font-semibold hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors"
+                                className="inline-flex items-center justify-center gap-2 bg-white dark:bg-gray-900 border-2 border-rose-500 text-primary px-8 py-3 rounded-full font-semibold hover:bg-rose-50 dark:hover:bg-rose-900/10 transition-colors"
                             >
                                 View My Orders
                             </Link>
                             <Link
                                 href="/"
-                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-shadow"
+                                className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-primary to-primary-light text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-shadow"
                             >
                                 Continue Shopping
                             </Link>
@@ -489,11 +484,9 @@ export default function CheckoutClient() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 py-8 transition-colors duration-200">
             <div className="max-w-7xl mx-auto px-4">
-                {/* Eid Delivery Notice Banner */}
-                <EidNotice />
                 
                 {/* Back Button */}
-                <Link href="/cart" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-rose-500 mb-6 transition-colors">
+                <Link href="/cart" className="inline-flex items-center gap-2 text-gray-600 dark:text-gray-400 hover:text-primary mb-6 transition-colors">
                     <ArrowLeft className="w-5 h-5" />
                     Back to Cart
                 </Link>
@@ -509,7 +502,7 @@ export default function CheckoutClient() {
                     ].map((s, i) => (
                         <div key={s.num} className="flex items-center flex-shrink-0">
                             <div className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 rounded-full font-semibold text-sm sm:text-base ${step >= s.num
-                                ? 'bg-gradient-to-r from-rose-500 to-orange-400 text-white'
+                                ? 'bg-gradient-to-r from-primary to-primary-light text-white'
                                 : 'bg-gray-200 dark:bg-gray-800 text-gray-500 dark:text-gray-400'
                                 }`}>
                                 {step > s.num ? <CheckCircle className="w-5 h-5 sm:w-6 sm:h-6" /> : s.num}
@@ -531,7 +524,7 @@ export default function CheckoutClient() {
                         {step === 1 && (
                             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 border dark:border-gray-800">
                                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-6 flex items-center gap-2">
-                                    <MapPin className="w-6 h-6 text-rose-500" />
+                                    <MapPin className="w-6 h-6 text-primary" />
                                     Shipping Information
                                 </h2>
 
@@ -681,7 +674,7 @@ export default function CheckoutClient() {
 
                                 <button
                                     onClick={handleNextStep}
-                                    className="w-full mt-6 bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-shadow"
+                                    className="w-full mt-6 bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-shadow"
                                 >
                                     Continue to Payment <ChevronRight className="w-5 h-5" />
                                 </button>
@@ -692,7 +685,7 @@ export default function CheckoutClient() {
                         {step === 2 && (
                             <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-4 sm:p-6 border dark:border-gray-800">
                                 <h2 className="text-xl font-bold text-gray-800 dark:text-white mb-2 flex items-center gap-2">
-                                    <CreditCard className="w-6 h-6 text-rose-500" />
+                                    <CreditCard className="w-6 h-6 text-primary" />
                                     Payment Method
                                 </h2>
                                 <p className="text-gray-600 dark:text-gray-300 mb-6 font-medium">Select how you'd like to pay for your order</p>
@@ -762,7 +755,7 @@ export default function CheckoutClient() {
                                                             value={account.id}
                                                             checked={paymentMethod === account.id}
                                                             onChange={() => setPaymentMethod(account.id)}
-                                                            className="w-4 h-4 sm:w-5 sm:h-5 text-rose-500 focus:ring-rose-500"
+                                                            className="w-4 h-4 sm:w-5 sm:h-5 text-primary focus:ring-rose-500"
                                                         />
                                                         <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-r ${account.color} flex items-center justify-center text-xl sm:text-2xl`}>
                                                             {account.icon}
@@ -834,7 +827,7 @@ export default function CheckoutClient() {
                                                             )}
                                                             <div className="mt-4 pt-4 border-t border-gray-100 dark:border-gray-700">
                                                                 <p className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Amount to Pay</p>
-                                                                <p className="font-bold text-2xl text-rose-500">{formatPrice(finalTotal)}</p>
+                                                                <p className="font-bold text-2xl text-primary">{formatPrice(finalTotal)}</p>
                                                             </div>
                                                         </div>
                                                     )}
@@ -863,7 +856,7 @@ export default function CheckoutClient() {
                                         onClick={handleNextStep}
                                         disabled={!paymentMethod}
                                         className={`flex-1 py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all ${paymentMethod
-                                            ? 'bg-gradient-to-r from-rose-500 to-orange-400 text-white hover:shadow-lg'
+                                            ? 'bg-gradient-to-r from-primary to-primary-light text-white hover:shadow-lg'
                                             : 'bg-gray-200 dark:bg-gray-700 text-gray-400 dark:text-gray-500 cursor-not-allowed'
                                             }`}
                                     >
@@ -879,10 +872,10 @@ export default function CheckoutClient() {
                                 <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 border dark:border-gray-800">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                                            <MapPin className="w-5 h-5 text-rose-500" />
+                                            <MapPin className="w-5 h-5 text-primary" />
                                             Shipping Address
                                         </h3>
-                                        <button onClick={() => setStep(1)} className="text-rose-500 text-sm hover:underline">
+                                        <button onClick={() => setStep(1)} className="text-primary text-sm hover:underline">
                                             Edit
                                         </button>
                                     </div>
@@ -897,10 +890,10 @@ export default function CheckoutClient() {
                                 <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-sm p-6 border dark:border-gray-800">
                                     <div className="flex justify-between items-center mb-4">
                                         <h3 className="font-bold text-gray-800 dark:text-white flex items-center gap-2">
-                                            <CreditCard className="w-5 h-5 text-rose-500" />
+                                            <CreditCard className="w-5 h-5 text-primary" />
                                             Payment Method
                                         </h3>
-                                        <button onClick={() => setStep(2)} className="text-rose-500 text-sm hover:underline">
+                                        <button onClick={() => setStep(2)} className="text-primary text-sm hover:underline">
                                             Edit
                                         </button>
                                     </div>
@@ -942,7 +935,7 @@ export default function CheckoutClient() {
                                 <button
                                     onClick={handlePlaceOrder}
                                     disabled={isSubmitting}
-                                    className="w-full bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-bold flex items-center justify-center gap-2 hover:shadow-lg transition-all disabled:opacity-70"
+                                    className="btn-primary w-full"
                                 >
                                     {isSubmitting ? (
                                         <Loader2 className="w-5 h-5 animate-spin" />
@@ -970,7 +963,7 @@ export default function CheckoutClient() {
                                     <div className="flex justify-between">
                                         <span className="text-gray-600 dark:text-gray-400">Shipping</span>
                                         <span className={`font-medium ${deliveryFee === 0 ? 'text-green-500' : 'dark:text-white'}`}>
-                                            {deliveryFee === 0 ? 'FREE' : formatPrice(deliveryFee)}
+                                            {formatPrice(deliveryFee)}
                                         </span>
                                     </div>
                                     {paymentMethod === 'cod' && (
@@ -984,7 +977,7 @@ export default function CheckoutClient() {
                                     <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
                                         <div className="flex justify-between items-center">
                                             <span className="font-bold text-gray-800 dark:text-white">Total</span>
-                                            <span className="text-xl font-bold text-rose-500">{formatPrice(finalTotal)}</span>
+                                            <span className="text-xl font-bold text-primary">{formatPrice(finalTotal)}</span>
                                         </div>
                                     </div>
                                 </div>

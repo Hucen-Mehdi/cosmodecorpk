@@ -31,7 +31,7 @@ export default function Contact() {
     return (
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 transition-colors duration-200">
             {/* Hero Section */}
-            <section className="relative h-64 md:h-80 bg-gradient-to-r from-rose-500 to-orange-400">
+            <section className="relative h-64 md:h-80 bg-gradient-to-r from-primary to-primary-light">
                 <div className="absolute inset-0 flex items-center justify-center text-center">
                     <div>
                         <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">Contact Us</h1>
@@ -45,7 +45,7 @@ export default function Contact() {
                 <div className="grid md:grid-cols-4 gap-6">
                     <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-lg dark:shadow-rose-900/10 text-center border dark:border-gray-800 transition-colors duration-200">
                         <div className="w-14 h-14 bg-rose-100 dark:bg-rose-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                            <MapPin className="w-7 h-7 text-rose-500" />
+                            <MapPin className="w-7 h-7 text-primary" />
                         </div>
                         <h3 className="font-semibold text-gray-800 dark:text-white mb-2">Visit Us</h3>
                         <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -175,7 +175,7 @@ export default function Contact() {
                             <button
                                 type="submit"
                                 disabled={status === 'submitting'}
-                                className="w-full bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-rose-100 dark:hover:shadow-rose-900/20 transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+                                className="btn-primary w-full"
                             >
                                 {status === 'submitting' ? (
                                     <div className="animate-spin rounded-full h-5 w-5 border-t-2 border-b-2 border-white"></div>
@@ -239,7 +239,7 @@ export default function Contact() {
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-gray-800 dark:text-white">Do you offer assembly services?</h4>
-                                    <p className="text-gray-600 dark:text-gray-400 text-sm">Yes, we offer free assembly for orders above Rs. 50,000.</p>
+                                    <p className="text-gray-600 dark:text-gray-400 text-sm">We offer assembly for orders above Rs 50,000.</p>
                                 </div>
                                 <div>
                                     <h4 className="font-medium text-gray-800 dark:text-white">What is your return policy?</h4>

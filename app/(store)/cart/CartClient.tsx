@@ -11,14 +11,10 @@ export default function CartClient() {
     const { items, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-PK', {
-            style: 'currency',
-            currency: 'PKR',
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
+    return 'Rs ' + Math.round(price).toLocaleString('en-US');
+  };
 
-    const deliveryFee = totalPrice > 10000 ? 0 : 500;
+    const deliveryFee = 500;
     const finalTotal = totalPrice + deliveryFee;
 
     if (items.length === 0) {
@@ -26,13 +22,13 @@ export default function CartClient() {
             <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center transition-colors duration-200">
                 <div className="text-center">
                     <div className="w-24 h-24 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-6">
-                        <ShoppingBag className="w-12 h-12 text-rose-500" />
+                        <ShoppingBag className="w-12 h-12 text-primary" />
                     </div>
                     <h1 className="text-2xl font-bold text-gray-800 dark:text-white mb-2">Your Cart is Empty</h1>
                     <p className="text-gray-500 dark:text-gray-400 mb-6">Looks like you haven't added anything to your cart yet.</p>
                     <Link
                         href="/products"
-                        className="inline-flex items-center gap-2 bg-gradient-to-r from-rose-500 to-orange-400 text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-shadow"
+                        className="inline-flex items-center gap-2 bg-gradient-to-r from-primary to-primary-light text-white px-8 py-3 rounded-full font-semibold hover:shadow-lg transition-shadow"
                     >
                         Start Shopping <ArrowRight className="w-5 h-5" />
                     </Link>
@@ -53,7 +49,7 @@ export default function CartClient() {
                             <div key={item.id} className="bg-white dark:bg-gray-900 rounded-2xl p-4 sm:p-6 shadow-sm flex flex-row gap-4 sm:gap-6 border dark:border-gray-800">
                                 <Link href={`/product/${item.id}`} className="relative w-20 h-20 sm:w-32 sm:h-32 rounded-xl overflow-hidden flex-shrink-0">
                                     <Image
-                                        src={item.image}
+                                        src={item.image || '/placeholder.png'}
                                         alt={item.name}
                                         fill
                                         sizes="(max-width: 640px) 80px, 128px"
@@ -65,7 +61,7 @@ export default function CartClient() {
                                 <div className="flex-1">
                                     <div className="flex justify-between">
                                         <div>
-                                            <Link href={`/product/${item.id}`} className="font-semibold text-gray-800 dark:text-white hover:text-rose-500 text-base sm:text-lg line-clamp-1 sm:line-clamp-none">
+                                            <Link href={`/product/${item.id}`} className="font-semibold text-gray-800 dark:text-white hover:text-primary text-base sm:text-lg line-clamp-1 sm:line-clamp-none">
                                                 {item.name}
                                             </Link>
                                             <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 capitalize">{(item.category || 'Product').replace('-', ' ')}</p>
@@ -103,7 +99,7 @@ export default function CartClient() {
                                             </button>
                                         </div>
                                         <div className="text-left sm:text-right">
-                                            <p className="text-lg sm:text-xl font-bold text-rose-500">{formatPrice(item.price * item.quantity)}</p>
+                                            <p className="text-lg sm:text-xl font-bold text-primary">{formatPrice(item.price * item.quantity)}</p>
                                             {item.quantity > 1 && (
                                                 <p className="text-[10px] sm:text-sm text-gray-500 dark:text-gray-400">{formatPrice(item.price)} each</p>
                                             )}
@@ -150,26 +146,19 @@ export default function CartClient() {
                                 </div>
                                 <div className="flex justify-between">
                                     <span className="text-gray-600 dark:text-gray-300">Delivery</span>
-                                    <span className={`font-medium ${deliveryFee === 0 ? 'text-green-500' : 'dark:text-gray-100'}`}>
-                                        {deliveryFee === 0 ? 'FREE' : formatPrice(deliveryFee)}
-                                    </span>
+                                    <span className="font-medium dark:text-gray-100">{formatPrice(deliveryFee)}</span>
                                 </div>
-                                {deliveryFee > 0 && (
-                                    <p className="text-sm text-gray-500 dark:text-gray-400">
-                                        Add {formatPrice(10000 - totalPrice)} more for free delivery
-                                    </p>
-                                )}
                                 <div className="border-t border-gray-100 dark:border-gray-700 pt-4">
                                     <div className="flex justify-between">
                                         <span className="text-lg font-bold text-gray-800 dark:text-white">Total</span>
-                                        <span className="text-2xl font-bold text-rose-500">{formatPrice(finalTotal)}</span>
+                                        <span className="text-2xl font-bold text-primary">{formatPrice(finalTotal)}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <Link
                                 href="/checkout"
-                                className="w-full mt-6 bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-shadow"
+                                className="w-full mt-6 bg-gradient-to-r from-primary to-primary-light text-white py-4 rounded-xl font-semibold flex items-center justify-center gap-2 hover:shadow-lg transition-shadow"
                             >
                                 Proceed to Checkout <ArrowRight className="w-5 h-5" />
                             </Link>

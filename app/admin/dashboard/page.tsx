@@ -23,7 +23,7 @@ export default function AdminDashboard() {
 
     const statCards = [
         { label: 'Total Products', value: stats.productCount, icon: Package, color: 'bg-blue-50 text-blue-600', border: 'border-blue-100' },
-        { label: 'Total Revenue', value: `Rs. ${stats.totalRevenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-green-50 text-green-600', border: 'border-green-100' },
+        { label: 'Total Revenue', value: `Rs ${stats.totalRevenue.toLocaleString()}`, icon: TrendingUp, color: 'bg-green-50 text-green-600', border: 'border-green-100' },
         { label: 'Orders', value: stats.orderCount, icon: ClipboardList, color: 'bg-rose-50 text-rose-600', border: 'border-rose-100' },
     ];
 
@@ -35,7 +35,7 @@ export default function AdminDashboard() {
                     <p className="text-gray-500 mt-1 font-medium italic">Your store's performance at a glance.</p>
                 </div>
                 <div className="flex items-center gap-2 bg-white px-4 py-2 rounded-xl border border-gray-200 shadow-sm self-start">
-                    <Clock className="w-4 h-4 text-rose-500" />
+                    <Clock className="w-4 h-4 text-primary" />
                     <span className="text-sm font-bold text-gray-700">{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
                 </div>
             </div>
@@ -83,7 +83,7 @@ export default function AdminDashboard() {
                         <div className="lg:col-span-2 bg-white p-8 rounded-[2.5rem] border border-gray-200 shadow-sm overflow-hidden">
                             <div className="flex items-center justify-between mb-6">
                                 <h3 className="text-xl font-bold text-gray-900">Recent Orders</h3>
-                                <a href="/admin/orders" className="text-sm font-bold text-rose-500 hover:text-rose-600">View All</a>
+                                <a href="/admin/orders" className="text-sm font-bold text-primary hover:text-rose-600">View All</a>
                             </div>
                             <div className="overflow-x-auto">
                                 <table className="w-full text-left">
@@ -108,7 +108,7 @@ export default function AdminDashboard() {
                                                         {order.status}
                                                     </span>
                                                 </td>
-                                                <td className="py-4 text-right font-bold text-gray-900">Rs. {order.total.toLocaleString()}</td>
+                                                <td className="py-4 text-right font-bold text-gray-900">Rs {order.total.toLocaleString()}</td>
                                             </tr>
                                         ))}
                                         {stats.recentOrders.length === 0 && (

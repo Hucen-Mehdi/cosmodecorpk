@@ -84,7 +84,7 @@ export default function AdminBannersPage() {
         }
     };
 
-    if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-rose-500" /></div>;
+    if (loading) return <div className="flex justify-center p-12"><Loader2 className="animate-spin w-8 h-8 text-primary" /></div>;
 
     return (
         <div className="max-w-5xl mx-auto pb-20">
@@ -96,7 +96,7 @@ export default function AdminBannersPage() {
                 <button
                     onClick={handleAddNew}
                     disabled={saving}
-                    className="flex items-center gap-2 bg-rose-500 text-white px-4 py-2 rounded-xl font-bold hover:bg-rose-600 transition-all active:scale-95 disabled:opacity-50"
+                    className="flex items-center gap-2 bg-primary text-white px-4 py-2 rounded-xl font-bold hover:bg-rose-600 transition-all active:scale-95 disabled:opacity-50"
                 >
                     <Plus className="w-5 h-5" /> Add New Slide
                 </button>
@@ -119,7 +119,7 @@ export default function AdminBannersPage() {
                                 <button
                                     onClick={() => handleSave(slide)}
                                     disabled={saving}
-                                    className="p-2 text-rose-500 hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 text-sm font-bold disabled:opacity-50"
+                                    className="p-2 text-primary hover:bg-rose-50 rounded-lg transition-colors flex items-center gap-1 text-sm font-bold disabled:opacity-50"
                                 >
                                     <Save className="w-4 h-4" /> Save
                                 </button>

@@ -40,7 +40,7 @@ export default function About() {
             </section>
 
             {/* Stats */}
-            <section className="py-12 bg-gradient-to-r from-rose-500 to-orange-400">
+            <section className="py-12 bg-gradient-to-r from-primary to-primary-light">
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center text-white">
                         <div>
@@ -120,7 +120,7 @@ export default function About() {
                         </div>
                         <div className="bg-white dark:bg-gray-900 rounded-2xl p-6 shadow-sm border dark:border-gray-800 text-center transition-colors duration-200">
                             <div className="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <Sparkles className="w-8 h-8 text-rose-500" />
+                                <Sparkles className="w-8 h-8 text-primary" />
                             </div>
                             <h3 className="font-bold text-gray-800 dark:text-white mb-2">Zero Maintenance</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
@@ -154,7 +154,7 @@ export default function About() {
                 <div className="max-w-7xl mx-auto px-4">
                     <div className="grid md:grid-cols-2 gap-12">
                         <div className="bg-gradient-to-br from-rose-50 to-orange-50 dark:from-rose-900/10 dark:to-orange-900/10 rounded-3xl p-8 border dark:border-gray-800">
-                            <div className="w-16 h-16 bg-gradient-to-r from-rose-500 to-orange-400 rounded-2xl flex items-center justify-center mb-6">
+                            <div className="w-16 h-16 bg-gradient-to-r from-primary to-primary-light rounded-2xl flex items-center justify-center mb-6">
                                 <Target className="w-8 h-8 text-white" />
                             </div>
                             <h3 className="text-2xl font-bold text-gray-800 dark:text-white mb-4">Our Mission</h3>
@@ -190,7 +190,7 @@ export default function About() {
                     </div>
                     <div className="grid md:grid-cols-4 gap-8">
                         <div className="text-center">
-                            <div className="w-20 h-20 bg-gradient-to-br from-rose-500 to-orange-400 rounded-3xl flex items-center justify-center mx-auto mb-6">
+                            <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary-light rounded-3xl flex items-center justify-center mx-auto mb-6">
                                 <Award className="w-10 h-10 text-white" />
                             </div>
                             <h4 className="text-xl font-bold text-gray-800 dark:text-white mb-3">Quality First</h4>
@@ -230,7 +230,7 @@ export default function About() {
             </section>
 
             {/* CTA Section */}
-            <section className="py-20 bg-gradient-to-r from-rose-500 to-orange-400">
+            <section className="py-20 bg-gradient-to-r from-primary to-primary-light">
                 <div className="max-w-4xl mx-auto px-4 text-center text-white">
                     <h2 className="text-3xl md:text-4xl font-bold mb-4">Ready to Transform Your Space?</h2>
                     <p className="text-xl text-white/80 mb-8">
@@ -238,7 +238,7 @@ export default function About() {
                     </p>
                     <Link
                         href="/products"
-                        className="inline-flex items-center gap-2 bg-white text-rose-500 px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg hover:scale-105 transition-all"
+                        className="inline-flex items-center gap-2 bg-white text-primary px-8 py-4 rounded-full font-semibold text-lg hover:shadow-lg hover:scale-105 transition-all"
                     >
                         Shop Now
                     </Link>

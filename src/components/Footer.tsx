@@ -10,10 +10,10 @@ export function Footer() {
           {/* Company Info */}
           <div>
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-10 h-10 bg-gradient-to-br from-rose-500 to-orange-400 rounded-xl flex items-center justify-center">
+              <div className="w-10 h-10 bg-gradient-to-br from-primary to-primary-light rounded-xl flex items-center justify-center">
                 <span className="text-white font-bold text-xl">C</span>
               </div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">CosmoDecor<span className="text-rose-500">PK</span></h2>
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white">CosmoDecor<span className="text-primary">PK</span></h2>
             </div>
             <p className="mb-4 leading-relaxed">
               Transform your space with premium artificial plants, floral arrangements & home decor. Quality craftsmanship, timeless designs.
@@ -22,7 +22,7 @@ export function Footer() {
               <a href="https://www.tiktok.com/@cosmodecorpk" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full flex items-center justify-center hover:bg-black hover:text-white dark:hover:bg-gray-700 dark:hover:text-white transition-all">
                 <Music2 className="w-5 h-5" />
               </a>
-              <a href="https://www.instagram.com/cosmodecorpk" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full flex items-center justify-center hover:bg-rose-500 hover:text-white dark:hover:bg-rose-500 dark:hover:text-white transition-all">
+              <a href="https://www.instagram.com/cosmodecorpk" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full flex items-center justify-center hover:bg-primary hover:text-white dark:hover:bg-primary dark:hover:text-white transition-all">
                 <Instagram className="w-5 h-5" />
               </a>
               <a href="https://wa.me/923209937113" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-400 rounded-full flex items-center justify-center hover:bg-green-500 hover:text-white dark:hover:bg-green-500 dark:hover:text-white transition-all">
@@ -35,13 +35,13 @@ export function Footer() {
           <div>
             <h3 className="text-gray-900 dark:text-white font-bold text-lg mb-4">Quick Links</h3>
             <ul className="space-y-2">
-              <li><Link href="/" className="hover:text-rose-500 transition-colors">Home</Link></li>
-              <li><Link href="/products?filter=new" className="hover:text-rose-500 transition-colors">New Arrivals</Link></li>
-              <li><Link href="/products?filter=bestseller" className="hover:text-rose-500 transition-colors">Best Sellers</Link></li>
-              <li><Link href="/products" className="hover:text-rose-500 transition-colors">All Products</Link></li>
-              <li><Link href="/about" className="hover:text-rose-500 transition-colors">About Us</Link></li>
-              <li><Link href="/contact" className="hover:text-rose-500 transition-colors">Contact Us</Link></li>
-              <li><Link href="/track-order" className="hover:text-rose-500 transition-colors">Track Order</Link></li>
+              <li><Link href="/" className="hover:text-primary transition-colors">Home</Link></li>
+              <li><Link href="/products?filter=new" className="hover:text-primary transition-colors">New Arrivals</Link></li>
+              <li><Link href="/products?filter=bestseller" className="hover:text-primary transition-colors">Best Sellers</Link></li>
+              <li><Link href="/products" className="hover:text-primary transition-colors">All Products</Link></li>
+              <li><Link href="/about" className="hover:text-primary transition-colors">About Us</Link></li>
+              <li><Link href="/contact" className="hover:text-primary transition-colors">Contact Us</Link></li>
+              <li><Link href="/track-order" className="hover:text-primary transition-colors">Track Order</Link></li>
             </ul>
           </div>
 
@@ -49,14 +49,14 @@ export function Footer() {
           <div>
             <h3 className="text-gray-900 dark:text-white font-bold text-lg mb-4">Shop by Collection</h3>
             <ul className="space-y-2">
-              <li><Link href="/category/artificial-plants" className="hover:text-rose-500 transition-colors">Artificial Plants</Link></li>
-              <li><Link href="/category/floral-plants" className="hover:text-rose-500 transition-colors">Floral Plants</Link></li>
-              <li><Link href="/category/table-decor" className="hover:text-rose-500 transition-colors">Table Decor</Link></li>
-              <li><Link href="/category/corner-decor" className="hover:text-rose-500 transition-colors">Corner Decor</Link></li>
-              <li><Link href="/category/wall-decor" className="hover:text-rose-500 transition-colors">Wall Decor</Link></li>
-              <li><Link href="/category/lighting-lamps" className="hover:text-rose-500 transition-colors">Lighting & Lamps</Link></li>
-              <li><Link href="/category/ramadan-decor" className="hover:text-rose-500 transition-colors">Ramadan Decor</Link></li>
-              <li><Link href="/category/gift-ideas" className="hover:text-rose-500 transition-colors">Gift Ideas</Link></li>
+              <li><Link href="/category/artificial-plants" className="hover:text-primary transition-colors">Artificial Plants</Link></li>
+              <li><Link href="/category/floral-plants" className="hover:text-primary transition-colors">Floral Plants</Link></li>
+              <li><Link href="/category/table-decor" className="hover:text-primary transition-colors">Table Decor</Link></li>
+              <li><Link href="/category/corner-decor" className="hover:text-primary transition-colors">Corner Decor</Link></li>
+              <li><Link href="/category/wall-decor" className="hover:text-primary transition-colors">Wall Decor</Link></li>
+              <li><Link href="/category/lighting-lamps" className="hover:text-primary transition-colors">Lighting & Lamps</Link></li>
+              <li><Link href="/category/ramadan-decor" className="hover:text-primary transition-colors">Ramadan Decor</Link></li>
+              <li><Link href="/category/gift-ideas" className="hover:text-primary transition-colors">Gift Ideas</Link></li>
             </ul>
           </div>
           {/* Contact Info */}
@@ -64,15 +64,15 @@ export function Footer() {
             <h3 className="text-gray-900 dark:text-white font-bold text-lg mb-4">Contact Us</h3>
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
-                <MapPin className="w-5 h-5 text-rose-500 flex-shrink-0 mt-0.5" />
+                <MapPin className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
                 <span>China Market, Rawalpindi</span>
               </li>
               <li className="flex items-center gap-3">
-                <Phone className="w-5 h-5 text-rose-500" />
+                <Phone className="w-5 h-5 text-primary" />
                 <span>03209937113</span>
               </li>
               <li className="flex items-center gap-3">
-                <Mail className="w-5 h-5 text-rose-500" />
+                <Mail className="w-5 h-5 text-primary" />
                 <span>cosmodecorr@gmail.com</span>
               </li>
               <li className="flex items-center gap-3">

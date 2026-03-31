@@ -105,7 +105,7 @@ export default function SubmitReviewPage() {
     if (loading) {
         return (
             <div className="min-h-[60vh] flex items-center justify-center">
-                <Loader2 className="w-10 h-10 text-rose-500 animate-spin" />
+                <Loader2 className="w-10 h-10 text-primary animate-spin" />
             </div>
         );
     }
@@ -167,7 +167,7 @@ export default function SubmitReviewPage() {
                             {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                     key={star}
-                                    className={`w-10 h-10 cursor-pointer transition-all hover:scale-110 ${star <= rating ? 'fill-amber-400 text-amber-400' : 'text-gray-300 hover:text-amber-200'
+                                    className={`w-10 h-10 cursor-pointer transition-all hover:scale-110 ${star <= rating ? 'fill-star text-star' : 'text-gray-300 hover:text-amber-200'
                                         }`}
                                     onClick={() => setRating(star)}
                                 />

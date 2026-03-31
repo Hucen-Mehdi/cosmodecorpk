@@ -132,12 +132,8 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
     })();
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-PK', {
-            style: 'currency',
-            currency: 'PKR',
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
+    return 'Rs ' + Math.round(price).toLocaleString('en-US');
+  };
 
     const discount = product.originalPrice
         ? Math.round(((product.originalPrice - currentPrice) / product.originalPrice) * 100)
@@ -163,7 +159,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                     <div className="space-y-4">
                         <div className="relative aspect-square rounded-2xl overflow-hidden bg-white dark:bg-gray-900 shadow-sm border dark:border-gray-800">
                             <Image
-                                src={displayImage}
+                                src={displayImage || '/placeholder.png'}
                                 alt={product.name}
                                 fill
                                 sizes="(max-width: 768px) 100vw, 50vw"
@@ -173,17 +169,17 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                 className="w-full h-full object-cover transition-opacity duration-300"
                             />
                             {product.badge && (
-                                <span className={`absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-semibold ${product.badge === 'Sale' ? 'bg-red-500 text-white' :
-                                    product.badge === 'New' ? 'bg-green-500 text-white' :
-                                        product.badge === 'Bestseller' ? 'bg-amber-500 text-white' :
-                                            'bg-rose-500 text-white'
+                                <span className={`absolute top-4 left-4 px-4 py-2 rounded-full text-sm font-semibold ${product.badge === 'Sale' ? 'bg-primary text-white' :
+                                    product.badge === 'New' ? 'bg-primary-light text-primary-dark' :
+                                        product.badge === 'Bestseller' ? 'bg-star text-white' :
+                                            'bg-primary text-white'
                                     }`}>
                                     {product.badge}
                                 </span>
                             )}
                             <button
                                 onClick={() => setIsWishlisted(!isWishlisted)}
-                                className={`absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors ${isWishlisted ? 'bg-rose-500 text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-rose-500 hover:text-white'
+                                className={`absolute top-4 right-4 w-12 h-12 rounded-full flex items-center justify-center shadow-md transition-colors ${isWishlisted ? 'bg-primary text-white' : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-primary hover:text-white'
                                     }`}
                             >
                                 <Heart className="w-6 h-6" fill={isWishlisted ? 'currentColor' : 'none'} />
@@ -197,7 +193,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                     onClick={() => setDisplayImage(product.image)}
                                     className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${displayImage === product.image ? 'border-rose-500 scale-95' : 'border-transparent hover:border-rose-200'}`}
                                 >
-                                    <Image src={product.image} fill sizes="80px" className="object-cover" alt="Main" />
+                                    <Image src={product.image || '/placeholder.png'} fill sizes="80px" className="object-cover" alt="Main" />
                                 </button>
                                 {product.additionalImages.map((img, idx) => (
                                     <button
@@ -205,7 +201,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         onClick={() => setDisplayImage(img)}
                                         className={`relative w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 border-2 transition-all ${displayImage === img ? 'border-rose-500 scale-95' : 'border-transparent hover:border-rose-200'}`}
                                     >
-                                        <Image src={img} fill sizes="80px" className="object-cover" alt={`Gallery ${idx}`} />
+                                        <Image src={img || '/placeholder.png'} fill sizes="80px" className="object-cover" alt={`Gallery ${idx}`} />
                                     </button>
                                 ))}
                             </div>
@@ -223,7 +219,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         {[...Array(5)].map((_, i) => (
                                             <Star
                                                 key={i}
-                                                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-gray-600'}`}
+                                                className={`w-4 h-4 ${i < Math.floor(product.rating) ? 'text-star fill-star' : 'text-gray-300 dark:text-gray-600'}`}
                                             />
                                         ))}
                                     </div>
@@ -240,7 +236,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75"></span>
                                         <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500"></span>
                                     </span>
-                                    <span className="text-xs font-semibold text-amber-700 dark:text-amber-400">
+                                    <span className="text-xs font-semibold text-amber-700 dark:text-star">
                                         {Math.floor(Math.random() * 20) + 10} sold in last 24 hours
                                     </span>
                                 </div>
@@ -248,7 +244,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
                             {/* 3. Price with sale percentage */}
                             <div className="flex items-end gap-3 mt-2">
-                                <span className="text-4xl font-bold text-rose-500 leading-none">{formatPrice(currentPrice)}</span>
+                                <span className="text-4xl font-bold text-primary leading-none">{formatPrice(currentPrice)}</span>
                                 {product.originalPrice && (
                                     <div className="flex flex-col mb-1">
                                         <span className="text-sm text-gray-400 dark:text-gray-500 line-through decoration-1">{formatPrice(product.originalPrice)}</span>
@@ -262,11 +258,11 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
                             {/* Breadcrumbs (Small) */}
                             <nav className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400 my-2">
-                                <Link href="/" className="hover:text-rose-500">Home</Link>
+                                <Link href="/" className="hover:text-primary">Home</Link>
                                 <ChevronRight className="w-3 h-3" />
-                                <Link href="/products" className="hover:text-rose-500">Products</Link>
+                                <Link href="/products" className="hover:text-primary">Products</Link>
                                 <ChevronRight className="w-3 h-3" />
-                                <Link href={`/category/${product.category || ''}`} className="hover:text-rose-500 capitalize">
+                                <Link href={`/category/${product.category || ''}`} className="hover:text-primary capitalize">
                                     {(product.category || 'Category').replace('-', ' ')}
                                 </Link>
                             </nav>
@@ -285,7 +281,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                     {product.variations.map((variation) => (
                                         <div key={variation.name}>
                                             <label className="block text-sm font-bold text-gray-800 dark:text-gray-200 mb-2">
-                                                {variation.name}: <span className="text-rose-500">{selectedVariations[variation.name]}</span>
+                                                {variation.name}: <span className="text-primary">{selectedVariations[variation.name]}</span>
                                             </label>
                                             <div className="flex flex-wrap gap-2">
                                                 {variation.options.map((option) => {
@@ -335,7 +331,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         </button>
                                     </div>
                                     {product.stock < 20 && (
-                                        <span className="text-sm font-medium text-rose-500 animate-pulse">
+                                        <span className="text-sm font-medium text-primary animate-pulse">
                                             Only {product.stock} left!
                                         </span>
                                     )}
@@ -381,7 +377,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
 
                                 <button
                                     onClick={() => setIsDescriptionExpanded(!isDescriptionExpanded)}
-                                    className="mt-2 text-rose-500 font-semibold text-sm hover:underline flex items-center gap-1"
+                                    className="mt-2 text-primary font-semibold text-sm hover:underline flex items-center gap-1"
                                 >
                                     {isDescriptionExpanded ? 'Read Less' : 'Read More'}
                                     <ChevronRight className={`w-3 h-3 transition-transform ${isDescriptionExpanded ? '-rotate-90' : 'rotate-90'}`} />
@@ -391,14 +387,14 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                             {/* Features Grid */}
                             <div className="grid grid-cols-2 sm:grid-cols-2 gap-3 mt-6">
                                 <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                    <Truck className="w-5 h-5 text-rose-500" />
+                                    <Truck className="w-5 h-5 text-primary" />
                                     <div>
                                         <p className="font-semibold text-gray-900 dark:text-white">Fast Delivery</p>
                                         <p className="text-xs text-gray-500">2-4 Working Days</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-3 text-sm text-gray-600 dark:text-gray-300 bg-white dark:bg-gray-800 p-3 rounded-lg border border-gray-100 dark:border-gray-700">
-                                    <RotateCcw className="w-5 h-5 text-rose-500" />
+                                    <RotateCcw className="w-5 h-5 text-primary" />
                                     <div>
                                         <p className="font-semibold text-gray-900 dark:text-white">Easy Returns</p>
                                         <p className="text-xs text-gray-500">7 Day Policy</p>
@@ -431,7 +427,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                                 <div>
                                                     <h4 className="font-bold text-gray-900 dark:text-white">{review.reviewer_name}</h4>
                                                     <div className="flex items-center gap-1">
-                                                        <span className="flex text-amber-400">
+                                                        <span className="flex text-star">
                                                             {[...Array(5)].map((_, i) => (
                                                                 <Star key={i} className={`w-3 h-3 ${i < review.rating ? 'fill-current' : 'text-gray-300 dark:text-gray-700'}`} />
                                                             ))}
@@ -452,7 +448,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                                 {review.picture_urls.map((url, idx) => (
                                                     <div key={idx} className="relative w-20 h-20 flex-shrink-0">
                                                         <Image
-                                                            src={url}
+                                                            src={url || '/placeholder.png'}
                                                             alt={`Review by ${review.reviewer_name}`}
                                                             fill
                                                             sizes="80px"
@@ -483,7 +479,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                                 onClick={() => setReviewForm(prev => ({ ...prev, rating: star }))}
                                                 className="focus:outline-none"
                                             >
-                                                <Star className={`w-6 h-6 ${reviewForm.rating >= star ? 'text-amber-400 fill-amber-400' : 'text-gray-300 dark:text-gray-600 hover:text-amber-200'}`} />
+                                                <Star className={`w-6 h-6 ${reviewForm.rating >= star ? 'text-star fill-star' : 'text-gray-300 dark:text-gray-600 hover:text-amber-200'}`} />
                                             </button>
                                         ))}
                                     </div>
@@ -544,7 +540,7 @@ export default function ProductDetailClient({ product, relatedProducts }: Produc
                                         <div className="flex gap-2 mt-3">
                                             {reviewForm.pictures.map((url, idx) => (
                                                 <div key={idx} className="relative group w-16 h-16 flex-shrink-0">
-                                                    <Image src={url} fill sizes="64px" alt="Upload preview" className="object-cover rounded-lg border border-gray-200" />
+                                                    <Image src={url || '/placeholder.png'} fill sizes="64px" alt="Upload preview" className="object-cover rounded-lg border border-gray-200" />
                                                     <button
                                                         type="button"
                                                         onClick={() => setReviewForm(prev => ({

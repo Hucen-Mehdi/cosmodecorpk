@@ -136,12 +136,8 @@ export default function AdminOrders() {
     };
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-PK', {
-            style: 'currency',
-            currency: 'PKR',
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
+    return 'Rs ' + Math.round(price).toLocaleString('en-US');
+  };
 
     const getStatusInfo = (status: string) => {
         return statusOptions.find(s => s.value === status) || statusOptions[0];
@@ -296,7 +292,7 @@ export default function AdminOrders() {
                                                 </div>
                                             </td>
                                             <td className="px-8 py-6 text-right">
-                                                <div className="flex items-center justify-end gap-2 text-rose-500">
+                                                <div className="flex items-center justify-end gap-2 text-primary">
                                                     <button
                                                         onClick={() => setSelectedOrder(order)}
                                                         className="p-2.5 hover:bg-rose-50 rounded-xl transition-all"
@@ -349,7 +345,7 @@ export default function AdminOrders() {
                                 <div className="space-y-6">
                                     <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
                                         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                            < ClipboardList className="w-5 h-5 text-rose-500" />
+                                            < ClipboardList className="w-5 h-5 text-primary" />
                                             Summarize
                                         </h3>
                                         <div className="space-y-3">
@@ -376,12 +372,12 @@ export default function AdminOrders() {
 
                                     <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
                                         <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                            <Package className="w-5 h-5 text-rose-500" />
+                                            <Package className="w-5 h-5 text-primary" />
                                             Shipping Details
                                         </h3>
                                         <div className="space-y-3">
                                             <div className="flex items-start gap-3">
-                                                <MapPin className="w-5 h-5 text-rose-500 mt-1 flex-shrink-0" />
+                                                <MapPin className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                                                 <div>
                                                     <p className="text-base text-gray-900 font-bold leading-tight mb-1">
                                                         {selectedOrder.shippingAddress}
@@ -402,7 +398,7 @@ export default function AdminOrders() {
 
                                 <div className="bg-gray-50 rounded-3xl p-6 border border-gray-100">
                                     <h3 className="font-bold text-gray-900 mb-4 flex items-center gap-2">
-                                        <Mail className="w-5 h-5 text-rose-500" />
+                                        <Mail className="w-5 h-5 text-primary" />
                                         Customer Info
                                     </h3>
                                     <div className="space-y-4">
@@ -475,7 +471,7 @@ export default function AdminOrders() {
                                         </tr>
                                         <tr className="border-t border-gray-100">
                                             <td colSpan={3} className="px-6 py-6 text-right text-lg font-bold text-gray-900">Total</td>
-                                            <td className="px-6 py-6 text-right text-2xl font-black text-rose-500">{formatPrice(selectedOrder.total)}</td>
+                                            <td className="px-6 py-6 text-right text-2xl font-black text-primary">{formatPrice(selectedOrder.total)}</td>
                                         </tr>
                                     </tfoot>
                                 </table>

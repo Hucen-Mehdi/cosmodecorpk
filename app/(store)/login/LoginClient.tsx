@@ -46,7 +46,7 @@ export default function LoginClient() {
 
                 {error && (
                     <div className="bg-rose-50 dark:bg-rose-900/20 border-l-4 border-rose-500 p-4 rounded-xl flex items-center gap-3 animate-shake">
-                        <AlertCircle className="h-5 w-5 text-rose-500 flex-shrink-0" />
+                        <AlertCircle className="h-5 w-5 text-primary flex-shrink-0" />
                         <p className="text-sm text-rose-700 dark:text-rose-400">{error}</p>
                     </div>
                 )}
@@ -111,7 +111,7 @@ export default function LoginClient() {
                         </div>
 
                         <div className="text-sm">
-                            <a href="#" className="font-medium text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300">
+                            <a href="#" className="font-medium text-rose-600 hover:text-primary dark:text-rose-400 dark:hover:text-rose-300">
                                 Forgot your password?
                             </a>
                         </div>
@@ -121,7 +121,7 @@ export default function LoginClient() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-rose-500 to-orange-400 hover:shadow-lg hover:shadow-rose-100 dark:hover:shadow-rose-900/20 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-70"
+                            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-primary to-primary-light hover:shadow-lg hover:shadow-rose-100 dark:hover:shadow-rose-900/20 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-70"
                         >
                             {isSubmitting ? (
                                 <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -135,7 +135,7 @@ export default function LoginClient() {
                 <div className="text-center mt-6">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                         Don’t have an account?{' '}
-                        <Link href="/signup" className="font-bold text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300">
+                        <Link href="/signup" className="font-bold text-rose-600 hover:text-primary dark:text-rose-400 dark:hover:text-rose-300">
                             Sign up →
                         </Link>
                     </p>

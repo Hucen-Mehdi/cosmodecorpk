@@ -68,12 +68,8 @@ export default function TrackOrderPage() {
     };
 
     const formatPrice = (price: number) => {
-        return new Intl.NumberFormat('en-PK', {
-            style: 'currency',
-            currency: 'PKR',
-            minimumFractionDigits: 0,
-        }).format(price);
-    };
+    return 'Rs ' + Math.round(price).toLocaleString('en-US');
+  };
 
     const formatDate = (dateString: string) => {
         return new Date(dateString).toLocaleDateString('en-US', {
@@ -136,7 +132,7 @@ export default function TrackOrderPage() {
                         <button
                             type="submit"
                             disabled={loading}
-                            className="w-full bg-gradient-to-r from-rose-500 to-orange-400 text-white py-4 rounded-xl font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2 disabled:opacity-70"
+                            className="btn-primary w-full"
                         >
                             {loading ? <Loader2 className="animate-spin w-5 h-5" /> : <Search className="w-5 h-5" />}
                             Track Order
@@ -170,7 +166,7 @@ export default function TrackOrderPage() {
                             </div>
                             <div className="text-right">
                                 <p className="text-sm text-gray-500 dark:text-gray-400">Total Amount</p>
-                                <p className="text-2xl font-bold text-rose-500">{formatPrice(order.total)}</p>
+                                <p className="text-2xl font-bold text-primary">{formatPrice(order.total)}</p>
                             </div>
                         </div>
 
@@ -178,7 +174,7 @@ export default function TrackOrderPage() {
                             {/* Shipping Info */}
                             <div>
                                 <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                    <MapPin className="w-5 h-5 text-rose-500" />
+                                    <MapPin className="w-5 h-5 text-primary" />
                                     Shipping Details
                                 </h3>
                                 <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-sm text-gray-600 dark:text-gray-300 space-y-1">
@@ -193,7 +189,7 @@ export default function TrackOrderPage() {
                             {/* Payment Info */}
                             <div>
                                 <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                    <CreditCard className="w-5 h-5 text-rose-500" />
+                                    <CreditCard className="w-5 h-5 text-primary" />
                                     Payment Information
                                 </h3>
                                 <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-4 text-sm text-gray-600 dark:text-gray-300">
@@ -219,7 +215,7 @@ export default function TrackOrderPage() {
                         {/* Order Items */}
                         <div className="p-6 border-t dark:border-gray-800">
                             <h3 className="font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
-                                <Package className="w-5 h-5 text-rose-500" />
+                                <Package className="w-5 h-5 text-primary" />
                                 Items ({order.items.length})
                             </h3>
                             <div className="space-y-4">

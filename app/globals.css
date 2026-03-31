@@ -1,16 +1,94 @@
 @import "tailwindcss";
+@config "../tailwind.config.ts";
+
+@theme inline {
+  --color-primary: #1A4D3E;
+  --color-primary-dark: #0F3A2F;
+  --color-primary-light: #A8C3B2;
+  --color-secondary: #5F7F6C;
+  --color-background: #F9F7F3;
+  --color-surface: #FFFFFF;
+  --color-text-primary: #2C2C2C;
+  --color-text-secondary: #6B6B6B;
+  --color-border: #E5E0D8;
+  --color-error: #C25A4A;
+  --color-star: #F5B042;
+}
 
 @layer base {
-
     html,
     body {
         @apply overflow-x-hidden w-full m-0 p-0;
+        position: relative;
+        -webkit-overflow-scrolling: touch;
         -webkit-tap-highlight-color: transparent;
     }
 
-    body {
-        @apply bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 transition-colors duration-200;
+    body > div:first-child {
+        @apply overflow-x-hidden w-full;
     }
+
+    body {
+        @apply bg-background text-text-primary transition-colors duration-200;
+        min-height: 100vh;
+        font-family: var(--font-inter), sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold text-text-primary;
+    }
+
+    /* Basic pricing utilities */
+    .price-regular {
+        @apply text-text-secondary;
+    }
+    .price-sale {
+        @apply font-bold text-primary;
+    }
+    .price-original {
+        @apply line-through text-gray-400 text-sm;
+    }
+
+@layer components {
+    .btn-primary {
+        @apply bg-primary text-white py-3 px-6 rounded-xl text-base font-medium transition-all duration-200 inline-flex justify-center items-center w-full md:w-auto md:py-2.5 md:px-8;
+        min-height: 48px;
+    }
+    @media (min-width: 768px) {
+        .btn-primary {
+            min-height: 44px;
+        }
+    }
+    .btn-primary:hover {
+        @apply bg-primary-dark -translate-y-[1px];
+    }
+    .btn-primary:active {
+        @apply scale-95;
+    }
+    .btn-primary:disabled {
+        @apply bg-gray-300 text-gray-500 cursor-not-allowed transform-none;
+    }
+
+    .btn-secondary {
+        @apply bg-secondary text-white py-3 px-6 rounded-xl text-base font-medium transition-all duration-200 inline-flex justify-center items-center w-full md:w-auto md:py-2 md:px-6;
+        min-height: 44px;
+    }
+    @media (min-width: 768px) {
+        .btn-secondary {
+            min-height: 40px;
+        }
+    }
+    .btn-secondary:hover {
+        @apply bg-[#4d6958];
+    }
+    .btn-secondary:active {
+        @apply scale-95;
+    }
+    
+    .touch-target {
+        @apply min-h-[44px] min-w-[44px];
+    }
+}
 
     /* Prevent zooming on input focus in iOS */
     input[type="text"],
@@ -31,4 +109,13 @@
         -ms-overflow-style: none;
         scrollbar-width: none;
     }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  animation: marquee 35s linear infinite;
 }

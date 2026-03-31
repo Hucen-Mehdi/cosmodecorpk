@@ -67,7 +67,7 @@ export default function SignupClient() {
         <div className="min-h-screen bg-gray-50 dark:bg-gray-950 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 transition-colors duration-200">
             <div className="max-w-md w-full space-y-8 bg-white dark:bg-gray-900 p-10 rounded-3xl shadow-xl border dark:border-gray-800 transition-colors duration-200">
                 <div className="text-center">
-                    <div className="mx-auto h-16 w-16 bg-gradient-to-br from-rose-500 to-orange-400 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-rose-200 dark:shadow-rose-900/20">
+                    <div className="mx-auto h-16 w-16 bg-gradient-to-br from-primary to-primary-light rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-rose-200 dark:shadow-rose-900/20">
                         <UserPlus className="h-8 w-8 text-white" />
                     </div>
                     <h2 className="text-3xl font-extrabold text-gray-900 dark:text-white">Create Account</h2>
@@ -78,7 +78,7 @@ export default function SignupClient() {
 
                 {error && (
                     <div className="bg-rose-50 dark:bg-rose-900/20 border-l-4 border-rose-500 p-4 rounded-lg flex items-center gap-3">
-                        <AlertCircle className="h-5 w-5 text-rose-500 flex-shrink-0" />
+                        <AlertCircle className="h-5 w-5 text-primary flex-shrink-0" />
                         <p className="text-sm text-rose-700 dark:text-rose-400">{error}</p>
                     </div>
                 )}
@@ -176,7 +176,7 @@ export default function SignupClient() {
                         <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-rose-500 to-orange-400 hover:shadow-lg hover:shadow-rose-100 dark:hover:shadow-rose-900/20 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-70 mt-6"
+                            className="group relative w-full flex justify-center py-4 px-4 border border-transparent text-sm font-bold rounded-xl text-white bg-gradient-to-r from-primary to-primary-light hover:shadow-lg hover:shadow-rose-100 dark:hover:shadow-rose-900/20 transition-all focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rose-500 disabled:opacity-70 mt-6"
                         >
                             {isSubmitting ? (
                                 <div className="h-5 w-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -190,7 +190,7 @@ export default function SignupClient() {
                 <div className="text-center mt-6">
                     <p className="text-sm text-gray-600 dark:text-gray-400">
                         Already have an account?{' '}
-                        <Link href="/login" className="font-bold text-rose-600 hover:text-rose-500 dark:text-rose-400 dark:hover:text-rose-300">
+                        <Link href="/login" className="font-bold text-rose-600 hover:text-primary dark:text-rose-400 dark:hover:text-rose-300">
                             Log in here
                         </Link>
                     </p>
